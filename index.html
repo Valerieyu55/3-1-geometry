@@ -1911,12 +1911,12 @@
 
       const renderCrossSection = () => {
         const sections = [
-          { shape: '正方體', cut: '垂直切開', options: ['正方形', '長方形', '三角形'], correct: '正方形', icon: 'fa-cube' },
-          { shape: '圓柱', cut: '水平平行底面切開', options: ['圓形', '橢圓形', '長方形'], correct: '圓形', icon: 'fa-database' },
-          { shape: '圓錐', cut: '通過頂點垂直切開', options: ['等腰三角形', '圓形', '扇形'], correct: '等腰三角形', icon: 'fa-vial' },
-          { shape: '三角錐', cut: '平行底面水平切開', options: ['正方形', '圓形', '三角形'], correct: '三角形', icon: 'fa-caret-up' },
-          { shape: '正方體', cut: '斜向切過三個頂點', options: ['等邊三角形', '正方形', '六邊形'], correct: '等邊三角形', icon: 'fa-cube' },
-          { shape: '三角錐', cut: '平行於一對歪斜稜切開', options: ['四邊形(長方形)', '三角形', '六邊形'], correct: '四邊形(長方形)', icon: 'fa-caret-up' },
+          { shape: '正方體', cut: '垂直切開', options: ['正方形', '長方形', '三角形'], correct: '正方形', icon: 'fa-cube', explain: '平行於側面的垂直切法，會得到與底面全等的正方形。' },
+          { shape: '圓柱', cut: '水平平行底面切開', options: ['圓形', '橢圓形', '長方形'], correct: '圓形', icon: 'fa-database', explain: '與圓柱底面平行的切法，各處半徑皆不變，所以剖面依然是完美的圓形。' },
+          { shape: '圓錐', cut: '通過頂點垂直切開', options: ['等腰三角形', '圓形', '扇形'], correct: '等腰三角形', icon: 'fa-vial', explain: '沿著頂點直切到底面圓的直徑，剖面會形成腰為母線、底為直徑的等腰三角形。' },
+          { shape: '三角錐', cut: '平行底面水平切開', options: ['正方形', '圓形', '三角形'], correct: '三角形', icon: 'fa-caret-up', explain: '平行於底面的切面，會截出一個與底面相似但等比例縮小的三角形。' },
+          { shape: '正方體', cut: '斜向切過三個頂點', options: ['等邊三角形', '正方形', '六邊形'], correct: '等邊三角形', icon: 'fa-cube', explain: '切過同一個角延伸出去的三個相鄰頂點，截面的三條邊剛好都會是正方體表面上的對角線，因此長度相等，形成正(等邊)三角形。' },
+          { shape: '三角錐', cut: '平行於一對歪斜稜切開', options: ['四邊形(長方形)', '三角形', '六邊形'], correct: '四邊形(長方形)', icon: 'fa-caret-up', explain: '💡 解析：在四面體（三角錐）中，兩條不相碰的稜互為「歪斜線」。如果切面「同時平行」於這兩條歪斜的稜，切面就會在另外四條稜上切出四個交點，連起來會形成一個平行四邊形！在正四面體中，甚至會是長方形或正方形喔。（可以去左邊的 3D 模擬器轉轉看！）' },
         ];
 
         const cubeSlices = [
@@ -1980,6 +1980,7 @@
                         <h4 className="text-xl font-black text-slate-800 mb-1">{guessShape === curQuiz.correct ? '太棒了！' : '再差一點點！'}</h4>
                         <p className="text-slate-600 font-bold leading-relaxed">
                           正確答案是「<span className="text-pink-600 underline underline-offset-4 font-black">{curQuiz.correct}</span>」。
+                          <span className="block mt-3 text-sm bg-white/50 p-4 rounded-xl border border-pink-100/50 text-slate-700">{curQuiz.explain}</span>
                         </p>
                         <button onClick={() => { setCrossSectionIdx((crossSectionIdx + 1) % sections.length); setGuessShape(null); }}
                           className="mt-6 bg-slate-800 text-white px-10 py-3 rounded-xl font-black hover:bg-slate-700 transition-all shadow-lg">下一關挑戰</button>
