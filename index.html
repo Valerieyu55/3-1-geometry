@@ -2477,16 +2477,18 @@
                 <div className="bg-rose-600 text-white p-8 rounded-[32px] shadow-lg relative overflow-hidden group border border-rose-500">
                   <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
                   <h4 className="text-lg font-black mb-4 flex items-center gap-3 text-white">
-                    <i className="fa-solid fa-water"></i>
-                    阿基米德的偉大發現
+                    <i className="fa-solid fa-layer-group"></i>
+                    卡瓦列里原理與切片法
                   </h4>
                   <p className="text-rose-100 text-sm leading-relaxed font-medium">
-                    球體積公式是怎麼來的呢？古希臘數學家阿基米德發現：如果把一個球塞進剛好能裝下它的「圓柱（高為 2r）」裡面。
+                    想像把球切成無數薄片。在高度 <span dangerouslySetInnerHTML={{ __html: katex.renderToString('y') }}></span> 處，從圓方程式 <span dangerouslySetInnerHTML={{ __html: katex.renderToString('x^2 + y^2 = r^2') }}></span> 得知截面半徑的平方為 <span dangerouslySetInnerHTML={{ __html: katex.renderToString('r^2 - y^2') }}></span>，所以截面積為 <span className="bg-rose-500/50 px-1 rounded" dangerouslySetInnerHTML={{ __html: katex.renderToString('\\pi(r^2 - y^2)') }}></span>。
                   </p>
-                  <p className="text-rose-100 text-sm leading-relaxed font-medium mt-3 border-t border-white/20 pt-3">
-                    球的體積剛好是該圓柱體積的 <span className="text-2xl font-black text-yellow-300">2/3</span>！<br />
-                    圓柱體積 = 𝝅r² × 2r = <span className="font-black text-white px-1">2𝝅r³</span><br />
-                    球的體積 = 2/3 × (2𝝅r³) = <span className="font-black text-white bg-rose-500 px-2 py-0.5 rounded ml-1">4/3 𝝅r³</span>
+                  <p className="text-rose-100 text-[13px] leading-relaxed font-medium mt-3 border-t border-white/20 pt-3 flex flex-col gap-1.5">
+                    <span>神奇的是，「<strong className="text-white text-sm">圓柱挖掉同底同高圓錐</strong>」後，在同高度的截面積恰好也是 <span className="bg-rose-500/50 px-1 rounded" dangerouslySetInnerHTML={{ __html: katex.renderToString('\\pi r^2 - \\pi y^2') }}></span>！</span>
+                    <span>因為每一層截面積都相等，兩者體積必定相等：</span>
+                    <span className="text-center mt-1" dangerouslySetInnerHTML={{ __html: katex.renderToString('V_{半球} = V_{圓柱} - V_{圓錐} = \\pi r^3 - \\frac{1}{3}\\pi r^3 = \\frac{2}{3}\\pi r^3') }}></span>
+                    <span className="mt-1">整顆球是半球的兩倍，因此得到：</span>
+                    <span className="text-center font-black text-lg bg-rose-700/50 rounded-xl py-2 mt-1" dangerouslySetInnerHTML={{ __html: katex.renderToString('V_{球} = \\frac{4}{3}\\pi r^3') }}></span>
                   </p>
                 </div>
               ) : (
