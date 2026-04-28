@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>正多面體偵探室 — 觀察、猜測、發現</title>
+    <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+    <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&family=Space+Grotesk:wght@700;800&display=swap"
+        rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+    <style>
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            background: #0c0f1a;
+            color: #f1f5f9;
+            overflow-x: hidden;
+        }
+
+        h1,
+        h2 {
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        h3 {
+            font-family: 'Noto Serif TC', serif;
+        }
+
+        .glass {
+            background: rgba(15, 23, 42, 0.7);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        .fade-in {
+            animation: fadeIn 0.4s ease forwards;
+        }
+
+        .progress-bar {
+            height: 4px;
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            border-radius: 9999px;
+            transition: width 0.4s;
+        }
+
+        .glow-blue {
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+        }
+
+        .glow-gold {
+            box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+        }
+
+        input[type="range"] {
+            -webkit-appearance: none;
+            appearance: none;
+            height: 6px;
+            background: #1e293b;
+            border-radius: 10px;
+        }
+
+        input[type="range"]::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            background: #38bdf8;
+            border-radius: 50%;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+        }
+    </style>
+</head>
+
+<body>
+    <div id="root"></div>
+    <script type="text/babel">
+        const { useState, useEffect, useRef } = React;
+
+        // ─── Data ───────────────────────────────────────────────
+        const SOLIDS = [
+            {
+                id: 'tetra',
+                name: '正四面體',
+                nameEn: 'Tetrahedron',
+                faceShape: '正三角形',
+                facesPerVertex: 3,
+                faces: 4, vertices: 4, edges: 6,
+                dual: '正四面體（自對偶！）',
+                angle: 60,
+                color: { face: 'bg-orange-500/20', border: 'border-orange-400', text: 'text-orange-400', btn: 'border-orange-400', hex: 0xf97316 },
+                hint: '它的每個頂點只有 3 個正三角形相聚。',
+                deepQ: '它是唯一的自對偶正多面體，這意味著它的「孿生體」其實就是它自己！你能憑觀察猜出原因嗎？',
+            },
+            {
+                id: 'cube',
+                name: '正六面體',
+                nameEn: 'Hexahedron / Cube',
+                faceShape: '正方形',
+                facesPerVertex: 3,
+                faces: 6, vertices: 8, edges: 12,
+                dual: '正八面體',
+                angle: 90,
+                color: { face: 'bg-sky-500/20', border: 'border-sky-400', text: 'text-sky-400', btn: 'border-sky-400', hex: 0x38bdf8 },
+                hint: '6 個完全一樣的面，每個面都是正方形。',
+                deepQ: '骰子是正方體。如果你把相對兩面的點數相加，永遠都是 7。這跟正方體的對稱性有關係嗎？',
+            },
+            {
+                id: 'octa',
+                name: '正八面體',
+                nameEn: 'Octahedron',
+                faceShape: '正三角形',
+                facesPerVertex: 4,
+                faces: 8, vertices: 6, edges: 12,
+                dual: '正六面體',
+                angle: 60,
+                color: { face: 'bg-emerald-500/20', border: 'border-emerald-400', text: 'text-emerald-400', btn: 'border-emerald-400', hex: 0x10b981 },
+                hint: '想像兩個正四角錐底面對底面合在一起。',
+                deepQ: '正八面體與正六面體的稜邊數相同，都是 12 條！這是剛好，還是必然？（提示：對偶關係）',
+            },
+            {
+                id: 'dodeca',
+                name: '正十二面體',
+                nameEn: 'Dodecahedron',
+                faceShape: '正五邊形',
+                facesPerVertex: 3,
+                faces: 12, vertices: 20, edges: 30,
+                dual: '正二十面體',
+                angle: 108,
+                color: { face: 'bg-amber-500/20', border: 'border-amber-400', text: 'text-amber-400', btn: 'border-amber-400', hex: 0xf59e0b },
+                hint: '每個面都是正五邊形，像一截足球。',
+                deepQ: '它的頂點數高達 20 個！如果你沿著頂點走，能走遍所有頂點而不重複嗎？（哈密頓路徑問題）',
+            },
+            {
+                id: 'icosa',
+                name: '正二十面體',
+                nameEn: 'Icosahedron',
+                faceShape: '正三角形',
+                facesPerVertex: 5,
+                faces: 20, vertices: 12, edges: 30,
+                dual: '正十二面體',
+                angle: 60,
+                color: { face: 'bg-indigo-500/20', border: 'border-indigo-400', text: 'text-indigo-400', btn: 'border-indigo-400', hex: 0x6366f1 },
+                hint: '正多面體中面數最多的，常用於 D20 骰子。',
+                deepQ: '雖然面數最多，但它其實是正十二面體的「對偶」。你能看出它們的對稱關係嗎？',
+            },
+        ];
+
+        // ─── Three.js Component ──────────────────────────────────
+        const ThreeDViewer = ({ solid, isSpinning, isPenActive, markerPoints, setMarkerPoints }) => {
+            const containerRef = useRef();
+            const sceneRef = useRef(null);
+            const meshRef = useRef(null);
+
+            useEffect(() => {
+                if (!containerRef.current) return;
+
+                // Setup Scene
+                const width = containerRef.current.clientWidth;
+                const height = containerRef.current.clientHeight;
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(50, width / height, 0.1, 1000);
+                const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                renderer.setSize(width, height);
+                containerRef.current.appendChild(renderer.domElement);
+
+                // Lighting
+                const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+                scene.add(ambientLight);
+                const pointLight = new THREE.PointLight(0xffffff, 1);
+                pointLight.position.set(10, 10, 10);
+                scene.add(pointLight);
+
+                // Geometry
+                let geom;
+                const r = 3;
+                switch (solid.id) {
+                    case 'tetra': geom = new THREE.TetrahedronGeometry(r); break;
+                    case 'cube': geom = new THREE.BoxGeometry(r * 1.4, r * 1.4, r * 1.4); break;
+                    case 'octa': geom = new THREE.OctahedronGeometry(r); break;
+                    case 'dodeca': geom = new THREE.DodecahedronGeometry(r); break;
+                    case 'icosa': geom = new THREE.IcosahedronGeometry(r); break;
+                }
+
+                const material = new THREE.MeshPhongMaterial({
+                    color: solid.color.hex || 0x38bdf8,
+                    transparent: true,
+                    opacity: 0.6,
+                    side: THREE.DoubleSide,
+                    shininess: 100
+                });
+
+                const wireframe = new THREE.LineSegments(
+                    new THREE.EdgesGeometry(geom),
+                    new THREE.LineBasicMaterial({ color: 0xffffff, linewidth: 2 })
+                );
+
+                const group = new THREE.Group();
+                group.add(new THREE.Mesh(geom, material));
+                group.add(wireframe);
+                scene.add(group);
+                meshRef.current = group;
+
+                const markerGroup = new THREE.Group();
+                group.add(markerGroup);
+
+                camera.position.z = 8;
+                sceneRef.current = scene;
+
+                // Sync Markers
+                const updateMarkers = () => {
+                    markerGroup.clear();
+                    markerPoints.forEach(pt => {
+                        const markerDot = new THREE.Mesh(
+                            new THREE.SphereGeometry(0.12, 16, 16),
+                            new THREE.MeshPhongMaterial({ color: pt.color || 0xff3e3e, emissive: pt.color || 0xff3e3e, emissiveIntensity: 0.5 })
+                        );
+                        markerDot.position.set(pt.x, pt.y, pt.z);
+                        markerGroup.add(markerDot);
+                    });
+                };
+                updateMarkers();
+
+                // Raycasting
+                const raycaster = new THREE.Raycaster();
+                const mouse = new THREE.Vector2();
+
+                // Animation
+                let frameId;
+                const animate = () => {
+                    if (isSpinning && meshRef.current) {
+                        meshRef.current.rotation.y += 0.01;
+                        meshRef.current.rotation.x += 0.005;
+                    }
+                    renderer.render(scene, camera);
+                    frameId = requestAnimationFrame(animate);
+                };
+                animate();
+
+                // Interactivity
+                let isDragging = false;
+                let moved = false;
+                let prevX = 0, prevY = 0;
+
+                const handleDown = (e) => {
+                    isDragging = true;
+                    moved = false;
+                    prevX = e.clientX;
+                    prevY = e.clientY;
+                };
+
+                const handleMove = (e) => {
+                    if (!isDragging || !meshRef.current) return;
+                    const dx = e.clientX - prevX;
+                    const dy = e.clientY - prevY;
+                    if (Math.abs(dx) > 2 || Math.abs(dy) > 2) moved = true;
+                    meshRef.current.rotation.y += dx * 0.01;
+                    meshRef.current.rotation.x += dy * 0.01;
+                    prevX = e.clientX;
+                    prevY = e.clientY;
+                };
+
+                const handleUp = (e) => {
+                    if (isPenActive && !moved && meshRef.current) {
+                        // Handle Painting
+                        const rect = containerRef.current.getBoundingClientRect();
+                        mouse.x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+                        mouse.y = -((e.clientY - rect.top) / rect.height) * 2 + 1;
+
+                        raycaster.setFromCamera(mouse, camera);
+                        const intersects = raycaster.intersectObject(meshRef.current, true);
+
+                        if (intersects.length > 0) {
+                            const intersect = intersects[0];
+                            const localPt = intersect.point.clone();
+                            meshRef.current.worldToLocal(localPt);
+
+                            // Try to snap to closest vertex
+                            const positions = geom.attributes.position.array;
+                            let minDist = Infinity;
+                            let closestPos = localPt;
+
+                            for (let i = 0; i < positions.length; i += 3) {
+                                const vx = positions[i], vy = positions[i + 1], vz = positions[i + 2];
+                                const dist = localPt.distanceTo(new THREE.Vector3(vx, vy, vz));
+                                if (dist < 0.25 && dist < minDist) {
+                                    minDist = dist;
+                                    closestPos = new THREE.Vector3(vx, vy, vz);
+                                }
+                            }
+
+
+
+                            // Check if marker already exists nearby
+                            const existingIdx = markerPoints.findIndex(p =>
+                                new THREE.Vector3(p.x, p.y, p.z).distanceTo(closestPos) < 0.1
+                            );
+
+                            if (existingIdx >= 0) {
+                                const newPoints = [...markerPoints];
+                                newPoints.splice(existingIdx, 1);
+                                setMarkerPoints(newPoints);
+                            } else {
+                                setMarkerPoints([...markerPoints, { x: closestPos.x, y: closestPos.y, z: closestPos.z, color: '#f43f5e' }]);
+                            }
+                        }
+                    }
+                    isDragging = false;
+                };
+
+                containerRef.current.addEventListener('pointerdown', handleDown);
+                containerRef.current.addEventListener('pointerup', handleUp);
+                window.addEventListener('pointermove', handleMove);
+
+                return () => {
+                    cancelAnimationFrame(frameId);
+                    if (containerRef.current) {
+                        containerRef.current.removeEventListener('pointerdown', handleDown);
+                        containerRef.current.removeEventListener('pointerup', handleUp);
+                        containerRef.current.removeChild(renderer.domElement);
+                    }
+                    window.removeEventListener('pointermove', handleMove);
+                    geom.dispose();
+                    material.dispose();
+                };
+            }, [solid, isSpinning, isPenActive, markerPoints]);
+
+            return <div ref={containerRef} className="w-full h-full cursor-grab active:cursor-grabbing" />;
+        };
+
+        // ─── Euler Check ─────────────────────────────────────────
+        const EulerCheck = ({ solid, revealed }) => {
+            const { faces: F, vertices: V, edges: E } = solid;
+            const result = V - E + F;
+            return (
+                <div className={`rounded-2xl p-5 border transition-all ${revealed ? 'border-emerald-500/50 bg-emerald-500/10' : 'border-slate-700 bg-slate-800/40'}`}>
+                    <div className="text-xs font-black uppercase tracking-widest text-slate-500 mb-3">歐拉公式驗算</div>
+                    <div className="flex items-baseline gap-2 text-2xl font-black">
+                        <span className="text-orange-400">{revealed ? V : '?'}</span>
+                        <span className="text-slate-500 text-lg">−</span>
+                        <span className="text-sky-400">{revealed ? E : '?'}</span>
+                        <span className="text-slate-500 text-lg">+</span>
+                        <span className="text-emerald-400">{revealed ? F : '?'}</span>
+                        <span className="text-slate-500 text-lg">=</span>
+                        <span className={revealed ? 'text-white' : 'text-slate-600'}>{revealed ? result : '?'}</span>
+                    </div>
+                    {revealed && result === 2 && (
+                        <div className="mt-2 text-xs font-black text-emerald-400 fade-in">✓ 歐拉定理驗證通過！</div>
+                    )}
+                </div>
+            );
+        };
+
+        // ─── Concept Explainer ────────────────────────────────────
+        const ConceptExplainer = () => {
+            const [open, setOpen] = useState(false);
+            const [tab, setTab] = useState('platonic');
+            return (
+                <div className="mb-8 glass rounded-2xl border border-slate-700 overflow-hidden">
+                    <button
+                        onClick={() => setOpen(o => !o)}
+                        className="w-full flex items-center justify-between px-6 py-4 hover:bg-white/5 transition-all"
+                    >
+                        <div className="flex items-center gap-3">
+                            <i className="fa-solid fa-book-open text-sky-400"></i>
+                            <span className="text-sm font-black text-slate-200">📖 名詞解釋：什麼是柏拉圖立體？什麼是孿生體？</span>
+                        </div>
+                        <i className={`fa-solid fa-chevron-down text-slate-500 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}></i>
+                    </button>
+
+                    {open && (
+                        <div className="px-6 pb-6 fade-in">
+                            {/* Tab Switcher */}
+                            <div className="flex gap-2 mb-6">
+                                <button onClick={() => setTab('platonic')}
+                                    className={`flex-1 py-2 rounded-xl text-xs font-black transition-all border ${tab === 'platonic' ? 'border-sky-500 text-sky-400 bg-sky-500/10' : 'border-slate-700 text-slate-500 hover:border-slate-500'}`}>
+                                    柏拉圖立體 Platonic Solids
+                                </button>
+                                <button onClick={() => setTab('dual')}
+                                    className={`flex-1 py-2 rounded-xl text-xs font-black transition-all border ${tab === 'dual' ? 'border-amber-500 text-amber-400 bg-amber-500/10' : 'border-slate-700 text-slate-500 hover:border-slate-500'}`}>
+                                    孿生體 Dual Polyhedra
+                                </button>
+                            </div>
+
+                            {tab === 'platonic' && (
+                                <div className="space-y-4 fade-in">
+                                    <div className="bg-sky-500/10 border border-sky-500/30 rounded-2xl p-5">
+                                        <h3 className="text-sky-300 font-black text-lg mb-3">什麼是柏拉圖立體？</h3>
+                                        <p className="text-slate-300 text-sm leading-relaxed mb-3">
+                                            古希臘哲學家<strong className="text-white">柏拉圖（Plato）</strong>認為這些立體是構成宇宙萬物的基本形體，因此以他命名。
+                                            柏拉圖立體必須同時滿足以下 <strong className="text-sky-300">3 個條件</strong>：
+                                        </p>
+                                        <div className="grid grid-cols-1 gap-2">
+                                            {[
+                                                { icon: '🔺', title: '面全等', desc: '每個面都是完全相同的正多邊形（如正三角形、正方形）' },
+                                                { icon: '⭐', title: '頂點相同', desc: '在每個頂點，都有相同數量的面相交在一起' },
+                                                { icon: '💎', title: '高度對稱', desc: '從任何方向觀察，形體的結構都完全一致' },
+                                            ].map(item => (
+                                                <div key={item.title} className="flex items-start gap-3 bg-slate-800/60 rounded-xl p-3">
+                                                    <span className="text-xl">{item.icon}</span>
+                                                    <div>
+                                                        <div className="text-xs font-black text-slate-200 mb-0.5">{item.title}</div>
+                                                        <div className="text-xs text-slate-400 leading-relaxed">{item.desc}</div>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div className="mt-4 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-300 font-bold">
+                                            🔑 重要結論：全宇宙只有 <span className="text-white text-base font-black">5</span> 種柏拉圖立體，這已被數學嚴格證明，不可能有第 6 種！
+                                        </div>
+                                    </div>
+
+                                    {/* Summary Table */}
+                                    <div className="rounded-2xl overflow-hidden border border-slate-700">
+                                        <div className="bg-slate-800 px-4 py-2 text-xs font-black text-slate-400 uppercase tracking-widest">五大柏拉圖立體一覽</div>
+                                        <table className="w-full text-sm">
+                                            <thead className="bg-slate-800/60">
+                                                <tr className="text-xs text-slate-500 font-black uppercase">
+                                                    <th className="text-left px-4 py-2">名稱</th>
+                                                    <th className="text-center px-2 py-2 text-orange-400">頂點 V</th>
+                                                    <th className="text-center px-2 py-2 text-sky-400">稜邊 E</th>
+                                                    <th className="text-center px-2 py-2 text-emerald-400">面 F</th>
+                                                    <th className="text-left px-4 py-2">面的形狀</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-slate-800">
+                                                {[
+                                                    { name: '正四面體', v: 4, e: 6, f: 4, shape: '正三角形', color: 'text-orange-400' },
+                                                    { name: '正六面體（骰子）', v: 8, e: 12, f: 6, shape: '正方形', color: 'text-yellow-400' },
+                                                    { name: '正八面體', v: 6, e: 12, f: 8, shape: '正三角形', color: 'text-green-400' },
+                                                    { name: '正十二面體', v: 20, e: 30, f: 12, shape: '正五邊形', color: 'text-purple-400' },
+                                                    { name: '正二十面體', v: 12, e: 30, f: 20, shape: '正三角形', color: 'text-pink-400' },
+                                                ].map(row => (
+                                                    <tr key={row.name} className="hover:bg-slate-800/40 transition-colors">
+                                                        <td className={`px-4 py-3 font-black text-xs ${row.color}`}>{row.name}</td>
+                                                        <td className="text-center px-2 py-3 font-black text-orange-300">{row.v}</td>
+                                                        <td className="text-center px-2 py-3 font-black text-sky-300">{row.e}</td>
+                                                        <td className="text-center px-2 py-3 font-black text-emerald-300">{row.f}</td>
+                                                        <td className="px-4 py-3 text-xs text-slate-400">{row.shape}</td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <div className="text-xs text-slate-500 font-bold text-center">驗算：每一列的 V − E + F 都等於 2（歐拉定理）</div>
+                                </div>
+                            )}
+
+                            {tab === 'dual' && (
+                                <div className="space-y-4 fade-in">
+                                    <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-5">
+                                        <h3 className="text-amber-300 font-black text-lg mb-3">什麼是孿生體（對偶多面體）？</h3>
+                                        <p className="text-slate-300 text-sm leading-relaxed mb-4">
+                                            把一個多面體的<strong className="text-white">每個面的中心點</strong>當作新的頂點，再把相鄰的點連接起來，
+                                            就能得到它的<strong className="text-amber-300">孿生體（Dual Polyhedron）</strong>。
+                                        </p>
+                                        <div className="grid grid-cols-3 gap-3 text-center text-xs font-black mb-4">
+                                            {[
+                                                { icon: '🔺', label: '原來的「面」', result: '→ 孿生體的「頂點」', color: 'text-emerald-400' },
+                                                { icon: '📐', label: '原來的「頂點」', result: '→ 孿生體的「面」', color: 'text-orange-400' },
+                                                { icon: '➡️', label: '稜邊數', result: '→ 完全不變', color: 'text-sky-400' },
+                                            ].map(item => (
+                                                <div key={item.label} className="bg-slate-800/60 rounded-xl p-3">
+                                                    <div className="text-2xl mb-1">{item.icon}</div>
+                                                    <div className="text-slate-400 mb-1 leading-tight">{item.label}</div>
+                                                    <div className={`leading-tight ${item.color}`}>{item.result}</div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* Dual Pair Diagram */}
+                                    <div className="space-y-3">
+                                        <div className="text-xs font-black text-slate-400 uppercase tracking-widest">五大柏拉圖立體的孿生關係</div>
+                                        {[
+                                            { a: '正四面體', aInfo: 'F=4, V=4', b: '正四面體', bInfo: 'F=4, V=4', note: '自對偶！自己和自己互為孿生體', aColor: 'text-orange-400', bColor: 'text-orange-400' },
+                                            { a: '正六面體', aInfo: 'F=6, V=8', b: '正八面體', bInfo: 'F=8, V=6', note: '面數與頂點數剛好互換', aColor: 'text-yellow-400', bColor: 'text-green-400' },
+                                            { a: '正十二面體', aInfo: 'F=12, V=20', b: '正二十面體', bInfo: 'F=20, V=12', note: '面數與頂點數剛好互換', aColor: 'text-purple-400', bColor: 'text-pink-400' },
+                                        ].map(pair => (
+                                            <div key={pair.a} className="glass rounded-xl p-4 border border-slate-700">
+                                                <div className="flex items-center gap-3">
+                                                    <div className="flex-1 text-center">
+                                                        <div className={`font-black text-sm ${pair.aColor}`}>{pair.a}</div>
+                                                        <div className="text-xs text-slate-500">{pair.aInfo}</div>
+                                                    </div>
+                                                    <div className="text-amber-400 font-black text-lg">↔</div>
+                                                    <div className="flex-1 text-center">
+                                                        <div className={`font-black text-sm ${pair.bColor}`}>{pair.b}</div>
+                                                        <div className="text-xs text-slate-500">{pair.bInfo}</div>
+                                                    </div>
+                                                </div>
+                                                <div className="mt-2 text-center text-xs text-slate-500">{pair.note}</div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                    <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 text-xs text-purple-300 font-bold leading-relaxed">
+                                        💡 <strong>生活比喻：</strong>就像「手套」分左右手，孿生體之間沒有誰比誰更正確——它們是平等的一對搭檔，互相包含對方的形狀結構。
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        // ─── Counting Strategy Modal ─────────────────────────────
+        const CountingModal = ({ solid, onClose }) => {
+            const [modalStep, setModalStep] = useState(0);
+            const steps = [
+                {
+                    icon: '⭕',
+                    title: '第一步：數「頂點」(V)',
+                    color: 'text-orange-400',
+                    border: 'border-orange-500',
+                    bg: 'bg-orange-500/10',
+                    content: (
+                        <div className="space-y-3 text-sm text-slate-300 leading-relaxed">
+                            <p>頂點是多個面「交會」的尖角點，用手指點它不會感覺到稜。</p>
+                            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                                <p className="text-xs font-black text-slate-400 uppercase mb-2">計數技巧：用「握手定理」推算</p>
+                                <ol className="list-decimal list-inside space-y-2">
+                                    <li>在 {solid.name} 上，每個頂點有 <span className="text-orange-300 font-black">{solid.facesPerVertex} 個面</span>相交。</li>
+                                    <li>每個面有 <span className="text-orange-300 font-black">{solid.faceShape === '正三角形' ? 3 : solid.faceShape === '正方形' ? 4 : 5} 個頂點</span>。</li>
+                                    <li>把 (面數 × 每面頂點數) ÷ (每頂點的面數) 就是頂點總數：</li>
+                                </ol>
+                                <div className="mt-3 text-center bg-slate-900 rounded-xl p-3 font-black text-white">
+                                    ({solid.faces} × {solid.faceShape === '正三角形' ? 3 : solid.faceShape === '正方形' ? 4 : 5}) ÷ {solid.facesPerVertex} = <span className="text-orange-400 text-xl">{solid.vertices}</span>
+                                </div>
+                            </div>
+                            <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-3 text-xs font-bold text-orange-300">
+                                💡 {solid.name} 共有 <strong className="text-white text-sm">{solid.vertices}</strong> 個頂點。
+                            </div>
+                        </div>
+                    ),
+                },
+                {
+                    icon: '✏️',
+                    title: '第二步：數「稜邊」(E)',
+                    color: 'text-sky-400',
+                    border: 'border-sky-500',
+                    bg: 'bg-sky-500/10',
+                    content: (
+                        <div className="space-y-3 text-sm text-slate-300 leading-relaxed">
+                            <p>稜邊是兩個面「相交的線」，摸起來是一條邊，不是角也不是面。</p>
+                            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                                <p className="text-xs font-black text-slate-400 uppercase mb-2">計數技巧：用歐拉公式倒推</p>
+                                <ol className="list-decimal list-inside space-y-2">
+                                    <li>稜最難直接數，容易漏掉或重複。</li>
+                                    <li>用「每個面的邊數 × 面數 ÷ 2」（每條邊被兩個面共用）：</li>
+                                </ol>
+                                <div className="mt-3 text-center bg-slate-900 rounded-xl p-3 font-black text-white">
+                                    ({solid.faceShape === '正三角形' ? 3 : solid.faceShape === '正方形' ? 4 : 5} × {solid.faces}) ÷ 2 = <span className="text-sky-400 text-xl">{solid.edges}</span>
+                                </div>
+                            </div>
+                            <div className="bg-sky-500/10 border border-sky-500/30 rounded-xl p-3 text-xs font-bold text-sky-300">
+                                💡 {solid.name} 共有 <strong className="text-white text-sm">{solid.edges}</strong> 條稜邊。
+                            </div>
+                        </div>
+                    ),
+                },
+                {
+                    icon: '🔺',
+                    title: '第三步：數「面」(F)',
+                    color: 'text-emerald-400',
+                    border: 'border-emerald-500',
+                    bg: 'bg-emerald-500/10',
+                    content: (
+                        <div className="space-y-3 text-sm text-slate-300 leading-relaxed">
+                            <p>面是立體圖形的「外皮」，每一塊平坦的區域就是一個面。</p>
+                            <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
+                                <p className="text-xs font-black text-slate-400 uppercase mb-2">計數技巧</p>
+                                <ol className="list-decimal list-inside space-y-2">
+                                    <li>先找到最<strong className="text-white">正面朝向你</strong>的那個面，記作第 1 面。</li>
+                                    <li>旋轉模型，依序數出每個面，<span className="text-emerald-300 font-black">不要重複計算</span>。</li>
+                                    <li>如果每個面長得一樣，只要確認形狀，就能知道你是否數對了。</li>
+                                </ol>
+                            </div>
+                            <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 text-xs font-bold text-emerald-300">
+                                💡 {solid.name} 共有 <strong className="text-white text-sm">{solid.faces}</strong> 個面，每個面是<strong className="text-white"> {solid.faceShape}</strong>。
+                            </div>
+                        </div>
+                    ),
+                },
+                {
+                    icon: '✅',
+                    title: '最後驗算：歐拉公式',
+                    color: 'text-purple-400',
+                    border: 'border-purple-500',
+                    bg: 'bg-purple-500/10',
+                    content: (
+                        <div className="space-y-3 text-sm text-slate-300 leading-relaxed">
+                            <p>數完 V、E、F 後，代入歐拉公式來確認答案是否正確：</p>
+                            <div className="text-center bg-slate-900 rounded-2xl p-5 border border-purple-500/30">
+                                <div className="text-3xl font-black text-white mb-2">V − E + F = 2</div>
+                                <div className="text-lg font-black">
+                                    <span className="text-orange-400">{solid.vertices}</span>
+                                    <span className="text-slate-500"> − </span>
+                                    <span className="text-sky-400">{solid.edges}</span>
+                                    <span className="text-slate-500"> + </span>
+                                    <span className="text-emerald-400">{solid.faces}</span>
+                                    <span className="text-slate-500"> = </span>
+                                    <span className="text-purple-400 text-2xl">{solid.vertices - solid.edges + solid.faces}</span>
+                                </div>
+                            </div>
+                            <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-3 text-xs font-bold text-purple-300">
+                                🎉 只要算出 2，就代表 V、E、F 三個數字全部正確！這是你最強力的自我驗算工具。
+                            </div>
+                        </div>
+                    ),
+                },
+            ];
+            const current = steps[modalStep];
+            return (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4" onClick={onClose}>
+                    <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+                    <div
+                        className="relative glass rounded-3xl border border-slate-600 w-full max-w-lg max-h-[90vh] overflow-y-auto shadow-2xl"
+                        onClick={e => e.stopPropagation()}
+                    >
+                        {/* Modal Header */}
+                        <div className="sticky top-0 glass border-b border-slate-700 px-6 py-4 flex items-center justify-between rounded-t-3xl">
+                            <div className="flex items-center gap-2">
+                                <i className="fa-solid fa-chalkboard-user text-sky-400"></i>
+                                <span className="text-sm font-black text-slate-200">老師教你怎麼數 — {solid.name}</span>
+                            </div>
+                            <button onClick={onClose} className="text-slate-500 hover:text-white transition-colors">
+                                <i className="fa-solid fa-xmark text-lg"></i>
+                            </button>
+                        </div>
+
+                        {/* Step Progress */}
+                        <div className="px-6 pt-4 flex gap-2">
+                            {steps.map((s, i) => (
+                                <button key={i} onClick={() => setModalStep(i)}
+                                    className={`flex-1 h-1.5 rounded-full transition-all ${i <= modalStep ? 'bg-sky-500' : 'bg-slate-700'}`}>
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* Step Content */}
+                        <div className="p-6 space-y-4">
+                            <div className={`flex items-center gap-3 rounded-2xl p-4 border ${current.border} ${current.bg}`}>
+                                <span className="text-3xl">{current.icon}</span>
+                                <h3 className={`text-lg font-black ${current.color}`}>{current.title}</h3>
+                            </div>
+                            {current.content}
+                        </div>
+
+                        {/* Nav Buttons */}
+                        <div className="px-6 pb-6 flex gap-3">
+                            <button onClick={() => setModalStep(s => Math.max(0, s - 1))}
+                                disabled={modalStep === 0}
+                                className="flex-1 py-3 rounded-xl font-black text-sm border border-slate-600 text-slate-400 disabled:opacity-30 hover:bg-slate-800 transition-all">
+                                ← 上一步
+                            </button>
+                            {modalStep < steps.length - 1 ? (
+                                <button onClick={() => setModalStep(s => s + 1)}
+                                    className="flex-1 py-3 rounded-xl font-black text-sm bg-sky-500 text-slate-900 hover:bg-sky-400 transition-all">
+                                    下一步 →
+                                </button>
+                            ) : (
+                                <button onClick={onClose}
+                                    className="flex-1 py-3 rounded-xl font-black text-sm bg-emerald-500 text-slate-900 hover:bg-emerald-400 transition-all">
+                                    我學會了，去挑戰！✓
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                </div>
+            );
+        };
+
+        // ─── Main App ────────────────────────────────────────────
+        function App() {
+            const [step, setStep] = useState(0);         // which solid
+            const [phase, setPhase] = useState('observe'); // observe → guess → reveal → deep
+            const [guess, setGuess] = useState({ V: '', E: '', F: '' });
+            const [result, setResult] = useState(null);   // null | 'correct' | 'partial' | 'wrong'
+            const [eulerRevealed, setEulerRevealed] = useState(false);
+            const [score, setScore] = useState(0);
+            const [isSpinning, setIsSpinning] = useState(true);
+            const [showModal, setShowModal] = useState(false);
+            const [isPenActive, setIsPenActive] = useState(false);
+            const [markerPoints, setMarkerPoints] = useState([]);
+
+            const solid = SOLIDS[step];
+
+            // Reset when changing solid
+            useEffect(() => {
+                setPhase('observe');
+                setGuess({ V: '', E: '', F: '' });
+                setResult(null);
+                setEulerRevealed(false);
+                setMarkerPoints([]);
+            }, [step]);
+
+            const handleSubmitGuess = () => {
+                const gV = parseInt(guess.V), gE = parseInt(guess.E), gF = parseInt(guess.F);
+                const exact = gV === solid.vertices && gE === solid.edges && gF === solid.faces;
+                const partial = (gV === solid.vertices) || (gE === solid.edges) || (gF === solid.faces);
+                setResult(exact ? 'correct' : partial ? 'partial' : 'wrong');
+                if (exact) setScore(s => s + 10);
+                else if (partial) setScore(s => s + 3);
+                setPhase('reveal');
+            };
+
+            const goNext = () => {
+                if (step < SOLIDS.length - 1) setStep(s => s + 1);
+                else setStep(0);
+            };
+
+            const progressPct = ((step) / SOLIDS.length * 100).toFixed(0);
+
+            return (
+                <>
+                    <div className="min-h-screen max-w-5xl mx-auto px-6 py-10">
+                        {/* ── Header ── */}
+                        <header className="flex items-center justify-between mb-10">
+                            <div>
+                                <div className="flex items-center gap-3 mb-1">
+                                    <span className="bg-sky-500 text-slate-900 text-[10px] font-black px-2 py-0.5 rounded-full uppercase tracking-widest">資優挑戰</span>
+                                    <span className="text-slate-500 text-xs font-bold">PLATONIC DETECTIVE ROOM</span>
+                                </div>
+                                <h1 className="text-4xl font-black text-white tracking-tight">正多面體偵探室</h1>
+                                <p className="text-slate-400 text-sm font-bold mt-1">觀察 → 猜測 → 發現 → 深入思考</p>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <div className="text-right">
+                                    <div className="text-xs text-slate-500 font-black uppercase">Score</div>
+                                    <div className="text-3xl font-black text-amber-400">{score} pts</div>
+                                </div>
+                                <a href="index.html" className="glass px-4 py-2 rounded-xl text-xs font-black uppercase hover:bg-white/5 transition-all border border-slate-700">← 返回</a>
+                            </div>
+                        </header>
+
+                        {/* ── Solid Selector Tabs ── */}
+                        <div className="flex gap-2 mb-8">
+                            {SOLIDS.map((s, i) => (
+                                <button key={s.id} onClick={() => setStep(i)}
+                                    className={`flex-1 py-2 rounded-xl text-xs font-black transition-all border ${step === i ? `${s.color.btn} text-white bg-white/5` : 'border-slate-700 text-slate-500 hover:border-slate-500'}`}>
+                                    {s.nameEn.split('/')[0].trim()}
+                                </button>
+                            ))}
+                        </div>
+
+                        {/* ── 名詞解釋 Panel ── */}
+                        <ConceptExplainer />
+
+                        {/* ── Main Grid ── */}
+                        <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
+
+                            {/* LEFT: 3D Viewer (2/5) */}
+                            <div className="lg:col-span-2 space-y-4">
+                                <div className="glass rounded-3xl p-6 glow-blue">
+                                    <div className="flex items-center justify-between mb-4">
+                                        <div className={`text-xl font-black ${solid.color.text}`}>{solid.name}</div>
+                                        <button onClick={() => setIsSpinning(s => !s)}
+                                            className="text-[10px] font-black uppercase tracking-widest text-slate-500 hover:text-slate-300 transition-colors">
+                                            {isSpinning ? '暫停旋轉' : '恢復旋轉'}
+                                        </button>
+                                    </div>
+
+                                    <div className="h-60 relative">
+                                        <ThreeDViewer
+                                            solid={solid}
+                                            isSpinning={isSpinning}
+                                            isPenActive={isPenActive}
+                                            markerPoints={markerPoints}
+                                            setMarkerPoints={setMarkerPoints}
+                                        />
+
+                                        {/* 3D View Overlay Controls */}
+                                        <div className="absolute top-2 right-2 flex flex-col gap-2">
+                                            <button onClick={() => setIsPenActive(!isPenActive)}
+                                                className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all shadow-lg border ${isPenActive ? 'bg-rose-500 text-white border-rose-400 scale-110 glow-rose' : 'bg-slate-800/90 border-slate-700 text-slate-400 hover:text-white'}`}
+                                                title="立體標記筆 (點擊頂點做記號)">
+                                                <i className="fa-solid fa-pen-nib"></i>
+                                            </button>
+
+                                            {markerPoints.length > 0 && (
+                                                <button onClick={() => setMarkerPoints([])}
+                                                    className="w-10 h-10 rounded-xl bg-slate-800/90 border border-slate-700 text-slate-400 hover:text-white flex items-center justify-center transition-all shadow-lg"
+                                                    title="清除所有標記">
+                                                    <i className="fa-solid fa-eraser"></i>
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {/* Marking Hint */}
+                                        {isPenActive && (
+                                            <div className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-rose-500/95 text-white text-[9px] font-black px-3 py-1.5 rounded-full shadow-2xl border border-rose-400/50 flex items-center gap-1.5 backdrop-blur-md animate-bounce pointer-events-none">
+                                                <i className="fa-solid fa-i-cursor text-[8px]"></i>
+                                                標記模式：點擊模型做記號
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="mt-4 bg-slate-800/60 rounded-xl p-4 border border-slate-700">
+                                        <div className="text-[10px] font-black text-slate-500 uppercase mb-2">老師的提示</div>
+                                        <p className="text-sm text-slate-300 font-medium leading-relaxed">{solid.hint}</p>
+                                    </div>
+                                </div>
+
+                                {/* Euler check (hidden until reveal) */}
+                                <EulerCheck solid={solid} revealed={eulerRevealed} />
+                            </div>
+
+                            {/* RIGHT: Challenge Panel (3/5) */}
+                            <div className="lg:col-span-3 space-y-6">
+
+                                {/* Phase: OBSERVE */}
+                                {phase === 'observe' && (
+                                    <div className="glass rounded-3xl p-8 border border-slate-700 fade-in space-y-6">
+                                        <div className="flex items-center gap-3">
+                                            <span className="w-8 h-8 rounded-full bg-sky-500/20 border border-sky-500 text-sky-400 flex items-center justify-center font-black text-lg">1</span>
+                                            <h2 className="text-2xl font-black">觀察與歸納</h2>
+                                        </div>
+                                        <p className="text-slate-400 font-bold leading-relaxed">
+                                            仔細旋轉左方的 <span className={`font-black ${solid.color.text}`}>{solid.name}</span>。
+                                            在不看任何資料的情況下，試著數出它的：<br />
+                                            頂點數 (V)、稜邊數 (E)、和面數 (F)。
+                                        </p>
+                                        <div className="bg-sky-500/10 rounded-2xl p-5 border border-sky-500/20">
+                                            <p className="text-xs font-black text-sky-400 uppercase mb-2">資優思考策略</p>
+                                            <p className="text-sm text-sky-200/70 font-medium leading-relaxed">
+                                                不要只是「看」，請試著在腦海中追蹤稜邊。例如：從一個頂點出發，與它相連的邊有幾條？然後用這個資訊推算總數。
+                                            </p>
+                                        </div>
+                                        <button onClick={() => setPhase('guess')}
+                                            className={`w-full py-4 rounded-2xl font-black text-lg border-2 ${solid.color.btn} ${solid.color.text} hover:bg-white/5 transition-all`}>
+                                            我觀察完了，開始填答 →
+                                        </button>
+                                    </div>
+                                )}
+
+                                {/* Phase: GUESS */}
+                                {phase === 'guess' && (
+                                    <div className="glass rounded-3xl p-8 border border-slate-700 fade-in space-y-6">
+                                        <div className="flex items-center gap-3">
+                                            <span className="w-8 h-8 rounded-full bg-amber-500/20 border border-amber-500 text-amber-400 flex items-center justify-center font-black text-lg">2</span>
+                                            <h2 className="text-2xl font-black">填入你的答案</h2>
+                                        </div>
+                                        <p className="text-slate-400 font-medium">純粹靠觀察，不查資料。輸入你數到的數值：</p>
+
+                                        <div className="grid grid-cols-3 gap-4">
+                                            {[
+                                                { key: 'V', label: 'V 頂點數', color: 'text-orange-400 border-orange-500' },
+                                                { key: 'E', label: 'E 稜邊數', color: 'text-sky-400 border-sky-500' },
+                                                { key: 'F', label: 'F 面數', color: 'text-emerald-400 border-emerald-500' },
+                                            ].map(({ key, label, color }) => (
+                                                <div key={key}>
+                                                    <label className={`block text-xs font-black mb-2 ${color.split(' ')[0]}`}>{label}</label>
+                                                    <input type="number" min="0" value={guess[key]}
+                                                        onChange={e => setGuess(g => ({ ...g, [key]: e.target.value }))}
+                                                        className={`w-full bg-slate-900 border-2 ${color.split(' ')[1]} rounded-xl p-3 text-2xl font-black text-center text-white outline-none focus:ring-2 focus:ring-sky-500`} />
+                                                </div>
+                                            ))}
+                                        </div>
+
+                                        <div className="flex gap-3">
+                                            <button onClick={() => setPhase('observe')} className="flex-1 py-3 rounded-xl font-black border border-slate-600 text-slate-400 hover:bg-white/5 transition-all">← 再觀察</button>
+                                            <button onClick={handleSubmitGuess} disabled={!guess.V || !guess.E || !guess.F}
+                                                className="flex-1 py-3 rounded-xl font-black bg-sky-600 hover:bg-sky-500 disabled:opacity-30 disabled:cursor-not-allowed text-white transition-all shadow-lg">
+                                                送出答案 →
+                                            </button>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {/* Phase: REVEAL */}
+                                {phase === 'reveal' && (
+                                    <div className="space-y-5 fade-in">
+                                        {/* Result Card */}
+                                        <div className={`rounded-3xl p-6 border-2 ${result === 'correct' ? 'border-emerald-500 bg-emerald-500/10' : result === 'partial' ? 'border-amber-500 bg-amber-500/10' : 'border-red-500 bg-red-500/10'}`}>
+                                            <div className="flex items-center gap-3 mb-4">
+                                                <i className={`fa-solid text-3xl ${result === 'correct' ? 'fa-trophy text-amber-400' : result === 'partial' ? 'fa-star-half-stroke text-amber-500' : 'fa-circle-xmark text-red-400'}`}></i>
+                                                <div>
+                                                    <div className="font-black text-xl">{result === 'correct' ? '完美！全部答對！+10分' : result === 'partial' ? '部分答對！+3分' : '繼續練習！'}</div>
+                                                    <div className="text-xs text-slate-400 font-bold">{result === 'correct' ? '您的空間觀察力極為精準。' : result === 'partial' ? '有些面向已掌握，再試一次會更好。' : '3D 觀察需要練習，下次一定更準確。'}</div>
+                                                </div>
+                                            </div>
+
+                                            {/* Comparison Table */}
+                                            <div className="grid grid-cols-3 gap-3 text-center">
+                                                {[
+                                                    { label: 'V 頂點', correct: solid.vertices, user: parseInt(guess.V), color: 'orange' },
+                                                    { label: 'E 稜邊', correct: solid.edges, user: parseInt(guess.E), color: 'sky' },
+                                                    { label: 'F 面數', correct: solid.faces, user: parseInt(guess.F), color: 'emerald' },
+                                                ].map(({ label, correct, user, color }) => (
+                                                    <div key={label} className="bg-slate-800/60 rounded-xl p-4">
+                                                        <div className={`text-xs font-black text-${color}-400 mb-1`}>{label}</div>
+                                                        <div className="text-2xl font-black">{correct}</div>
+                                                        <div className={`text-sm font-bold ${user === correct ? 'text-emerald-400' : 'text-red-400'}`}>你猜: {user} {user === correct ? '✓' : '✗'}</div>
+                                                    </div>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        <button onClick={() => setShowModal(true)}
+                                            className="w-full flex items-center justify-between bg-sky-500/10 rounded-2xl p-5 border border-sky-500/30 hover:bg-sky-500/20 hover:border-sky-500/60 transition-all group text-left">
+                                            <div className="flex items-center gap-4">
+                                                <div className="w-12 h-12 rounded-full bg-sky-500/20 flex items-center justify-center text-sky-400">
+                                                    <i className="fa-solid fa-graduation-cap text-xl"></i>
+                                                </div>
+                                                <div>
+                                                    <p className="text-xs font-black text-sky-400 uppercase mb-1">🎓 老師教你怎麼數</p>
+                                                    <p className="text-sm text-sky-100 font-bold leading-relaxed">
+                                                        學會系統化計數法，下次挑戰更準確！
+                                                    </p>
+                                                </div>
+                                            </div>
+                                            <i className="fa-solid fa-chevron-right text-sky-500 group-hover:translate-x-1 transition-transform"></i>
+                                        </button>
+
+                                        {/* Euler Reveal CTA */}
+                                        {!eulerRevealed && (
+                                            <button onClick={() => setEulerRevealed(true)}
+                                                className="w-full py-4 rounded-2xl font-black border-2 border-dashed border-sky-500/40 text-sky-400 hover:bg-sky-500/10 transition-all">
+                                                <i className="fa-solid fa-flask mr-2"></i>代入歐拉公式驗算（點擊查看左方）
+                                            </button>
+                                        )}
+
+                                        {/* Deep Thinking */}
+                                        <div className="glass rounded-3xl p-6 border border-purple-500/30 bg-purple-500/5">
+                                            <div className="flex items-center gap-2 mb-3">
+                                                <i className="fa-solid fa-brain text-purple-400"></i>
+                                                <span className="text-xs font-black uppercase tracking-widest text-purple-400">深度思考挑戰</span>
+                                            </div>
+                                            <p className="text-slate-300 font-bold leading-relaxed">{solid.deepQ}</p>
+                                        </div>
+
+                                        {/* Dual Info */}
+                                        <div className="glass rounded-2xl p-5 border border-amber-500/20">
+                                            <div className="text-xs font-black text-amber-400 uppercase mb-2">對偶 (Dual) 特性</div>
+                                            <p className="text-sm text-slate-300 font-medium leading-relaxed">
+                                                連接 <strong className="text-white">{solid.name}</strong> 每個面的中心點，就會得到它的「孿生體」：
+                                                <span className="text-amber-400 font-black"> {solid.dual}</span>。<br />
+                                                這就是為什麼柏拉圖立體總是成對出現的奧秘。
+                                            </p>
+                                        </div>
+
+                                        <button onClick={goNext}
+                                            className="w-full py-4 rounded-2xl font-black bg-slate-700 hover:bg-slate-600 transition-all text-white text-lg">
+                                            {step < SOLIDS.length - 1 ? `挑戰下一個：${SOLIDS[step + 1].name} →` : '從頭再來一輪 ↺'}
+                                        </button>
+                                    </div>
+                                )}
+
+                                {/* Progress Footer */}
+                                <div className="glass rounded-2xl p-4 border border-slate-700">
+                                    <div className="flex justify-between text-xs font-black text-slate-500 uppercase mb-2">
+                                        <span>探索進度</span>
+                                        <span>{step + 1} / {SOLIDS.length} 個正多面體</span>
+                                    </div>
+                                    <div className="w-full bg-slate-800 rounded-full h-1">
+                                        <div className="progress-bar" style={{ width: `${((step + (phase === 'reveal' ? 1 : 0)) / SOLIDS.length * 100)}%` }}></div>
+                                    </div>
+                                    <div className="mt-3 bg-slate-800/40 rounded-xl p-3 text-xs text-slate-500 font-bold leading-relaxed">
+                                        <i className="fa-solid fa-circle-check mr-1 text-emerald-400"></i>
+                                        全系列正多面體已集齊：從簡單的四面體到複雜的二十面體。
+                                        仔細觀察不同面數的變化，你能發現它們與頂點、稜邊之間的規律嗎？
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {showModal && <CountingModal solid={solid} onClose={() => setShowModal(false)} />}
+                </>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+
+</html>
