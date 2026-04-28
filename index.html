@@ -1950,6 +1950,26 @@
                   </div>
                 </div>
 
+                {/* Progress */}
+                <div className="flex gap-1.5 mb-8">
+                  {sections.map((_, i) => {
+                    const isCompleted = globalProgress?.crossSection?.[i];
+                    return (
+                      <button
+                        key={i}
+                        onClick={() => { setCrossSectionIdx(i); setGuessShape(null); }}
+                        className={`flex-1 h-2 rounded-full transition-all cursor-pointer hover:scale-y-[2] origin-bottom ${i === crossSectionIdx
+                            ? 'bg-pink-500 shadow-[0_0_10px_#ec4899]'
+                            : isCompleted
+                              ? 'bg-emerald-400 hover:bg-emerald-500'
+                              : 'bg-slate-200 hover:bg-slate-300'
+                          }`}
+                        title={isCompleted ? `複習第 ${i + 1} 題` : `前往第 ${i + 1} 題`}
+                      />
+                    );
+                  })}
+                </div>
+
                 <div className="bg-pink-50 p-8 rounded-[32px] border-2 border-pink-100 mb-8 flex flex-col md:flex-row items-center gap-8">
                   <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center text-5xl text-pink-500 shadow-lg">
                     <i className={`fa-solid ${curQuiz.icon}`}></i>
@@ -2254,10 +2274,10 @@
                       key={i}
                       onClick={() => { setSpQuizIdx(i); setSpAnswer(null); }}
                       className={`flex-1 h-2 rounded-full transition-all cursor-pointer hover:scale-y-[2] origin-bottom ${i === spQuizIdx
-                          ? 'bg-violet-500 shadow-[0_0_10px_#8b5cf6]'
-                          : isCompleted
-                            ? 'bg-emerald-400 hover:bg-emerald-500'
-                            : 'bg-slate-200 hover:bg-slate-300'
+                        ? 'bg-violet-500 shadow-[0_0_10px_#8b5cf6]'
+                        : isCompleted
+                          ? 'bg-emerald-400 hover:bg-emerald-500'
+                          : 'bg-slate-200 hover:bg-slate-300'
                         }`}
                       title={isCompleted ? `複習第 ${i + 1} 題` : `前往第 ${i + 1} 題`}
                     />
