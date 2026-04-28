@@ -2247,9 +2247,22 @@
 
               {/* Progress */}
               <div className="flex gap-1.5 mb-8">
-                {spQuizzes.map((_, i) => (
-                  <div key={i} className={`flex-1 h-2 rounded-full transition-all ${i < spQuizIdx ? 'bg-emerald-400' : i === spQuizIdx ? 'bg-violet-500 animate-pulse' : 'bg-slate-200'}`}></div>
-                ))}
+                {spQuizzes.map((_, i) => {
+                  const isCompleted = globalProgress?.spatialLines?.[i];
+                  return (
+                    <button
+                      key={i}
+                      onClick={() => { setSpQuizIdx(i); setSpAnswer(null); }}
+                      className={`flex-1 h-2 rounded-full transition-all cursor-pointer hover:scale-y-[2] origin-bottom ${i === spQuizIdx
+                          ? 'bg-violet-500 shadow-[0_0_10px_#8b5cf6]'
+                          : isCompleted
+                            ? 'bg-emerald-400 hover:bg-emerald-500'
+                            : 'bg-slate-200 hover:bg-slate-300'
+                        }`}
+                      title={isCompleted ? `複習第 ${i + 1} 題` : `前往第 ${i + 1} 題`}
+                    />
+                  );
+                })}
               </div>
 
               {/* Collapsible Reference */}
