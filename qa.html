@@ -251,7 +251,6 @@
             if (nextNext) { nextNext.style.display = 'inline-flex'; nextNext.classList.add('fade-in'); }
             if (typeof MathJax !== 'undefined' && MathJax.typeset) { setTimeout(() => MathJax.typeset(), 100); }
         }
-
         function revealAnswer(qId) {
             state[qId].answerRevealed = true;
             const el = document.getElementById(`${qId}-answer`);
@@ -259,9 +258,19 @@
             const btn = document.getElementById(`${qId}-answerBtn`);
             if (btn) btn.style.display = 'none';
             updateProgress();
+
+            // 全域分數紀錄
+            try {
+                const ls = localStorage.getItem('g9_geometry_scores');
+                const gScores = ls ? JSON.parse(ls) : { qa: {}, crossSection: {}, euler: {}, skew: false };
+                if (!gScores.qa) gScores.qa = {};
+                gScores.qa[qId] = true;
+                localStorage.setItem('g9_geometry_scores', JSON.stringify(gScores));
+                window.dispatchEvent(new Event('score_updated'));
+            } catch (e) { console.error('Failed to save score', e); }
+
             if (typeof MathJax !== 'undefined' && MathJax.typeset) { setTimeout(() => MathJax.typeset(), 100); }
         }
-
         function renderQuestions() {
             const app = document.getElementById('app');
             const progressEl = app.querySelector('.flex.items-center.gap-3');

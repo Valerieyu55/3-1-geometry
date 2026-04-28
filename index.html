@@ -1189,13 +1189,12 @@
     };
 
 
-    function EulerDetectiveRoom() {
+    function EulerDetectiveRoom({ globalProgress, updateGlobalScore }) {
       const [step, setStep] = useState(0);         // which solid
       const [phase, setPhase] = useState('observe'); // observe → guess → reveal → deep
       const [guess, setGuess] = useState({ V: '', E: '', F: '' });
       const [result, setResult] = useState(null);   // null | 'correct' | 'partial' | 'wrong'
       const [eulerRevealed, setEulerRevealed] = useState(false);
-      const [score, setScore] = useState(0);
       const [isSpinning, setIsSpinning] = useState(true);
       const [showModal, setShowModal] = useState(false);
       const [isPenActive, setIsPenActive] = useState(false);
@@ -1217,8 +1216,7 @@
         const exact = gV === solid.vertices && gE === solid.edges && gF === solid.faces;
         const partial = (gV === solid.vertices) || (gE === solid.edges) || (gF === solid.faces);
         setResult(exact ? 'correct' : partial ? 'partial' : 'wrong');
-        if (exact) setScore(s => s + 10);
-        else if (partial) setScore(s => s + 3);
+        if (exact) updateGlobalScore('euler', solid.id, true);
         setPhase('reveal');
       };
 
@@ -1245,7 +1243,7 @@
               <div className="flex items-center gap-4">
                 <div className="text-right">
                   <div className="text-xs text-slate-500 font-black uppercase">Score</div>
-                  <div className="text-3xl font-black text-amber-400">{score} pts</div>
+                  <div className="text-3xl font-black text-amber-400">{Object.values(globalProgress?.euler || {}).filter(Boolean).length * 6} pts</div>
                 </div>
 
               </div>
@@ -1487,9 +1485,52 @@
       );
     }
 
+    const getGlobalScores = () => {
+      try {
+        const s = localStorage.getItem('g9_geometry_scores');
+        return s ? JSON.parse(s) : { qa: {}, crossSection: {}, euler: {}, skew: false };
+      } catch {
+        return { qa: {}, crossSection: {}, euler: {}, skew: false };
+      }
+    };
+
+    const calculateTotalScore = (s) => {
+      let total = 0;
+      total += Object.values(s.qa || {}).filter(Boolean).length * 5;           // 35 pts
+      total += Object.values(s.crossSection || {}).filter(Boolean).length * 5; // 30 pts
+      total += Object.values(s.euler || {}).filter(Boolean).length * 6;        // 30 pts
+      total += s.skew ? 5 : 0;                                                 // 5 pts
+      return total; // Total 100
+    };
 
     function App() {
       const [activeTab, setActiveTab] = useState('home');
+      const [globalProgress, setGlobalProgress] = useState(getGlobalScores);
+
+      useEffect(() => {
+        const handleStorage = () => setGlobalProgress(getGlobalScores());
+        window.addEventListener('storage', handleStorage);
+        window.addEventListener('score_updated', handleStorage);
+        return () => {
+          window.removeEventListener('storage', handleStorage);
+          window.removeEventListener('score_updated', handleStorage);
+        };
+      }, []);
+
+      const updateGlobalScore = (category, key, value) => {
+        setGlobalProgress(prev => {
+          const next = { ...prev };
+          if (key !== undefined && key !== null) {
+            next[category] = { ...next[category], [key]: value };
+          } else {
+            next[category] = value;
+          }
+          localStorage.setItem('g9_geometry_scores', JSON.stringify(next));
+          return next;
+        });
+      };
+
+      const totalScore = calculateTotalScore(globalProgress);
 
       const [skewAnswer, setSkewAnswer] = useState(null);
       const [eulerShapeIdx, setEulerShapeIdx] = useState(0);
@@ -1920,7 +1961,7 @@
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
                   {curQuiz.options.map(opt => (
-                    <button key={opt} onClick={() => { setGuessShape(opt); if (opt === curQuiz.correct) setScore(s => s + 20); }} disabled={!!guessShape}
+                    <button key={opt} onClick={() => { setGuessShape(opt); if (opt === curQuiz.correct) updateGlobalScore('crossSection', crossSectionIdx.toString(), true); }} disabled={!!guessShape}
                       className={`p-6 rounded-2xl border-2 font-black text-lg transition-all ${guessShape === opt ? (opt === curQuiz.correct ? 'bg-emerald-500 border-emerald-600 text-white shadow-xl scale-95' : 'bg-red-500 border-red-600 text-white shadow-xl scale-95') : 'bg-white border-slate-200 hover:border-pink-300 text-slate-600 hover:-translate-y-1'}`}>
                       {opt}
                       {guessShape === opt && (opt === curQuiz.correct ? ' ✓' : ' ✗')}
@@ -2107,8 +2148,8 @@
                 觀察模型，紅色線段是 <span className="text-xl text-orange-500" dangerouslySetInnerHTML={{ __html: katex.renderToString('\\overline{AB}') }}></span> ，請問下列哪條稜邊與它互為「歪斜線」？
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button onClick={() => setSkewAnswer('CG')} className={`flex-1 py-4 px-6 rounded-xl font-black transition-all ${skewAnswer === 'CG' ? 'bg-emerald-600 text-white shadow-xl' : 'bg-white border-2 border-slate-200 text-slate-600'}`}>選項 A：稜邊 CG {skewAnswer === 'CG' && '✅ 正確'}</button>
-                <button onClick={() => setSkewAnswer('BC')} className={`flex-1 py-4 px-6 rounded-xl font-black transition-all ${skewAnswer === 'BC' ? 'bg-red-500 text-white shadow-xl' : 'bg-white border-2 border-slate-200 text-slate-600'}`}>選項 B：稜邊 BC {skewAnswer === 'BC' && (<span>❌ 相交於 B</span>)}</button>
+                <button onClick={() => { setSkewAnswer('CG'); updateGlobalScore('skew', null, true); }} className={`flex-1 py-4 px-6 rounded-xl font-black transition-all ${skewAnswer === 'CG' ? 'bg-emerald-600 text-white shadow-xl' : 'bg-white border-2 border-slate-200 text-slate-600'}`}>選項 A：稜邊 CG {skewAnswer === 'CG' && '✅ 正確'}</button>
+                <button onClick={() => { setSkewAnswer('BC'); updateGlobalScore('skew', null, false); }} className={`flex-1 py-4 px-6 rounded-xl font-black transition-all ${skewAnswer === 'BC' ? 'bg-red-500 text-white shadow-xl' : 'bg-white border-2 border-slate-200 text-slate-600'}`}>選項 B：稜邊 BC {skewAnswer === 'BC' && (<span>❌ 相交於 B</span>)}</button>
               </div>
             </div>
 
@@ -2311,7 +2352,7 @@
       const renderEuler = () => {
         return (
           <div className="animate-slide-up bg-[#0c0f1a] rounded-[32px] overflow-hidden shadow-2xl pb-10">
-            <EulerDetectiveRoom />
+            <EulerDetectiveRoom globalProgress={globalProgress} updateGlobalScore={updateGlobalScore} />
           </div>
         );
       };
@@ -2488,6 +2529,14 @@
           {/* Hero Banner */}
           <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-800 via-slate-700 to-orange-900 text-white p-8 md:p-12 shadow-2xl">
             <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 80%, #fb923c 0%, transparent 50%), radial-gradient(circle at 80% 20%, #6366f1 0%, transparent 50%)' }}></div>
+
+            <div className="absolute top-6 right-6 md:right-10 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 text-center shadow-lg transform md:rotate-3 hover:rotate-0 transition-all z-20">
+              <div className="text-orange-200 text-xs font-black uppercase tracking-widest mb-1 flex justify-center items-center gap-1.5">
+                <i className="fa-solid fa-trophy"></i> Total Score
+              </div>
+              <div className="text-4xl font-black text-white">{totalScore} <span className="text-lg opacity-60">/ 100</span></div>
+            </div>
+
             <div className="relative z-10">
               <div className="inline-flex items-center gap-2 bg-orange-500/20 border border-orange-400/30 text-orange-300 text-xs font-black px-3 py-1.5 rounded-full mb-6 uppercase tracking-widest">
                 <i className="fa-solid fa-book-open-reader"></i> 數位智慧課本 · G9 數學 Unit 3
