@@ -2554,6 +2554,14 @@
                 <button onClick={() => setActiveTab('nets')} className="bg-orange-500/20 hover:bg-orange-500/30 border border-orange-400/30 text-orange-200 font-bold px-5 py-2.5 rounded-xl transition-all text-sm flex items-center gap-2">
                   <i className="fa-solid fa-expand text-xs"></i> 展開圖圖鑑
                 </button>
+                <button onClick={() => {
+                  if (confirm('確定要清除所有學習進度和 100 分計分板嗎？')) {
+                    localStorage.removeItem('g9_geometry_scores');
+                    window.dispatchEvent(new Event('score_updated'));
+                  }
+                }} className="bg-red-500/20 hover:bg-red-500/40 border border-red-500/30 text-red-200 font-bold px-5 py-2.5 rounded-xl transition-all text-sm flex items-center gap-2">
+                  <i className="fa-solid fa-rotate-left text-xs"></i> 重置進度
+                </button>
               </div>
             </div>
           </div>
