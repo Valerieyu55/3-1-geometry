@@ -1959,10 +1959,10 @@
                         key={i}
                         onClick={() => { setCrossSectionIdx(i); setGuessShape(null); }}
                         className={`flex-1 h-2 rounded-full transition-all cursor-pointer hover:scale-y-[2] origin-bottom ${i === crossSectionIdx
-                            ? 'bg-pink-500 shadow-[0_0_10px_#ec4899]'
-                            : isCompleted
-                              ? 'bg-emerald-400 hover:bg-emerald-500'
-                              : 'bg-slate-200 hover:bg-slate-300'
+                          ? 'bg-pink-500 shadow-[0_0_10px_#ec4899]'
+                          : isCompleted
+                            ? 'bg-emerald-400 hover:bg-emerald-500'
+                            : 'bg-slate-200 hover:bg-slate-300'
                           }`}
                         title={isCompleted ? `複習第 ${i + 1} 題` : `前往第 ${i + 1} 題`}
                       />
@@ -2473,16 +2473,34 @@
                   這就是為什麼錐體公式要乘以 <span className="text-2xl font-black text-yellow-300">1/3</span> 的物理意義喔！
                 </p>
               </div>
-              <div className="bg-slate-900 text-white p-8 rounded-[32px] shadow-lg relative overflow-hidden group border border-slate-700">
-                <h4 className="text-lg font-black mb-4 flex items-center gap-3 text-indigo-400">
-                  <i className="fa-solid fa-circle-nodes"></i>
-                  複合形體的體積
-                </h4>
-                <p className="text-slate-400 text-sm leading-relaxed font-medium">
-                  當遇到複雜的機器零件或建築物時，我們會使用「<span className="text-slate-200">分割</span>」或「<span className="text-slate-200">填充</span>」法。
-                  將其切成簡單的多面體，分別計算體積後再累加，這是工程製圖的核心。
-                </p>
-              </div>
+              {volumeShape === 'sphere' ? (
+                <div className="bg-rose-600 text-white p-8 rounded-[32px] shadow-lg relative overflow-hidden group border border-rose-500">
+                  <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+                  <h4 className="text-lg font-black mb-4 flex items-center gap-3 text-white">
+                    <i className="fa-solid fa-water"></i>
+                    阿基米德的偉大發現
+                  </h4>
+                  <p className="text-rose-100 text-sm leading-relaxed font-medium">
+                    球體積公式是怎麼來的呢？古希臘數學家阿基米德發現：如果把一個球塞進剛好能裝下它的「圓柱（高為 2r）」裡面。
+                  </p>
+                  <p className="text-rose-100 text-sm leading-relaxed font-medium mt-3 border-t border-white/20 pt-3">
+                    球的體積剛好是該圓柱體積的 <span className="text-2xl font-black text-yellow-300">2/3</span>！<br />
+                    圓柱體積 = 𝝅r² × 2r = <span className="font-black text-white px-1">2𝝅r³</span><br />
+                    球的體積 = 2/3 × (2𝝅r³) = <span className="font-black text-white bg-rose-500 px-2 py-0.5 rounded ml-1">4/3 𝝅r³</span>
+                  </p>
+                </div>
+              ) : (
+                <div className="bg-slate-900 text-white p-8 rounded-[32px] shadow-lg relative overflow-hidden group border border-slate-700">
+                  <h4 className="text-lg font-black mb-4 flex items-center gap-3 text-indigo-400">
+                    <i className="fa-solid fa-circle-nodes"></i>
+                    複合形體的體積
+                  </h4>
+                  <p className="text-slate-400 text-sm leading-relaxed font-medium">
+                    當遇到複雜的機器零件或建築物時，我們會使用「<span className="text-slate-200">分割</span>」或「<span className="text-slate-200">填充</span>」法。
+                    將其切成簡單的多面體，分別計算體積後再累加，這是工程製圖的核心。
+                  </p>
+                </div>
+              )}
             </div>
           </div>
         );
