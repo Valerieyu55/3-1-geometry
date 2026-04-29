@@ -161,7 +161,7 @@
           <div className="absolute bottom-4 right-4 text-[10px] text-slate-400 font-bold">
             <i className="fa-solid fa-mouse mr-1"></i> 拖曳旋轉 / 滾輪縮放
           </div>
-          <div className="w-full h-full flex items-center justify-center transition-transform duration-75"
+          <div className="w-full h-full flex items-center justify-center transition-transform duration-75 pointer-events-none"
             style={{ transformStyle: 'preserve-3d', transform: `rotateX(${rot.x}deg) rotateY(${rot.y}deg) scale3d(${scale}, ${scale}, ${scale})` }}>
             {children}
           </div>
@@ -2072,14 +2072,14 @@
                       {simShape === 'pyramid' && (
                         <>
                           <div className="absolute inset-0 m-auto" style={{ width: '130px', height: '130px', transform: 'rotateX(90deg) translateZ(-40px)', transformStyle: 'preserve-3d' }}>
-                            <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full overflow-visible drop-shadow-sm">
+                            <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="w-full h-full overflow-visible">
                               <polygon points="50,15.4 81.3,69.6 18.7,69.6" fill="rgba(249, 115, 22, 0.1)" stroke="rgba(249, 115, 22, 0.4)" strokeWidth="2" strokeLinejoin="round" />
                             </svg>
                           </div>
                           {[0, 120, 240].map(deg => (
                             <div key={deg} className="absolute inset-0 m-auto flex items-center justify-center" style={{ width: '130px', height: '130px', transform: `rotateY(${deg}deg) translateZ(22.5px)`, transformStyle: 'preserve-3d' }}>
                               <div className="relative" style={{ width: '78px', height: '83.1px', transformOrigin: 'bottom center', transform: 'translateY(-1.5px) rotateX(15.7deg)', transformStyle: 'preserve-3d' }}>
-                                <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full overflow-visible drop-shadow-sm">
+                                <svg viewBox="0 0 100 100" preserveAspectRatio="none" className="absolute inset-0 w-full h-full overflow-visible">
                                   <polygon points="50,0 100,100 0,100" fill="rgba(249, 115, 22, 0.2)" stroke="rgba(249, 115, 22, 0.5)" strokeWidth="1" strokeLinejoin="round" />
                                 </svg>
                               </div>
@@ -2165,7 +2165,17 @@
 
             <div className="example-box p-8 mt-10 rounded-2xl relative">
               <i className="fa-solid fa-pencil absolute top-4 right-4 text-slate-300 text-3xl"></i>
-              <h4 className="text-xl font-black text-slate-800 mb-6">隨堂測驗：空間邏輯判斷</h4>
+              <h4 className="text-xl font-black text-slate-800 mb-6 flex items-center gap-3">
+                隨堂測驗：空間邏輯判斷
+                <span className="bg-amber-100 text-amber-600 text-[10px] uppercase font-black px-2.5 py-0.5 rounded-full tracking-widest border border-amber-200 shadow-sm">
+                  <i className="fa-solid fa-star mr-1"></i>配分 2 分
+                </span>
+                {skewAnswer === 'CG' && (
+                  <span className="bg-emerald-100 text-emerald-600 text-[10px] uppercase font-black px-2.5 py-0.5 rounded-full tracking-widest border border-emerald-200 shadow-sm animate-bounce">
+                    <i className="fa-solid fa-check mr-1"></i>+2 pts 得分！
+                  </span>
+                )}
+              </h4>
               <p className="font-bold text-slate-600 mb-6 flex items-center gap-2">
                 觀察模型，紅色線段是 <span className="text-xl text-orange-500" dangerouslySetInnerHTML={{ __html: katex.renderToString('\\overline{AB}') }}></span> ，請問下列哪條稜邊與它互為「歪斜線」？
               </p>
@@ -2461,29 +2471,111 @@
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="bg-emerald-600 text-white p-8 rounded-[32px] shadow-lg relative overflow-hidden group">
-                <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
-                <h4 className="text-lg font-black mb-4 flex items-center gap-3">
-                  <i className="fa-solid fa-graduation-cap"></i>
-                  觀念對比：柱 vs 錐
-                </h4>
-                <p className="text-emerald-100 text-sm leading-relaxed font-medium">
-                  在數學實驗中，如果您拿一個「等底、等高」的角柱和角錐。
-                  將角錐裝滿水倒入角柱，剛好可以倒滿 <span className="text-white font-black underline underline-offset-4">3 次</span>。
-                  這就是為什麼錐體公式要乘以 <span className="text-2xl font-black text-yellow-300">1/3</span> 的物理意義喔！
-                </p>
-              </div>
-              {volumeShape === 'sphere' ? (
-                <div className="bg-rose-600 text-white p-8 rounded-[32px] shadow-lg relative overflow-hidden group border border-rose-500">
+              {!['sphere', 'cube'].includes(volumeShape) && (
+                <div className="bg-emerald-600 text-white p-8 rounded-[32px] shadow-lg relative overflow-hidden group border border-emerald-500">
                   <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
-                  <h4 className="text-lg font-black mb-4 flex items-center gap-3 text-white">
+                  <h4 className="text-lg font-black mb-4 flex items-center gap-3">
+                    <i className="fa-solid fa-graduation-cap"></i>
+                    觀念對比：柱 vs 錐
+                  </h4>
+                  <p className="text-emerald-100 text-sm leading-relaxed font-medium">
+                    在數學實驗中，如果您拿一個「等底、等高」的角柱和角錐。
+                    將角錐裝滿水倒入角柱，剛好可以倒滿 <span className="text-white font-black underline underline-offset-4">3 次</span>。
+                    這就是為什麼錐體公式要乘以 <span className="text-2xl font-black text-yellow-300">1/3</span> 的物理意義喔！
+                  </p>
+                  <svg viewBox="0 0 300 120" className="w-full mt-6 drop-shadow-md">
+                    {/* 左側：錐體 */}
+                    <g transform="translate(45, 25)">
+                      <path d="M-20,60 L0,0 L20,60 Z" fill="rgba(253, 224, 71, 0.15)" stroke="white" strokeWidth="2" strokeLinejoin="round" />
+                      <ellipse cx="0" cy="60" rx="20" ry="6" fill="rgba(253, 224, 71, 0.4)" stroke="white" strokeWidth="1.5" />
+                      
+                      {/* 水滴特效 */}
+                      <path d="M0,20 L6,34 A6,6 0 0,1 -6,34 Z" fill="#fde047" />
+                      <path d="M0,45 L3,52 A3,3 0 0,1 -3,52 Z" fill="#fde047" />
+                      
+                      <text x="40" y="45" fill="white" fontSize="24" fontWeight="bold">×</text>
+                      <text x="60" y="48" fill="#fde047" fontSize="36" fontWeight="black">3</text>
+                    </g>
+                    
+                    {/* 中間：箭頭 */}
+                    <g transform="translate(145, 55)">
+                      <path d="M0,0 L30,0 M20,-10 L30,0 L20,10" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                    </g>
+
+                    {/* 右側：柱體 (分三層水) */}
+                    <g transform="translate(240, 25)">
+                      {/* 水的填色 (三層) */}
+                      <path d="M-20,40 L-20,60 A20,6 0 0,0 20,60 L20,40 A20,6 0 0,1 -20,40 Z" fill="rgba(253, 224, 71, 0.25)" />
+                      <path d="M-20,20 L-20,40 A20,6 0 0,0 20,40 L20,20 A20,6 0 0,1 -20,20 Z" fill="rgba(253, 224, 71, 0.5)" />
+                      <path d="M-20,0 L-20,20 A20,6 0 0,0 20,20 L20,0 A20,6 0 0,1 -20,0 Z" fill="rgba(253, 224, 71, 0.75)" />
+                      <ellipse cx="0" cy="0" rx="20" ry="6" fill="rgba(253, 224, 71, 0.9)" />
+                      
+                      {/* 柱體外框 */}
+                      <path d="M-20,0 L-20,60 A20,6 0 0,0 20,60 L20,0 Z" fill="none" stroke="white" strokeWidth="2" strokeLinejoin="round" />
+                      <ellipse cx="0" cy="0" rx="20" ry="6" fill="none" stroke="white" strokeWidth="2" />
+                      
+                      {/* 內部刻度與虛線 */}
+                      <path d="M-20,40 A20,6 0 0,0 20,40" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1" strokeDasharray="3,2" />
+                      <path d="M-20,20 A20,6 0 0,0 20,20" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1" strokeDasharray="3,2" />
+                      
+                      {/* 左側標示文字 */}
+                      <line x1="-25" y1="40" x2="-20" y2="40" stroke="white" strokeWidth="1.5" />
+                      <line x1="-25" y1="20" x2="-20" y2="20" stroke="white" strokeWidth="1.5" />
+                      <line x1="-25" y1="0" x2="-20" y2="0" stroke="white" strokeWidth="1.5" />
+                      <text x="-34" y="44" fill="white" fontSize="12" fontWeight="bold">1</text>
+                      <text x="-34" y="24" fill="white" fontSize="12" fontWeight="bold">2</text>
+                      <text x="-34" y="4" fill="white" fontSize="12" fontWeight="bold">3</text>
+                    </g>
+                  </svg>
+                </div>
+              )}
+              {volumeShape === 'sphere' ? (
+                <div className="col-span-1 md:col-span-2 bg-rose-600 text-white p-8 md:p-10 rounded-[32px] shadow-lg relative overflow-hidden group border border-rose-500">
+                  <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
+                  <h4 className="text-xl font-black mb-4 flex items-center gap-3 text-white">
                     <i className="fa-solid fa-layer-group"></i>
                     卡瓦列里原理與切片法
                   </h4>
-                  <p className="text-rose-100 text-sm leading-relaxed font-medium">
+                  <p className="text-rose-100 text-base leading-relaxed font-medium">
                     想像把球切成無數薄片。在高度 <span dangerouslySetInnerHTML={{ __html: katex.renderToString('y') }}></span> 處，從圓方程式 <span dangerouslySetInnerHTML={{ __html: katex.renderToString('x^2 + y^2 = r^2') }}></span> 得知截面半徑的平方為 <span dangerouslySetInnerHTML={{ __html: katex.renderToString('r^2 - y^2') }}></span>，所以截面積為 <span className="bg-rose-500/50 px-1 rounded" dangerouslySetInnerHTML={{ __html: katex.renderToString('\\pi(r^2 - y^2)') }}></span>。
                   </p>
-                  <p className="text-rose-100 text-[13px] leading-relaxed font-medium mt-3 border-t border-white/20 pt-3 flex flex-col gap-1.5">
+                  <svg viewBox="0 0 300 130" className="w-full max-w-xl mx-auto mt-8 mb-6 drop-shadow-md animate-slide-up">
+                    {/* 左：半球 */}
+                    <g transform="translate(30, 10)">
+                      <path d="M0,80 A40,40 0 0,1 80,80 Z" fill="rgba(255,255,255,0.08)" stroke="white" strokeWidth="2" />
+                      <ellipse cx="40" cy="80" rx="40" ry="10" fill="none" stroke="white" strokeWidth="1" strokeDasharray="3,3" />
+                      <path d="M0,80 A40,10 0 0,0 80,80" fill="none" stroke="white" strokeWidth="1" />
+                      
+                      <ellipse cx="40" cy="60" rx="34.6" ry="8.6" fill="rgba(255,255,255,0.4)" stroke="white" strokeWidth="1.5" />
+                      <line x1="40" y1="60" x2="74.6" y2="60" stroke="white" strokeWidth="1" strokeDasharray="2,2" />
+                      <text x="57" y="56" fill="white" fontSize="8" textAnchor="middle">√(r²-y²)</text>
+                      
+                      <line x1="40" y1="80" x2="40" y2="60" stroke="white" strokeWidth="1" strokeDasharray="2,2" />
+                      <text x="34" y="73" fill="white" fontSize="9">y</text>
+                      <text x="40" y="110" fill="white" fontSize="10" textAnchor="middle" fontWeight="bold">半球 (半徑 r)</text>
+                    </g>
+
+                    <text x="150" y="75" fill="white" fontSize="24" textAnchor="middle" fontWeight="bold">=</text>
+
+                    {/* 右：圓柱挖去圓錐 */}
+                    <g transform="translate(190, 10)">
+                      <path d="M0,40 L0,80 A40,10 0 0,0 80,80 L80,40" fill="rgba(255,255,255,0.08)" stroke="white" strokeWidth="2" />
+                      <ellipse cx="40" cy="40" rx="40" ry="10" fill="none" stroke="white" strokeWidth="2" />
+                      <ellipse cx="40" cy="80" rx="40" ry="10" fill="none" stroke="white" strokeWidth="1" strokeDasharray="3,3" />
+                      
+                      <path d="M0,40 L40,80 L80,40" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" strokeDasharray="3,3" />
+                      
+                      <path d="M0,60 A40,10 0 0,0 80,60 A40,10 0 0,0 0,60 Z M20,60 A20,5 0 0,1 60,60 A20,5 0 0,1 20,60 Z" fill="rgba(255,255,255,0.4)" stroke="white" strokeWidth="1.5" fillRule="evenodd" />
+                      
+                      <line x1="40" y1="60" x2="60" y2="60" stroke="white" strokeWidth="1" strokeDasharray="2,2" />
+                      <text x="48" y="55" fill="white" fontSize="8" textAnchor="middle">y</text>
+                      <line x1="40" y1="60" x2="80" y2="60" stroke="white" strokeWidth="1" strokeDasharray="2,2" />
+                      <text x="70" y="55" fill="white" fontSize="8" textAnchor="middle">r</text>
+                      
+                      <text x="40" y="110" fill="white" fontSize="10" textAnchor="middle" fontWeight="bold">圓柱挖去同底等高圓錐</text>
+                    </g>
+                  </svg>
+                  <p className="text-rose-100 text-[13px] leading-relaxed font-medium mt-3 border-t border-white/20 pt-4 flex flex-col gap-1.5">
                     <span>神奇的是，「<strong className="text-white text-sm">圓柱挖掉同底同高圓錐</strong>」後，在同高度的截面積恰好也是 <span className="bg-rose-500/50 px-1 rounded" dangerouslySetInnerHTML={{ __html: katex.renderToString('\\pi r^2 - \\pi y^2') }}></span>！</span>
                     <span>因為每一層截面積都相等，兩者體積必定相等：</span>
                     <span className="text-center mt-1" dangerouslySetInnerHTML={{ __html: katex.renderToString('V_{半球} = V_{圓柱} - V_{圓錐} = \\pi r^3 - \\frac{1}{3}\\pi r^3 = \\frac{2}{3}\\pi r^3') }}></span>
@@ -2546,11 +2638,45 @@
                       <div className="text-right font-black text-blue-600">{inp[p.key]} cm</div>
                     </div>
                   ))}
+                  {surfaceType === 'cone' && (
+                    <div className="bg-red-50 p-4 rounded-xl border border-red-100 mt-4 animate-slide-up">
+                      <h5 className="font-black text-red-700 text-sm mb-1 flex items-center gap-2">
+                        <i className="fa-solid fa-lightbulb text-red-500"></i> 何謂母線 (l)？
+                      </h5>
+                      <p className="text-red-600/90 text-xs font-bold leading-relaxed">
+                        母線是指圓錐「<span className="text-red-700 underline underline-offset-2">頂點</span>」到「<span className="text-red-700 underline underline-offset-2">底面圓周上任意一點</span>」的連線段。也就是沿著圓錐斜面的長度。當圓錐的側面展開成扇形時，這個扇形的半徑剛好就會等於母線長 <span className="font-serif italic">l</span>！
+                      </p>
+                    </div>
+                  )}
                 </div>
-                <div className="bg-blue-600 text-white p-8 rounded-3xl text-center shadow-2xl">
-                  <div className="text-blue-200 text-sm font-black uppercase mb-2">計算結果</div>
-                  <div className="text-6xl font-black mb-2">{cur.result}</div>
-                  <div className="text-blue-200 font-bold">平方公分 (cm²)</div>
+                <div className="flex flex-col gap-4">
+                  <div className="bg-blue-600 text-white p-8 rounded-3xl text-center shadow-2xl h-full flex flex-col justify-center">
+                    <div className="text-blue-200 text-sm font-black uppercase mb-2">計算結果</div>
+                    <div className="text-6xl font-black mb-2">{cur.result}</div>
+                    <div className="text-blue-200 font-bold">平方公分 (cm²)</div>
+                  </div>
+                  {surfaceType === 'cylinder' && (
+                    <div className="bg-emerald-50 border border-emerald-100 p-6 rounded-3xl text-center animate-slide-up">
+                      <div className="text-emerald-700 font-black text-sm mb-3">圓柱展開圖</div>
+                      <svg viewBox="0 0 200 160" className="w-full h-36 overflow-visible drop-shadow-sm">
+                        {/* 頂部圓形 */}
+                        <circle cx="100" cy="30" r="20" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="2" />
+                        <text x="100" y="32" dominantBaseline="middle" textAnchor="middle" fill="#047857" fontSize="10" fontWeight="bold">πr²</text>
+                        {/* 側面長方形 */}
+                        <rect x="40" y="55" width="120" height="50" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="2" />
+                        <text x="100" y="82" dominantBaseline="middle" textAnchor="middle" fill="#047857" fontSize="12" fontWeight="bold">2πrh</text>
+                        {/* 底部圓形 */}
+                        <circle cx="100" cy="130" r="20" fill="rgba(16, 185, 129, 0.2)" stroke="#10b981" strokeWidth="2" />
+                        <text x="100" y="132" dominantBaseline="middle" textAnchor="middle" fill="#047857" fontSize="10" fontWeight="bold">πr²</text>
+
+                        {/* 標示長度 */}
+                        <line x1="40" y1="50" x2="160" y2="50" stroke="#047857" strokeWidth="1" strokeDasharray="2,2" />
+                        <text x="100" y="46" dominantBaseline="baseline" textAnchor="middle" fill="#047857" fontSize="9">長 = 2πr (底面周長)</text>
+                        <line x1="35" y1="55" x2="35" y2="105" stroke="#047857" strokeWidth="1" strokeDasharray="2,2" />
+                        <text x="31" y="80" dominantBaseline="middle" textAnchor="end" fill="#047857" fontSize="9">寬 = h</text>
+                      </svg>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
