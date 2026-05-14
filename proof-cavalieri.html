@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>卡瓦列里原理與球體積 - 數位智慧課本</title>
+  <meta name="description" content="透過互動截面積比較，理解祖沖之原理（卡瓦列里原理）如何推導球體積公式 4/3πr³。">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <style>
+    body { font-family: 'Noto Sans TC', sans-serif; background-color: #fff1f2; background-image: radial-gradient(#fecdd3 1px, transparent 1px); background-size: 20px 20px; }
+    h1, h2, h3, h4 { font-family: 'Noto Serif TC', serif; }
+    @keyframes slide-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    .anim { animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    input[type="range"] { -webkit-appearance: none; appearance: none; width: 100%; height: 10px; border-radius: 10px; background: rgba(255,255,255,0.2); outline: none; }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 28px; height: 28px; background: white; border-radius: 50%; cursor: pointer; box-shadow: 0 3px 12px rgba(0,0,0,0.25); transition: transform 0.1s; }
+    input[type="range"]::-webkit-slider-thumb:hover { transform: scale(1.15); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useMemo } = React;
+    const K = ({ tex, block }) => block
+      ? <div className="text-center my-3" dangerouslySetInnerHTML={{ __html: katex.renderToString(tex, { displayMode: true, throwOnError: false }) }} />
+      : <span dangerouslySetInnerHTML={{ __html: katex.renderToString(tex, { throwOnError: false }) }} />;
+
+    function App() {
+      const [y, setY] = useState(40); // 0 = bottom of hemisphere, 80 = apex
+      const R = 80; // SVG radius
+
+      const crossRadius = Math.sqrt(Math.max(0, R * R - y * y)); // radius of hemisphere cross-section
+      const coneRadius = y; // radius of cone cross-section at height y (cone apex at top, half-angle 45°)
+
+      const hemiArea = useMemo(() => (Math.PI * (R*R - y*y)).toFixed(1), [y]);
+      const rightArea = useMemo(() => (Math.PI * (R*R - y*y)).toFixed(1), [y]); // always equal
+
+      const pct = Math.round((y / R) * 100);
+      const areaFraction = ((R*R - y*y) / (R*R)).toFixed(3);
+
+      return (
+        <div className="min-h-screen max-w-4xl mx-auto p-4 md:p-8">
+
+          {/* ── Top Nav ── */}
+          <nav className="flex items-center justify-between mb-8 flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              <a href="index.html" className="bg-white hover:bg-rose-50 border-2 border-rose-200 text-rose-700 font-black px-4 py-2 rounded-xl text-sm flex items-center gap-2 shadow-sm transition-all hover:-translate-y-0.5">
+                <i className="fa-solid fa-house"></i> 課程首頁
+              </a>
+              <span className="text-rose-300 font-bold">›</span>
+              <a href="proof-pyramid.html" className="bg-emerald-50 hover:bg-emerald-100 border-2 border-emerald-200 text-emerald-700 font-black px-4 py-2 rounded-xl text-sm flex items-center gap-2 shadow-sm transition-all hover:-translate-y-0.5">
+                <i className="fa-solid fa-flask-vial"></i> ← 錐體 1/3 原理
+              </a>
+            </div>
+            <div className="text-[10px] font-black text-rose-400 uppercase tracking-widest bg-rose-100 px-3 py-1 rounded-full">G9 Math · 體積推導 2/2</div>
+          </nav>
+
+          {/* ── Hero ── */}
+          <div className="bg-gradient-to-br from-rose-500 via-rose-600 to-rose-800 rounded-[32px] text-white p-8 md:p-12 shadow-2xl mb-8 relative overflow-hidden anim">
+            <div className="absolute top-0 right-0 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-rose-300/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-2 bg-rose-400/25 border border-rose-300/30 text-rose-100 text-xs font-black px-3 py-1.5 rounded-full uppercase tracking-widest mb-6">
+                <i className="fa-solid fa-layer-group"></i> 卡瓦列里原理（祖沖之原理）
+              </div>
+              <h1 className="text-4xl md:text-5xl font-black leading-tight mb-4">
+                球體積的<br/>幾何奧秘
+              </h1>
+              <p className="text-rose-100 text-lg leading-relaxed max-w-xl">
+                祖沖之與義大利數學家卡瓦列里都發現了同一個真理：兩個立體若在<strong className="text-white">任何高度的水平截面積都相等</strong>，它們的<strong className="text-white">體積必然完全相同</strong>。
+              </p>
+            </div>
+          </div>
+
+          {/* ── Principle Card ── */}
+          <div className="bg-white rounded-[28px] shadow-lg border border-rose-100 p-8 mb-8 anim" style={{ animationDelay: '0.08s', opacity: 0 }}>
+            <div className="flex items-start gap-5">
+              <div className="w-12 h-12 bg-rose-100 rounded-2xl flex items-center justify-center shrink-0">
+                <i className="fa-solid fa-scale-balanced text-rose-600 text-xl"></i>
+              </div>
+              <div>
+                <h2 className="text-xl font-black text-slate-800 mb-2">卡瓦列里原理</h2>
+                <p className="text-slate-500 text-sm leading-relaxed mb-4">
+                  若兩個立體夾在兩平行平面之間，且被任一與這兩平行平面平行的截面所截出的面積都相等，則這兩個立體的<strong className="text-slate-700">體積相等</strong>。
+                </p>
+                <div className="bg-rose-50 rounded-2xl p-4 border border-rose-100 text-center">
+                  <K tex="\text{若 } A_1(y) = A_2(y) \text{ 對所有 } y \text{ 成立，則 } V_1 = V_2" block />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Interactive Slider Section ── */}
+          <div className="bg-gradient-to-br from-rose-700 to-rose-950 text-white rounded-[32px] p-8 md:p-10 shadow-2xl mb-8 anim" style={{ animationDelay: '0.15s', opacity: 0 }}>
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
+              <div>
+                <h2 className="text-2xl font-black mb-1 flex items-center gap-3">
+                  <i className="fa-solid fa-sliders text-rose-300"></i> 互動截面比較
+                </h2>
+                <p className="text-rose-300 text-sm">拖動滑桿調整截面高度，觀察兩側截面積的神奇關係</p>
+              </div>
+              <div className="bg-rose-950/60 border border-rose-500/40 rounded-2xl p-5 w-full md:w-72">
+                <label className="text-rose-200 text-sm font-black flex justify-between mb-3">
+                  <span>截面高度 <K tex="y" /></span>
+                  <span className="text-white bg-rose-600 px-2.5 py-0.5 rounded-lg">{y} / {R}</span>
+                </label>
+                <input type="range" min="0" max="80" value={y} onChange={e => setY(Number(e.target.value))} />
+                <div className="flex justify-between text-rose-400 text-xs mt-1 font-bold">
+                  <span>底部 (y=0)</span><span>頂部 (y=r)</span>
+                </div>
+              </div>
+            </div>
+
+            {/* SVG Comparison */}
+            <div className="bg-rose-950/50 rounded-[24px] p-6 border border-rose-400/20 mb-6">
+              <svg viewBox="0 0 420 200" className="w-full max-w-2xl mx-auto overflow-visible drop-shadow-xl">
+
+                {/* === Left: Hemisphere === */}
+                <g transform="translate(55, 15)">
+                  <path d="M0,110 A60,60 0 0,1 120,110 Z" fill="rgba(255,255,255,0.04)" stroke="white" strokeWidth="2.5" />
+                  <ellipse cx="60" cy="110" rx="60" ry="15" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" strokeDasharray="4,4" />
+                  <path d="M0,110 A60,15 0 0,0 120,110" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="2" />
+
+                  {/* Cross section ellipse (moves with y) */}
+                  <g transform={`translate(0, ${110 - y})`}>
+                    <ellipse
+                      cx="60" cy="0"
+                      rx={crossRadius * (60 / R)}
+                      ry={crossRadius * (15 / R)}
+                      fill="rgba(253,224,71,0.45)" stroke="#fde047" strokeWidth="2.5" />
+                    {y < 76 && (
+                      <>
+                        <line x1="60" y1="0" x2={60 + crossRadius * (60 / R)} y2="0" stroke="#fde047" strokeWidth="1.5" strokeDasharray="3,2" />
+                        <text x={60 + crossRadius * (30 / R)} y="-6" fill="#fde047" fontSize="9" textAnchor="middle" fontWeight="bold">√(r²-y²)</text>
+                      </>
+                    )}
+                  </g>
+
+                  {/* Height y indicator */}
+                  <line x1="60" y1="110" x2="60" y2={110 - y} stroke="#fca5a5" strokeWidth="2" strokeDasharray="3,3" />
+                  {y > 12 && <text x="50" y={110 - y / 2} fill="#fca5a5" fontSize="11" fontWeight="bold">y</text>}
+                  <text x="60" y="158" fill="rgba(255,255,255,0.85)" fontSize="13" textAnchor="middle" fontWeight="bold">半球（半徑 r）</text>
+                </g>
+
+                {/* = sign */}
+                <text x="210" y="108" fill="white" fontSize="38" textAnchor="middle" fontWeight="black" opacity="0.9">=</text>
+
+                {/* === Right: Cylinder minus Cone === */}
+                <g transform="translate(230, 15)">
+                  {/* Cylinder body */}
+                  <path d="M0,50 L0,110 A60,15 0 0,0 120,110 L120,50" fill="rgba(255,255,255,0.04)" stroke="white" strokeWidth="2.5" />
+                  <ellipse cx="60" cy="50" rx="60" ry="15" fill="none" stroke="white" strokeWidth="2.5" />
+                  <ellipse cx="60" cy="110" rx="60" ry="15" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" strokeDasharray="4,4" />
+
+                  {/* Cone outline (inverted, apex at bottom) */}
+                  <path d="M0,50 L60,110 L120,50" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeDasharray="5,4" />
+
+                  {/* Cross section (annular ring = cylinder area - cone area) */}
+                  <g transform={`translate(0, ${110 - y})`}>
+                    {/* Outer ring */}
+                    <ellipse cx="60" cy="0" rx="60" ry="15" fill="rgba(253,224,71,0.45)" stroke="#fde047" strokeWidth="2.5" />
+                    {/* Inner hole (cone cross section) */}
+                    {y > 2 && (
+                      <ellipse
+                        cx="60" cy="0"
+                        rx={y * (60 / R)}
+                        ry={y * (15 / R)}
+                        fill="rgba(159,18,57,0.7)" stroke="rgba(255,255,255,0.4)" strokeWidth="1.5" />
+                    )}
+                    {y > 12 && y < 76 && (
+                      <>
+                        <line x1="60" y1="0" x2={60 + y * (60 / R)} y2="0" stroke="#f9a8d4" strokeWidth="1.5" strokeDasharray="2,2" />
+                        <text x={60 + y * (30 / R)} y="-6" fill="#f9a8d4" fontSize="9" textAnchor="middle" fontWeight="bold">y</text>
+                        <line x1="60" y1="0" x2="120" y2="0" stroke="rgba(255,255,255,0.3)" strokeWidth="1" strokeDasharray="2,2" />
+                        <text x="113" y="-6" fill="rgba(255,255,255,0.5)" fontSize="9" textAnchor="middle">r</text>
+                      </>
+                    )}
+                  </g>
+
+                  <text x="60" y="158" fill="rgba(255,255,255,0.85)" fontSize="13" textAnchor="middle" fontWeight="bold">圓柱挖去圓錐</text>
+                </g>
+
+              </svg>
+            </div>
+
+            {/* Area comparison display */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="bg-yellow-400/15 border border-yellow-400/30 rounded-2xl p-5 text-center">
+                <div className="text-yellow-200 text-xs font-black uppercase tracking-wider mb-2">左側半球截面積</div>
+                <div className="text-yellow-300 font-black text-lg">
+                  <K tex={`\\pi(r^2 - y^2)`} />
+                </div>
+                <div className="text-white/60 text-xs mt-1">= {hemiArea} 當 y={y}, r={R}</div>
+              </div>
+
+              <div className="flex items-center justify-center">
+                <div className="text-4xl font-black text-white/70">≡</div>
+              </div>
+
+              <div className="bg-yellow-400/15 border border-yellow-400/30 rounded-2xl p-5 text-center">
+                <div className="text-yellow-200 text-xs font-black uppercase tracking-wider mb-2">右側 (柱-錐) 截面積</div>
+                <div className="text-yellow-300 font-black text-lg">
+                  <K tex={`\\pi r^2 - \\pi y^2`} />
+                </div>
+                <div className="text-white/60 text-xs mt-1">= {rightArea} 當 y={y}, r={R}</div>
+              </div>
+            </div>
+
+            <div className="mt-4 bg-white/10 rounded-xl px-6 py-3 text-center border border-white/10">
+              <span className="text-rose-200 text-sm font-bold">
+                不論 y 等於多少，兩側截面積永遠相等 ✅ （截面積佔最大值的 <strong className="text-white">{Math.round(Number(areaFraction) * 100)}%</strong>）
+              </span>
+            </div>
+          </div>
+
+          {/* ── Derivation Steps ── */}
+          <div className="bg-white rounded-[28px] shadow-lg border border-rose-100 p-8 mb-8 anim" style={{ animationDelay: '0.2s', opacity: 0 }}>
+            <h2 className="text-2xl font-black text-slate-800 mb-6 flex items-center gap-3">
+              <span className="w-10 h-10 bg-rose-100 rounded-xl flex items-center justify-center">
+                <i className="fa-solid fa-list-ol text-rose-600"></i>
+              </span>
+              球體積推導步驟
+            </h2>
+            <div className="space-y-4">
+              {[
+                { step: '1', title: '由卡瓦列里原理得：', formula: 'V_{\\text{半球}} = V_{\\text{圓柱}} - V_{\\text{圓錐}}', note: '因為兩者在任何高度的截面積相等' },
+                { step: '2', title: '代入柱與錐的體積公式：', formula: 'V_{\\text{半球}} = \\pi r^2 \\cdot r - \\dfrac{1}{3}\\pi r^2 \\cdot r', note: '圓柱高 = r，圓錐高 = r（等底等高）' },
+                { step: '3', title: '化簡計算：', formula: 'V_{\\text{半球}} = \\pi r^3 - \\dfrac{1}{3}\\pi r^3 = \\dfrac{2}{3}\\pi r^3', note: '' },
+                { step: '4', title: '整顆球是半球的兩倍：', formula: 'V_{\\text{球}} = 2 \\times \\dfrac{2}{3}\\pi r^3 = \\dfrac{4}{3}\\pi r^3', note: '最終結論！', highlight: true },
+              ].map(item => (
+                <div key={item.step} className={`flex gap-4 p-5 rounded-2xl border ${item.highlight ? 'bg-rose-50 border-rose-200' : 'bg-slate-50 border-slate-100'}`}>
+                  <div className={`w-9 h-9 rounded-xl flex items-center justify-center font-black text-sm shrink-0 ${item.highlight ? 'bg-rose-600 text-white' : 'bg-slate-200 text-slate-600'}`}>
+                    {item.step}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className={`text-sm font-black mb-1 ${item.highlight ? 'text-rose-700' : 'text-slate-600'}`}>{item.title}</div>
+                    <div className={item.highlight ? 'text-rose-900' : 'text-slate-700'}>
+                      <K tex={item.formula} block />
+                    </div>
+                    {item.note && <div className="text-slate-400 text-xs mt-1">{item.note}</div>}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* ── Final Formula Showcase ── */}
+          <div className="bg-gradient-to-br from-rose-600 to-rose-800 text-white rounded-[32px] p-10 shadow-2xl text-center mb-8 anim" style={{ animationDelay: '0.25s', opacity: 0 }}>
+            <div className="text-rose-200 text-sm font-black uppercase tracking-widest mb-4">球體積公式</div>
+            <div className="text-5xl md:text-6xl font-black mb-6 bg-white/10 rounded-3xl py-8 px-6 border border-white/20">
+              <K tex="V_{\text{球}} = \dfrac{4}{3}\pi r^3" block />
+            </div>
+            <p className="text-rose-200 text-base max-w-md mx-auto">
+              其中 <K tex="r" /> 為球的半徑。這個公式由祖沖之父子在西元 5 世紀首先推導，比西方早逾一千年。
+            </p>
+          </div>
+
+          {/* ── Back CTA ── */}
+          <a href="proof-pyramid.html" className="group flex items-center justify-between bg-gradient-to-r from-emerald-500 to-teal-600 text-white rounded-[28px] p-8 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 mb-10 anim" style={{ animationDelay: '0.3s', opacity: 0 }}>
+            <i className="fa-solid fa-arrow-left text-3xl text-emerald-300 group-hover:-translate-x-2 transition-transform"></i>
+            <div className="text-right">
+              <div className="text-emerald-200 text-xs font-black uppercase tracking-widest mb-2">回顧上一個觀念</div>
+              <h3 className="text-2xl font-black">← 錐體為什麼是柱體的 1/3？</h3>
+              <p className="text-emerald-200 text-sm mt-1">透過倒水實驗直觀感受 1/3 的物理意義</p>
+            </div>
+          </a>
+
+          <div className="text-center text-slate-400 font-bold text-xs flex items-center justify-center gap-2 uppercase tracking-wider pb-10">
+            <i className="fa-solid fa-code"></i> Designed by Linkou Kang Chiao Math Teachers
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>

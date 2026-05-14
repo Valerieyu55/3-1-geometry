@@ -902,42 +902,42 @@
               {tab === 'platonic' && (
                 <div className="space-y-4 fade-in">
                   <div className="bg-sky-500/10 border border-sky-500/30 rounded-2xl p-5">
-                    <h3 className="text-sky-300 font-black text-lg mb-3">什麼是柏拉圖立體？</h3>
-                    <p className="text-slate-300 text-sm leading-relaxed mb-3">
-                      古希臘哲學家<strong className="text-white">柏拉圖（Plato）</strong>認為這些立體是構成宇宙萬物的基本形體，因此以他命名。
-                      柏拉圖立體必須同時滿足以下 <strong className="text-sky-300">3 個條件</strong>：
+                    <h3 className="text-sky-300 font-black text-2xl mb-4">什麼是柏拉圖立體？</h3>
+                    <p className="text-slate-300 text-base leading-relaxed mb-4">
+                      古希臘哲學家<strong className="text-white text-lg">柏拉圖（Plato）</strong>認為這些立體是構成宇宙萬物的基本形體，因此以他命名。
+                      柏拉圖立體必須同時滿足以下 <strong className="text-sky-300 text-lg">3 個條件</strong>：
                     </p>
-                    <div className="grid grid-cols-1 gap-2">
+                    <div className="grid grid-cols-1 gap-3">
                       {[
                         { icon: '🔺', title: '面全等', desc: '每個面都是完全相同的正多邊形（如正三角形、正方形）' },
                         { icon: '⭐', title: '頂點相同', desc: '在每個頂點，都有相同數量的面相交在一起' },
                         { icon: '💎', title: '高度對稱', desc: '從任何方向觀察，形體的結構都完全一致' },
                       ].map(item => (
-                        <div key={item.title} className="flex items-start gap-3 bg-slate-800/60 rounded-xl p-3">
-                          <span className="text-xl">{item.icon}</span>
+                        <div key={item.title} className="flex items-center gap-4 bg-slate-800/60 rounded-xl p-4">
+                          <span className="text-2xl">{item.icon}</span>
                           <div>
-                            <div className="text-xs font-black text-slate-200 mb-0.5">{item.title}</div>
-                            <div className="text-xs text-slate-400 leading-relaxed">{item.desc}</div>
+                            <div className="text-base font-black text-slate-200 mb-1">{item.title}</div>
+                            <div className="text-sm text-slate-400 leading-relaxed">{item.desc}</div>
                           </div>
                         </div>
                       ))}
                     </div>
-                    <div className="mt-4 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-300 font-bold">
-                      🔑 重要結論：全宇宙只有 <span className="text-white text-base font-black">5</span> 種柏拉圖立體，這已被數學嚴格證明，不可能有第 6 種！
+                    <div className="mt-5 bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-sm text-amber-300 font-bold">
+                      🔑 重要結論：全宇宙只有 <span className="text-white text-xl font-black mx-1">5</span> 種柏拉圖立體，這已被數學嚴格證明，不可能有第 6 種！
                     </div>
                   </div>
 
                   {/* Summary Table */}
-                  <div className="rounded-2xl overflow-hidden border border-slate-700">
-                    <div className="bg-slate-800 px-4 py-2 text-xs font-black text-slate-400 uppercase tracking-widest">五大柏拉圖立體一覽</div>
-                    <table className="w-full text-sm">
+                  <div className="rounded-2xl overflow-hidden border border-slate-700 mt-2">
+                    <div className="bg-slate-800 px-5 py-3 text-sm font-black text-slate-400 uppercase tracking-widest">五大柏拉圖立體一覽</div>
+                    <table className="w-full text-base">
                       <thead className="bg-slate-800/60">
-                        <tr className="text-xs text-slate-500 font-black uppercase">
-                          <th className="text-left px-4 py-2">名稱</th>
-                          <th className="text-center px-2 py-2 text-orange-400">頂點 V</th>
-                          <th className="text-center px-2 py-2 text-sky-400">稜邊 E</th>
-                          <th className="text-center px-2 py-2 text-emerald-400">面 F</th>
-                          <th className="text-left px-4 py-2">面的形狀</th>
+                        <tr className="text-sm text-slate-500 font-black uppercase">
+                          <th className="text-left px-5 py-3">名稱</th>
+                          <th className="text-center px-3 py-3 text-orange-400">頂點 V</th>
+                          <th className="text-center px-3 py-3 text-sky-400">稜邊 E</th>
+                          <th className="text-center px-3 py-3 text-emerald-400">面 F</th>
+                          <th className="text-left px-5 py-3">面的形狀</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-slate-800">
@@ -949,17 +949,17 @@
                           { name: '正二十面體', v: 12, e: 30, f: 20, shape: '正三角形', color: 'text-pink-400' },
                         ].map(row => (
                           <tr key={row.name} className="hover:bg-slate-800/40 transition-colors">
-                            <td className={`px-4 py-3 font-black text-xs ${row.color}`}>{row.name}</td>
-                            <td className="text-center px-2 py-3 font-black text-orange-300">{row.v}</td>
-                            <td className="text-center px-2 py-3 font-black text-sky-300">{row.e}</td>
-                            <td className="text-center px-2 py-3 font-black text-emerald-300">{row.f}</td>
-                            <td className="px-4 py-3 text-xs text-slate-400">{row.shape}</td>
+                            <td className={`px-5 py-4 font-black text-base ${row.color}`}>{row.name}</td>
+                            <td className="text-center px-3 py-4 font-black text-orange-300 text-lg">{row.v}</td>
+                            <td className="text-center px-3 py-4 font-black text-sky-300 text-lg">{row.e}</td>
+                            <td className="text-center px-3 py-4 font-black text-emerald-300 text-lg">{row.f}</td>
+                            <td className="px-5 py-4 text-sm text-slate-300 font-bold">{row.shape}</td>
                           </tr>
                         ))}
                       </tbody>
                     </table>
                   </div>
-                  <div className="text-xs text-slate-500 font-bold text-center">驗算：每一列的 V − E + F 都等於 2（歐拉定理）</div>
+                  <div className="text-sm text-slate-500 font-bold text-center mt-3">驗算：每一列的 V − E + F 都等於 2（歐拉定理）</div>
                 </div>
               )}
 
@@ -1920,10 +1920,10 @@
         ];
 
         const cubeSlices = [
-          { id: 'square', name: '平行切面 (正方形)', shapeName: '正方形', desc: '平行於其中一個面的切法。剖面與原平面完全全等。', planeStyle: { width: '128px', height: '128px', transform: 'rotateX(90deg) translateZ(0)' }, path: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', svg: <rect x="20" y="20" width="60" height="60" fill="#ef4444" opacity="0.8" /> },
-          { id: 'rect', name: '對角切面 (長方形)', shapeName: '長方形', desc: '通過相對的兩條稜邊。邊長為底邊與對角線。', planeStyle: { width: '128px', height: '181.02px', transform: 'rotateX(45deg) translateZ(0)' }, path: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', svg: <rect x="15" y="25" width="70" height="50" fill="#ef4444" opacity="0.8" /> },
-          { id: 'triangle', name: '截角切面 (三角形)', shapeName: '正三角形', desc: '切過交於同一頂點的三個面。若切點為中點，則為正三角形。', planeStyle: { width: '90.51px', height: '78.38px', transform: 'rotateY(45deg) rotateX(35.26deg) translateZ(73.9px) translateY(13.06px)' }, path: 'polygon(50% 100%, 100% 0%, 0% 0%)', svg: <polygon points="50,10 90,80 10,80" fill="#ef4444" opacity="0.8" /> },
-          { id: 'hex', name: '中截切面 (六邊形)', shapeName: '正六邊形', desc: '切過六條稜的中點，造成完美恆等的正六邊形！', planeStyle: { width: '181.02px', height: '156.77px', transform: 'rotateY(45deg) rotateX(35.26deg)' }, path: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)', svg: <polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="#ef4444" opacity="0.8" /> },
+          { id: 'square', name: '平行切面 (正方形)', shapeName: '正方形', desc: '平行於其中一個面的切法。剖面與原平面完全全等。', planeStyle: { width: '126px', height: '126px', transform: 'rotateX(90deg) translateZ(0)' }, path: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', svg: <rect x="20" y="20" width="60" height="60" fill="#ef4444" opacity="0.8" /> },
+          { id: 'rect', name: '對角切面 (長方形)', shapeName: '長方形', desc: '通過相對的兩條稜邊。邊長為底邊與對角線。', planeStyle: { width: '126px', height: '178.19px', transform: 'rotateX(45deg) translateZ(0)' }, path: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', svg: <rect x="15" y="25" width="70" height="50" fill="#ef4444" opacity="0.8" /> },
+          { id: 'triangle', name: '截角切面 (三角形)', shapeName: '正三角形', desc: '切過交於同一頂點的三個面。若切點為中點，則為正三角形。', planeStyle: { width: '89.1px', height: '77.16px', transform: 'rotateY(45deg) rotateX(35.26deg) translateZ(72.75px) translateY(12.86px)' }, path: 'polygon(50% 100%, 100% 0%, 0% 0%)', svg: <polygon points="50,10 90,80 10,80" fill="#ef4444" opacity="0.8" /> },
+          { id: 'hex', name: '中截切面 (六邊形)', shapeName: '正六邊形', desc: '切過六條稜的中點，造成完美恆等的正六邊形！', planeStyle: { width: '178.19px', height: '154.32px', transform: 'rotateY(45deg) rotateX(35.26deg)' }, path: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)', svg: <polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="#ef4444" opacity="0.8" /> },
         ];
         const cylinderSlices = [
           { id: 'circle', name: '水平切面 (圓形)', shapeName: '圓形', desc: '平行於底面的切法，剖面會與底面完全相同。', planeStyle: { width: '130px', height: '130px', transform: 'rotateX(90deg) translateZ(0)' }, path: 'circle(50% at 50% 50%)', svg: <circle cx="50" cy="50" r="40" fill="#ef4444" opacity="0.8" /> },
@@ -2088,7 +2088,7 @@
                         </>
                       )}
                       {/* Slicing Plane */}
-                      <div className="absolute inset-0 m-auto bg-red-500/60 border-2 border-dashed border-red-500 shadow-[0_0_30px_rgba(239,68,68,0.3)] backdrop-blur-[1px]"
+                      <div className="absolute inset-0 m-auto bg-red-500/60 shadow-[0_0_30px_rgba(239,68,68,0.3)] backdrop-blur-[1px]"
                         style={{ ...s.planeStyle, clipPath: s.path, transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)' }}>
                         <div className="w-full h-full" style={{ backgroundImage: 'linear-gradient(rgba(255,255,255,0.3) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.3) 1px, transparent 1px)', backgroundSize: '16px 16px', clipPath: s.path }}></div>
                       </div>
@@ -2472,116 +2472,40 @@
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {!['sphere', 'cube'].includes(volumeShape) && (
-                <div className="bg-emerald-600 text-white p-8 rounded-[32px] shadow-lg relative overflow-hidden group border border-emerald-500">
+                <div className="bg-emerald-600 text-white p-8 rounded-[32px] shadow-lg relative overflow-hidden group border border-emerald-500 flex flex-col justify-between">
                   <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
-                  <h4 className="text-lg font-black mb-4 flex items-center gap-3">
-                    <i className="fa-solid fa-graduation-cap"></i>
-                    觀念對比：柱 vs 錐
-                  </h4>
-                  <p className="text-emerald-100 text-sm leading-relaxed font-medium">
-                    在數學實驗中，如果您拿一個「等底、等高」的角柱和角錐。
-                    將角錐裝滿水倒入角柱，剛好可以倒滿 <span className="text-white font-black underline underline-offset-4">3 次</span>。
-                    這就是為什麼錐體公式要乘以 <span className="text-2xl font-black text-yellow-300">1/3</span> 的物理意義喔！
-                  </p>
-                  <svg viewBox="0 0 300 120" className="w-full mt-6 drop-shadow-md">
-                    {/* 左側：錐體 */}
-                    <g transform="translate(45, 25)">
-                      <path d="M-20,60 L0,0 L20,60 Z" fill="rgba(253, 224, 71, 0.15)" stroke="white" strokeWidth="2" strokeLinejoin="round" />
-                      <ellipse cx="0" cy="60" rx="20" ry="6" fill="rgba(253, 224, 71, 0.4)" stroke="white" strokeWidth="1.5" />
-                      
-                      {/* 水滴特效 */}
-                      <path d="M0,20 L6,34 A6,6 0 0,1 -6,34 Z" fill="#fde047" />
-                      <path d="M0,45 L3,52 A3,3 0 0,1 -3,52 Z" fill="#fde047" />
-                      
-                      <text x="40" y="45" fill="white" fontSize="24" fontWeight="bold">×</text>
-                      <text x="60" y="48" fill="#fde047" fontSize="36" fontWeight="black">3</text>
-                    </g>
-                    
-                    {/* 中間：箭頭 */}
-                    <g transform="translate(145, 55)">
-                      <path d="M0,0 L30,0 M20,-10 L30,0 L20,10" fill="none" stroke="white" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
-                    </g>
-
-                    {/* 右側：柱體 (分三層水) */}
-                    <g transform="translate(240, 25)">
-                      {/* 水的填色 (三層) */}
-                      <path d="M-20,40 L-20,60 A20,6 0 0,0 20,60 L20,40 A20,6 0 0,1 -20,40 Z" fill="rgba(253, 224, 71, 0.25)" />
-                      <path d="M-20,20 L-20,40 A20,6 0 0,0 20,40 L20,20 A20,6 0 0,1 -20,20 Z" fill="rgba(253, 224, 71, 0.5)" />
-                      <path d="M-20,0 L-20,20 A20,6 0 0,0 20,20 L20,0 A20,6 0 0,1 -20,0 Z" fill="rgba(253, 224, 71, 0.75)" />
-                      <ellipse cx="0" cy="0" rx="20" ry="6" fill="rgba(253, 224, 71, 0.9)" />
-                      
-                      {/* 柱體外框 */}
-                      <path d="M-20,0 L-20,60 A20,6 0 0,0 20,60 L20,0 Z" fill="none" stroke="white" strokeWidth="2" strokeLinejoin="round" />
-                      <ellipse cx="0" cy="0" rx="20" ry="6" fill="none" stroke="white" strokeWidth="2" />
-                      
-                      {/* 內部刻度與虛線 */}
-                      <path d="M-20,40 A20,6 0 0,0 20,40" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1" strokeDasharray="3,2" />
-                      <path d="M-20,20 A20,6 0 0,0 20,20" fill="none" stroke="rgba(255,255,255,0.7)" strokeWidth="1" strokeDasharray="3,2" />
-                      
-                      {/* 左側標示文字 */}
-                      <line x1="-25" y1="40" x2="-20" y2="40" stroke="white" strokeWidth="1.5" />
-                      <line x1="-25" y1="20" x2="-20" y2="20" stroke="white" strokeWidth="1.5" />
-                      <line x1="-25" y1="0" x2="-20" y2="0" stroke="white" strokeWidth="1.5" />
-                      <text x="-34" y="44" fill="white" fontSize="12" fontWeight="bold">1</text>
-                      <text x="-34" y="24" fill="white" fontSize="12" fontWeight="bold">2</text>
-                      <text x="-34" y="4" fill="white" fontSize="12" fontWeight="bold">3</text>
-                    </g>
-                  </svg>
+                  <div>
+                    <h4 className="text-lg font-black mb-4 flex items-center gap-3">
+                      <i className="fa-solid fa-graduation-cap"></i>
+                      觀念對比：柱 vs 錐
+                    </h4>
+                    <p className="text-emerald-100 text-sm leading-relaxed font-medium">
+                      在數學實驗中，如果您拿一個「等底、等高」的角柱和角錐。
+                      將角錐裝滿水倒入角柱，剛好可以倒滿 <span className="text-white font-black underline underline-offset-4">3 次</span>。
+                      這就是為什麼錐體公式要乘以 <span className="text-2xl font-black text-yellow-300">1/3</span> 的物理意義喔！
+                    </p>
+                  </div>
+                  <a href="proof-pyramid.html" className="mt-8 bg-yellow-400 hover:bg-yellow-300 text-emerald-900 font-black px-6 py-3 rounded-xl transition-all shadow-md text-center block hover:-translate-y-1">
+                    進入倒水實驗室 觀看完整推導 →
+                  </a>
                 </div>
               )}
               {volumeShape === 'sphere' ? (
-                <div className="col-span-1 md:col-span-2 bg-rose-600 text-white p-8 md:p-10 rounded-[32px] shadow-lg relative overflow-hidden group border border-rose-500">
+                <div className="col-span-1 md:col-span-2 bg-rose-600 text-white p-8 md:p-10 rounded-[32px] shadow-lg relative overflow-hidden group border border-rose-500 flex flex-col md:flex-row items-center gap-8 justify-between">
                   <div className="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700"></div>
-                  <h4 className="text-xl font-black mb-4 flex items-center gap-3 text-white">
-                    <i className="fa-solid fa-layer-group"></i>
-                    卡瓦列里原理與切片法
-                  </h4>
-                  <p className="text-rose-100 text-base leading-relaxed font-medium">
-                    想像把球切成無數薄片。在高度 <span dangerouslySetInnerHTML={{ __html: katex.renderToString('y') }}></span> 處，從圓方程式 <span dangerouslySetInnerHTML={{ __html: katex.renderToString('x^2 + y^2 = r^2') }}></span> 得知截面半徑的平方為 <span dangerouslySetInnerHTML={{ __html: katex.renderToString('r^2 - y^2') }}></span>，所以截面積為 <span className="bg-rose-500/50 px-1 rounded" dangerouslySetInnerHTML={{ __html: katex.renderToString('\\pi(r^2 - y^2)') }}></span>。
-                  </p>
-                  <svg viewBox="0 0 300 130" className="w-full max-w-xl mx-auto mt-8 mb-6 drop-shadow-md animate-slide-up">
-                    {/* 左：半球 */}
-                    <g transform="translate(30, 10)">
-                      <path d="M0,80 A40,40 0 0,1 80,80 Z" fill="rgba(255,255,255,0.08)" stroke="white" strokeWidth="2" />
-                      <ellipse cx="40" cy="80" rx="40" ry="10" fill="none" stroke="white" strokeWidth="1" strokeDasharray="3,3" />
-                      <path d="M0,80 A40,10 0 0,0 80,80" fill="none" stroke="white" strokeWidth="1" />
-                      
-                      <ellipse cx="40" cy="60" rx="34.6" ry="8.6" fill="rgba(255,255,255,0.4)" stroke="white" strokeWidth="1.5" />
-                      <line x1="40" y1="60" x2="74.6" y2="60" stroke="white" strokeWidth="1" strokeDasharray="2,2" />
-                      <text x="57" y="56" fill="white" fontSize="8" textAnchor="middle">√(r²-y²)</text>
-                      
-                      <line x1="40" y1="80" x2="40" y2="60" stroke="white" strokeWidth="1" strokeDasharray="2,2" />
-                      <text x="34" y="73" fill="white" fontSize="9">y</text>
-                      <text x="40" y="110" fill="white" fontSize="10" textAnchor="middle" fontWeight="bold">半球 (半徑 r)</text>
-                    </g>
-
-                    <text x="150" y="75" fill="white" fontSize="24" textAnchor="middle" fontWeight="bold">=</text>
-
-                    {/* 右：圓柱挖去圓錐 */}
-                    <g transform="translate(190, 10)">
-                      <path d="M0,40 L0,80 A40,10 0 0,0 80,80 L80,40" fill="rgba(255,255,255,0.08)" stroke="white" strokeWidth="2" />
-                      <ellipse cx="40" cy="40" rx="40" ry="10" fill="none" stroke="white" strokeWidth="2" />
-                      <ellipse cx="40" cy="80" rx="40" ry="10" fill="none" stroke="white" strokeWidth="1" strokeDasharray="3,3" />
-                      
-                      <path d="M0,40 L40,80 L80,40" fill="none" stroke="rgba(255,255,255,0.8)" strokeWidth="1.5" strokeDasharray="3,3" />
-                      
-                      <path d="M0,60 A40,10 0 0,0 80,60 A40,10 0 0,0 0,60 Z M20,60 A20,5 0 0,1 60,60 A20,5 0 0,1 20,60 Z" fill="rgba(255,255,255,0.4)" stroke="white" strokeWidth="1.5" fillRule="evenodd" />
-                      
-                      <line x1="40" y1="60" x2="60" y2="60" stroke="white" strokeWidth="1" strokeDasharray="2,2" />
-                      <text x="48" y="55" fill="white" fontSize="8" textAnchor="middle">y</text>
-                      <line x1="40" y1="60" x2="80" y2="60" stroke="white" strokeWidth="1" strokeDasharray="2,2" />
-                      <text x="70" y="55" fill="white" fontSize="8" textAnchor="middle">r</text>
-                      
-                      <text x="40" y="110" fill="white" fontSize="10" textAnchor="middle" fontWeight="bold">圓柱挖去同底等高圓錐</text>
-                    </g>
-                  </svg>
-                  <p className="text-rose-100 text-[13px] leading-relaxed font-medium mt-3 border-t border-white/20 pt-4 flex flex-col gap-1.5">
-                    <span>神奇的是，「<strong className="text-white text-sm">圓柱挖掉同底同高圓錐</strong>」後，在同高度的截面積恰好也是 <span className="bg-rose-500/50 px-1 rounded" dangerouslySetInnerHTML={{ __html: katex.renderToString('\\pi r^2 - \\pi y^2') }}></span>！</span>
-                    <span>因為每一層截面積都相等，兩者體積必定相等：</span>
-                    <span className="text-center mt-1" dangerouslySetInnerHTML={{ __html: katex.renderToString('V_{半球} = V_{圓柱} - V_{圓錐} = \\pi r^3 - \\frac{1}{3}\\pi r^3 = \\frac{2}{3}\\pi r^3') }}></span>
-                    <span className="mt-1">整顆球是半球的兩倍，因此得到：</span>
-                    <span className="text-center font-black text-lg bg-rose-700/50 rounded-xl py-2 mt-1" dangerouslySetInnerHTML={{ __html: katex.renderToString('V_{球} = \\frac{4}{3}\\pi r^3') }}></span>
-                  </p>
+                  <div className="flex-1 z-10">
+                    <h4 className="text-xl font-black mb-4 flex items-center gap-3 text-white">
+                      <i className="fa-solid fa-layer-group"></i>
+                      卡瓦列里原理與切片法
+                    </h4>
+                    <p className="text-rose-100 text-base leading-relaxed font-medium">
+                      想像把球切成無數薄片。在任何高度，半球的水平截面積竟然恰好等於「圓柱挖去圓錐」的截面積！
+                      透過卡瓦列里原理，我們就能巧妙推導出球體積公式。
+                    </p>
+                  </div>
+                  <a href="proof-cavalieri.html" className="bg-white text-rose-700 hover:bg-rose-50 font-black px-8 py-4 rounded-2xl transition-all shadow-xl hover:-translate-y-1 text-center whitespace-nowrap z-10">
+                    啟動截面互動模擬器 →
+                  </a>
                 </div>
               ) : (
                 <div className="bg-slate-900 text-white p-8 rounded-[32px] shadow-lg relative overflow-hidden group border border-slate-700">
@@ -2830,6 +2754,11 @@
               </div>
             </div>
           </div>
+
+          <div className="mt-8 text-center text-slate-400 font-bold text-xs flex items-center justify-center gap-2 uppercase tracking-wider">
+            <i className="fa-solid fa-code"></i>
+            Designed by Linkou Kang Chiao Math Teachers
+          </div>
         </div>
       );
 
@@ -2853,7 +2782,9 @@
                 { id: 'volume', title: '體積計算機', icon: 'fa-cube', color: 'text-indigo-500' },
                 { divider: true },
                 { id: 'euler', title: '正多面體偵探室(歐拉定理)', icon: 'fa-user-secret', color: 'text-indigo-500', link: 'platonic.html' },
-                { id: 'qa', title: '立體圖形大哉問', icon: 'fa-circle-question', color: 'text-slate-500', link: 'qa.html' }
+                { id: 'qa', title: '立體圖形大哉問', icon: 'fa-circle-question', color: 'text-slate-500', link: 'qa.html' },
+                { id: 'proof-pyramid', title: '錐體為何是柱體的 1/3？', icon: 'fa-flask-vial', color: 'text-emerald-500', link: 'proof-pyramid.html' },
+                { id: 'proof-cavalieri', title: '卡瓦列里原理與球體積', icon: 'fa-layer-group', color: 'text-rose-500', link: 'proof-cavalieri.html' }
               ].map((tab, idx) => {
                 if (tab.divider) return <div key={`div-${idx}`} className="h-px bg-slate-200 my-4 mx-2"></div>;
 

@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>錐體為什麼是柱體的 1/3？- 數位智慧課本</title>
+  <meta name="description" content="透過互動倒水實驗，直觀理解等底等高的角錐體積恰好是角柱的三分之一。">
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
+  <style>
+    body { font-family: 'Noto Sans TC', sans-serif; background-color: #f0fdf4; background-image: radial-gradient(#bbf7d0 1px, transparent 1px); background-size: 20px 20px; }
+    h1, h2, h3, h4 { font-family: 'Noto Serif TC', serif; }
+    @keyframes slide-up { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+    .anim { animation: slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+    @keyframes water-fill { 0% { transform: scaleY(0); opacity: 0; } 60% { opacity: 1; } 100% { transform: scaleY(1); opacity: 1; } }
+    .water-layer { transform-origin: bottom; animation: water-fill 0.5s cubic-bezier(0.4, 0, 0.2, 1) forwards; }
+    input[type="range"] { -webkit-appearance: none; appearance: none; height: 8px; border-radius: 10px; background: rgba(255,255,255,0.25); }
+    input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 24px; height: 24px; background: white; border-radius: 50%; cursor: pointer; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+  </style>
+</head>
+<body>
+  <div id="root"></div>
+  <script type="text/babel">
+    const { useState, useEffect } = React;
+    const K = ({ tex, block }) => block
+      ? <div className="text-center my-3 text-xl" dangerouslySetInnerHTML={{ __html: katex.renderToString(tex, { displayMode: true, throwOnError: false }) }} />
+      : <span dangerouslySetInnerHTML={{ __html: katex.renderToString(tex, { throwOnError: false }) }} />;
+
+    function App() {
+      const [step, setStep] = useState(0);
+      const [animating, setAnimating] = useState(false);
+
+      const doNext = () => {
+        if (animating) return;
+        setAnimating(true);
+        setTimeout(() => {
+          setStep(s => s < 3 ? s + 1 : 0);
+          setAnimating(false);
+        }, 120);
+      };
+
+      const waterLayers = [
+        { y: 60, h: 30, opacity: 0.35, key: 1 },
+        { y: 30, h: 30, opacity: 0.60, key: 2 },
+        { y: 0,  h: 30, opacity: 0.85, key: 3 },
+      ];
+
+      return (
+        <div className="min-h-screen max-w-4xl mx-auto p-4 md:p-8">
+
+          {/* ── Top Nav ── */}
+          <nav className="flex items-center justify-between mb-8 flex-wrap gap-3">
+            <div className="flex items-center gap-3">
+              <a href="index.html" className="bg-white hover:bg-emerald-50 border-2 border-emerald-200 text-emerald-700 font-black px-4 py-2 rounded-xl text-sm flex items-center gap-2 shadow-sm transition-all hover:-translate-y-0.5">
+                <i className="fa-solid fa-house"></i> 課程首頁
+              </a>
+              <span className="text-emerald-300 font-bold">›</span>
+              <a href="proof-cavalieri.html" className="bg-rose-50 hover:bg-rose-100 border-2 border-rose-200 text-rose-700 font-black px-4 py-2 rounded-xl text-sm flex items-center gap-2 shadow-sm transition-all hover:-translate-y-0.5">
+                <i className="fa-solid fa-layer-group"></i> 卡瓦列里原理 →
+              </a>
+            </div>
+            <div className="text-[10px] font-black text-emerald-400 uppercase tracking-widest bg-emerald-100 px-3 py-1 rounded-full">G9 Math · 體積推導 1/2</div>
+          </nav>
+
+          {/* ── Hero ── */}
+          <div className="bg-gradient-to-br from-emerald-500 via-emerald-600 to-teal-700 rounded-[32px] text-white p-8 md:p-12 shadow-2xl mb-8 relative overflow-hidden anim">
+            <div className="absolute top-0 right-0 w-72 h-72 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
+            <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-teal-400/10 rounded-full blur-2xl pointer-events-none"></div>
+            <div className="relative z-10">
+              <div className="inline-flex items-center gap-2 bg-emerald-400/25 border border-emerald-300/30 text-emerald-100 text-xs font-black px-3 py-1.5 rounded-full uppercase tracking-widest mb-6">
+                <i className="fa-solid fa-flask-vial"></i> 物理直覺實驗
+              </div>
+              <h1 className="text-4xl md:text-5xl font-black leading-tight mb-4">
+                錐體為什麼是<br/>柱體的 <span className="text-yellow-300">1/3</span>？
+              </h1>
+              <p className="text-emerald-100 text-lg leading-relaxed max-w-xl">
+                同底同高的角柱與角錐，錐體裝滿水倒入柱體，恰好要倒 <strong className="text-yellow-300 text-2xl">3 次</strong> 才能裝滿——這個物理事實直接揭示了公式背後的幾何真理。
+              </p>
+            </div>
+          </div>
+
+          {/* ── Interactive Experiment ── */}
+          <div className="bg-gradient-to-br from-emerald-700 to-teal-900 rounded-[32px] text-white p-8 md:p-10 shadow-2xl mb-8 anim" style={{ animationDelay: '0.1s', opacity: 0 }}>
+            <h2 className="text-2xl font-black mb-2 flex items-center gap-3">
+              <i className="fa-solid fa-droplet text-yellow-300"></i> 互動倒水模擬
+            </h2>
+            <p className="text-emerald-200 text-sm mb-8">點擊按鈕，每次模擬將錐體的水倒入柱體，觀察柱體水位的變化。</p>
+
+            <div className="flex flex-col md:flex-row items-center justify-center gap-10 md:gap-20">
+              {/* Cone */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="text-emerald-300 text-xs font-black uppercase tracking-widest">角錐 (等底等高)</div>
+                <svg viewBox="-50 -10 100 120" className="w-36 drop-shadow-xl">
+                  <defs>
+                    <clipPath id="cone-clip">
+                      <path d="M-30,90 L0,0 L30,90 Z" />
+                    </clipPath>
+                  </defs>
+                  <path d="M-30,90 L0,0 L30,90 Z" fill="rgba(253,224,71,0.12)" stroke="white" strokeWidth="2.5" strokeLinejoin="round" />
+                  <ellipse cx="0" cy="90" rx="30" ry="9" fill="rgba(253,224,71,0.35)" stroke="white" strokeWidth="2" />
+                  {step < 3 && (
+                    <g clipPath="url(#cone-clip)">
+                      <rect x="-30" y="0" width="60" height="90" fill="rgba(253,224,71,0.55)" />
+                    </g>
+                  )}
+                  {step === 3 && (
+                    <text x="0" y="50" textAnchor="middle" fill="rgba(255,255,255,0.4)" fontSize="11" fontWeight="bold">已倒完</text>
+                  )}
+                </svg>
+                <div className={`text-xs font-black px-3 py-1.5 rounded-full ${step === 3 ? 'bg-white/10 text-white/40' : 'bg-yellow-400/20 text-yellow-200 border border-yellow-400/30'}`}>
+                  {step === 3 ? '已清空' : '裝滿水'}
+                </div>
+              </div>
+
+              {/* Arrow */}
+              <div className="flex flex-col items-center gap-2">
+                <svg viewBox="0 0 80 40" className="w-20 md:w-28">
+                  <path d="M10,20 L60,20 M45,8 L60,20 L45,32" fill="none" stroke="rgba(255,255,255,0.6)" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+                <div className="text-emerald-300 text-xs font-black">第 {Math.min(step + 1, 3)} 次</div>
+              </div>
+
+              {/* Cylinder */}
+              <div className="flex flex-col items-center gap-3">
+                <div className="text-emerald-300 text-xs font-black uppercase tracking-widest">角柱 (等底等高)</div>
+                <svg viewBox="-50 -10 100 130" className="w-36 drop-shadow-xl">
+                  <defs>
+                    <clipPath id="cyl-clip">
+                      <path d="M-30,0 L-30,90 A30,9 0 0,0 30,90 L30,0 Z" />
+                    </clipPath>
+                  </defs>
+                  {/* Water layers */}
+                  {waterLayers.map(lyr => step >= lyr.key && (
+                    <g key={lyr.key} clipPath="url(#cyl-clip)" className="water-layer">
+                      <rect x="-30" y={lyr.y} width="60" height={lyr.h} fill={`rgba(253,224,71,${lyr.opacity})`} />
+                    </g>
+                  ))}
+                  {/* Dividers */}
+                  <path d="M-30,60 A30,9 0 0,0 30,60" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1" strokeDasharray="4,3" />
+                  <path d="M-30,30 A30,9 0 0,0 30,30" fill="none" stroke="rgba(255,255,255,0.4)" strokeWidth="1" strokeDasharray="4,3" />
+                  {/* Frame */}
+                  <path d="M-30,0 L-30,90 A30,9 0 0,0 30,90 L30,0 Z" fill="none" stroke="white" strokeWidth="2.5" strokeLinejoin="round" />
+                  <ellipse cx="0" cy="0" rx="30" ry="9" fill="none" stroke="white" strokeWidth="2.5" />
+                  {step === 3 && <ellipse cx="0" cy="0" rx="30" ry="9" fill="rgba(253,224,71,0.85)" />}
+                  {/* Tick marks */}
+                  {[{y:60,n:'⅓'},{y:30,n:'⅔'},{y:0,n:'1'}].map(t => (
+                    <g key={t.y}>
+                      <line x1="-38" y1={t.y} x2="-30" y2={t.y} stroke="white" strokeWidth="2" />
+                      <text x="-48" y={t.y + 5} fill="white" fontSize="12" fontWeight="bold" textAnchor="middle">{t.n}</text>
+                    </g>
+                  ))}
+                </svg>
+                <div className={`text-xs font-black px-3 py-1.5 rounded-full border ${step === 0 ? 'bg-white/5 border-white/20 text-white/40' : step === 3 ? 'bg-yellow-400 text-emerald-900 border-yellow-400' : 'bg-yellow-400/20 text-yellow-200 border-yellow-400/30'}`}>
+                  {step === 0 ? '空的' : step === 3 ? '🎉 裝滿！' : `已注入 ${step}/3`}
+                </div>
+              </div>
+            </div>
+
+            {/* Button */}
+            <div className="flex justify-center mt-10">
+              <button onClick={doNext} className={`font-black px-10 py-4 rounded-2xl text-lg transition-all shadow-xl flex items-center gap-3 ${step === 3 ? 'bg-white/20 hover:bg-white/30 text-white' : 'bg-yellow-400 hover:bg-yellow-300 text-emerald-900 hover:-translate-y-1 active:scale-95'}`}>
+                {step === 3
+                  ? <><i className="fa-solid fa-rotate-left"></i> 重新實驗</>
+                  : <><i className="fa-solid fa-droplet"></i> 第 {step + 1} 次倒水 →</>
+                }
+              </button>
+            </div>
+
+            {step === 3 && (
+              <div className="mt-6 bg-yellow-400/20 border border-yellow-400/40 rounded-2xl p-5 text-center anim">
+                <p className="text-yellow-200 font-black text-base">✅ 實驗完成！恰好倒了 3 次才填滿柱體</p>
+                <p className="text-emerald-200 text-sm mt-1">這正是 <K tex="V_{\text{錐}} = \dfrac{1}{3} \times V_{\text{柱}}" /> 的物理根源</p>
+              </div>
+            )}
+          </div>
+
+          {/* ── Formula Deep Dive ── */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+            <div className="bg-white rounded-[28px] shadow-lg border border-emerald-100 p-8 anim" style={{ animationDelay: '0.2s', opacity: 0 }}>
+              <h3 className="text-xl font-black text-emerald-700 mb-4 flex items-center gap-3">
+                <span className="w-8 h-8 bg-emerald-100 rounded-xl flex items-center justify-center text-sm">📐</span>
+                一般角錐的體積
+              </h3>
+              <p className="text-slate-500 text-sm leading-relaxed mb-4">對任意底面形狀的角錐（或圓錐），只要等底等高，體積都是同形柱體的三分之一：</p>
+              <div className="bg-emerald-50 rounded-2xl p-4 border border-emerald-100">
+                <K tex="V_{\text{角錐}} = \dfrac{1}{3} \times A_{\text{底}} \times h" block />
+              </div>
+              <ul className="mt-4 space-y-2 text-sm text-slate-600">
+                <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">•</span><span><K tex="A_{\text{底}}" /> = 底面積（任意形狀）</span></li>
+                <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">•</span><span><K tex="h" /> = 角錐的垂直高</span></li>
+              </ul>
+            </div>
+
+            <div className="bg-white rounded-[28px] shadow-lg border border-emerald-100 p-8 anim" style={{ animationDelay: '0.25s', opacity: 0 }}>
+              <h3 className="text-xl font-black text-emerald-700 mb-4 flex items-center gap-3">
+                <span className="w-8 h-8 bg-emerald-100 rounded-xl flex items-center justify-center text-sm">🍦</span>
+                圓錐的體積
+              </h3>
+              <p className="text-slate-500 text-sm leading-relaxed mb-4">圓錐可視為底面是圓的「角錐」，代入圓面積公式即可：</p>
+              <div className="bg-emerald-50 rounded-2xl p-4 border border-emerald-100">
+                <K tex="V_{\text{圓錐}} = \dfrac{1}{3} \pi r^2 h" block />
+              </div>
+              <ul className="mt-4 space-y-2 text-sm text-slate-600">
+                <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">•</span><span><K tex="r" /> = 底面圓的半徑</span></li>
+                <li className="flex items-start gap-2"><span className="text-emerald-500 font-bold mt-0.5">•</span><span><K tex="h" /> = 圓錐的垂直高</span></li>
+              </ul>
+            </div>
+          </div>
+
+          {/* ── Key Insight ── */}
+          <div className="bg-gradient-to-r from-emerald-900 to-teal-900 text-white rounded-[28px] p-8 shadow-xl mb-8 anim" style={{ animationDelay: '0.3s', opacity: 0 }}>
+            <div className="flex items-start gap-6">
+              <div className="w-14 h-14 bg-yellow-400/20 rounded-2xl flex items-center justify-center shrink-0 border border-yellow-400/30">
+                <i className="fa-solid fa-lightbulb text-yellow-300 text-2xl"></i>
+              </div>
+              <div>
+                <h3 className="text-xl font-black text-yellow-300 mb-3">為什麼 1/3 是通用的？</h3>
+                <p className="text-emerald-100 leading-relaxed text-sm">
+                  這個「1/3」不只對特定形狀成立——無論底面是三角形、正方形、五邊形，甚至是圓形，只要是「從一個頂點向外輻射到底面」的結構，體積必然是同底等高柱體的三分之一。這是由<strong className="text-white">積分</strong>（或卡瓦列里原理）嚴格證明的普遍定理。
+                </p>
+                <div className="mt-4 bg-white/10 rounded-xl p-4 border border-white/10">
+                  <p className="text-emerald-200 text-sm font-bold">數學嚴格表達：</p>
+                  <K tex="V = \int_0^h A(t)\, dt = \int_0^h A_{\text{底}} \cdot \left(\frac{t}{h}\right)^2 dt = \frac{1}{3} A_{\text{底}} \cdot h" block />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* ── Next Page CTA ── */}
+          <a href="proof-cavalieri.html" className="group flex items-center justify-between bg-gradient-to-r from-rose-500 to-rose-700 text-white rounded-[28px] p-8 shadow-xl hover:shadow-2xl transition-all hover:-translate-y-1 mb-10 anim" style={{ animationDelay: '0.35s', opacity: 0 }}>
+            <div>
+              <div className="text-rose-200 text-xs font-black uppercase tracking-widest mb-2">下一個觀念</div>
+              <h3 className="text-2xl font-black">卡瓦列里原理與球體積 →</h3>
+              <p className="text-rose-200 text-sm mt-1">拖動切片滑桿，親眼見證半球與「圓柱挖錐」在任何高度截面積永遠相同</p>
+            </div>
+            <i className="fa-solid fa-arrow-right text-3xl text-rose-300 group-hover:translate-x-2 transition-transform"></i>
+          </a>
+
+          <div className="text-center text-slate-400 font-bold text-xs flex items-center justify-center gap-2 uppercase tracking-wider pb-10">
+            <i className="fa-solid fa-code"></i> Designed by Linkou Kang Chiao Math Teachers
+          </div>
+        </div>
+      );
+    }
+
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
+</body>
+</html>
