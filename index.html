@@ -9,10 +9,13 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: { extend: { fontFamily: { sans: ['Inter','Noto Sans TC','sans-serif'] } } }
+    }
+  </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link
-    href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap"
-    rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
@@ -29,11 +32,11 @@
       background-color: var(--textbook-bg);
       background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
       background-size: 20px 20px;
+      color: #1e293b;
+      min-height: 100vh;
     }
 
-    h1,
-    h2,
-    .font-serif {
+    h1, h2, h3, h4, h5, .font-serif {
       font-family: 'Noto Serif TC', serif;
     }
 
@@ -49,6 +52,8 @@
       border-radius: 4px;
     }
 
+    .concept-box p, .concept-box ul, .concept-box li { color: #1e40af; }
+
     .example-box {
       border: 2px dashed #94a3b8;
       background-color: #f8fafc;
@@ -60,20 +65,16 @@
     }
 
     @keyframes slide-up {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+      from { opacity: 0; transform: translateY(20px); }
+      to   { opacity: 1; transform: translateY(0); }
     }
 
     .animate-slide-up {
       animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
+
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    .fade-in { animation: fadeIn 0.4s ease forwards; }
 
     input[type="range"] {
       -webkit-appearance: none;
@@ -100,10 +101,6 @@
       border: 1px solid rgba(255, 255, 255, 0.08);
     }
 
-    .fade-in {
-      animation: fadeIn 0.4s ease forwards;
-    }
-
     .progress-bar {
       height: 4px;
       background: linear-gradient(90deg, #38bdf8, #818cf8);
@@ -111,17 +108,18 @@
       transition: width 0.4s;
     }
 
-    .glow-blue {
-      box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
-    }
+    .glow-blue { box-shadow: 0 0 20px rgba(56, 189, 248, 0.25); }
+    .glow-gold { box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
+    .glow-rose { box-shadow: 0 0 20px rgba(244, 63, 94, 0.4); }
 
-    .glow-gold {
-      box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
-    }
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
 
-    .glow-rose {
-      box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
-    }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    .katex { color: #1e293b !important; }
   </style>
 </head>
 
@@ -1561,6 +1559,49 @@
       const [guessShape, setGuessShape] = useState(null);
       const [score, setScore] = useState(0);
 
+      // ── Classify Game State ──────────────────────────────────
+      const [classifyItems, setClassifyItems] = useState([]);
+      const [currentClassifyIndex, setCurrentClassifyIndex] = useState(0);
+      const [classifyFeedback, setClassifyFeedback] = useState(null);
+      const [classifyScore, setClassifyScore] = useState(0);
+
+      const initialClassifyItems = [
+        { name: '埃及金字塔', correct: '角錐', explanation: '金字塔底部是正方形，側面匯聚成一個頂點，這是典型的「角錐」。', icon: 'fa-caret-up' },
+        { name: '六角鉛筆', correct: '角柱', explanation: '鉛筆的上下截面都是全等的六邊形且平行，側面是長方形，所以是「角柱」。', icon: 'fa-pen' },
+        { name: '乾電池', correct: '圓柱', explanation: '電池上下底面是全等的圓形，側面是一個圓滑曲面，這是「圓柱」。', icon: 'fa-battery-full' },
+        { name: '冰淇淋甜筒', correct: '圓錐', explanation: '甜筒頂部是圓形，側面向下匯聚成一點，這是「圓錐」。', icon: 'fa-ice-cream' },
+        { name: '魔術方塊', correct: '角柱', explanation: '立方體是一種特殊的正四角柱，每一面都是全等的正方形。', icon: 'fa-cube' },
+        { name: '交通錐', correct: '圓錐', explanation: '底面是圓形，側面向頂點逐漸收窄，是典型的「圓錐」。', icon: 'fa-triangle-exclamation' },
+        { name: '洋芋片罐', correct: '圓柱', explanation: '長長的圓桶型，上下底面是平行的全等圓，屬於「圓柱體」。', icon: 'fa-box-archive' },
+        { name: '露營帳篷', correct: '角柱', explanation: '這是一個橫放的三角柱，兩端是三角形，側面是長方形。', icon: 'fa-campground' },
+        { name: '骰子', correct: '角柱', explanation: '骰子每一面都是正方形，屬於角柱家族中的正方體。', icon: 'fa-dice' },
+        { name: '派對帽', correct: '圓錐', explanation: '底部是圓形開口，頂端收成一點，屬於「圓錐」。', icon: 'fa-hat-wizard' },
+        { name: '美味粽子', correct: '角錐', explanation: '粽子通常是三角錐（四面體）的形狀，有底面與匯聚的頂點。', icon: 'fa-leaf' },
+      ];
+
+      useEffect(() => {
+        const s = [...initialClassifyItems].sort(() => Math.random() - 0.5);
+        setClassifyItems(s);
+      }, []);
+
+      const handleClassify = (cat) => {
+        if (classifyFeedback) return;
+        const item = classifyItems[currentClassifyIndex];
+        const isCorrect = item && item.correct === cat;
+        if (isCorrect) setClassifyScore(s => s + 10);
+        setClassifyFeedback({ correct: isCorrect });
+      };
+
+      const nextClassify = () => {
+        setClassifyFeedback(null);
+        if (currentClassifyIndex >= classifyItems.length - 1) {
+          const s = [...initialClassifyItems].sort(() => Math.random() - 0.5);
+          setClassifyItems(s);
+          setCurrentClassifyIndex(0);
+        } else {
+          setCurrentClassifyIndex(prev => prev + 1);
+        }
+      };
 
 
       const renderNets = () => {
@@ -2629,6 +2670,100 @@
         );
       };
 
+      const renderClassify = () => {
+        const item = classifyItems[currentClassifyIndex];
+        if (!item) return <div className="p-10 text-center font-black text-slate-400">載入中...</div>;
+        return (
+          <div className="space-y-6 animate-slide-up pb-10">
+            {/* Header */}
+            <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+              <div>
+                <div className="text-[10px] font-black px-2 py-0.5 rounded-full inline-block mb-2 uppercase tracking-widest" style={{background:'rgba(56,189,248,0.1)',color:'#67e8f9',border:'1px solid rgba(56,189,248,0.2)'}}>互動遊戲</div>
+                <h2 className="text-3xl font-black" style={{color:'#f1f5f9'}}>圖形分類特訓</h2>
+                <p className="text-slate-500 text-sm font-bold mt-1">看圖判斷：它是角柱、角錐、圓柱，還是圓錐？</p>
+              </div>
+              <div className="flex gap-3">
+                <div className="textbook-card px-5 py-3 rounded-2xl text-center">
+                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">SCORE</div>
+                  <div className="text-2xl font-black text-cyan-400">{classifyScore}</div>
+                </div>
+                <div className="textbook-card px-5 py-3 rounded-2xl text-center">
+                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest">PROGRESS</div>
+                  <div className="text-2xl font-black" style={{color:'#f1f5f9'}}>{currentClassifyIndex + 1}/{classifyItems.length}</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Progress bar */}
+            <div className="w-full bg-slate-800 rounded-full h-1.5">
+              <div className="progress-bar" style={{width:`${((currentClassifyIndex + 1) / classifyItems.length) * 100}%`}}></div>
+            </div>
+
+            {/* Card */}
+            <div className="textbook-card rounded-3xl p-10 flex flex-col items-center text-center">
+              <div className="w-24 h-24 rounded-3xl flex items-center justify-center mb-6" style={{background:'rgba(56,189,248,0.1)',border:'1px solid rgba(56,189,248,0.2)'}}>
+                <i className={`fa-solid ${item.icon} text-5xl text-cyan-400`}></i>
+              </div>
+              <h3 className="text-2xl font-black mb-2" style={{color:'#f1f5f9'}}>{item.name}</h3>
+              <p className="text-slate-500 font-bold">請問這是哪種幾何體？</p>
+            </div>
+
+            {/* Choices */}
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {['角柱', '角錐', '圓柱', '圓錐'].map(cat => (
+                <button key={cat} onClick={() => handleClassify(cat)} disabled={!!classifyFeedback}
+                  className="p-5 rounded-2xl font-black text-lg transition-all"
+                  style={classifyFeedback
+                    ? (item.correct === cat
+                      ? {background:'rgba(52,211,153,0.2)',border:'2px solid rgba(52,211,153,0.6)',color:'#34d399'}
+                      : {background:'rgba(15,25,45,0.5)',border:'2px solid rgba(56,189,248,0.1)',color:'rgba(100,116,139,0.4)',cursor:'not-allowed'})
+                    : {background:'rgba(13,21,38,0.8)',border:'2px solid rgba(56,189,248,0.2)',color:'#94a3b8'}}>
+                  {cat}
+                </button>
+              ))}
+            </div>
+
+            {/* Feedback */}
+            {classifyFeedback && (
+              <div className={`rounded-3xl p-7 border-2 animate-slide-up ${
+                classifyFeedback.correct
+                  ? 'border-emerald-500/40' : 'border-rose-500/40'
+              }`} style={{background: classifyFeedback.correct ? 'rgba(52,211,153,0.08)' : 'rgba(251,113,133,0.08)'}}>
+                <div className="flex items-start gap-4">
+                  <div className={`w-12 h-12 rounded-full flex items-center justify-center text-xl shrink-0 ${
+                    classifyFeedback.correct ? 'bg-emerald-500 text-white' : 'bg-rose-500 text-white'
+                  }`}>
+                    <i className={`fa-solid ${classifyFeedback.correct ? 'fa-check' : 'fa-xmark'}`}></i>
+                  </div>
+                  <div className="flex-1">
+                    <h4 className="text-lg font-black mb-1" style={{color:'#f1f5f9'}}>
+                      {classifyFeedback.correct ? '太棒了，答對囉！+10 分' : `再想想看！正確答案是「${item.correct}」`}
+                    </h4>
+                    <p className="text-slate-400 font-bold leading-relaxed text-sm">{item.explanation}</p>
+                    <button onClick={nextClassify}
+                      className="mt-5 px-8 py-3 rounded-xl font-black transition-all text-sm"
+                      style={{background:'rgba(56,189,248,0.15)',border:'1px solid rgba(56,189,248,0.3)',color:'#67e8f9'}}>
+                      下一個圖形 →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Tip */}
+            <div className="concept-box p-5">
+              <h4 className="font-black text-cyan-400 mb-2">📐 四種立體圖形速記法</h4>
+              <div className="grid grid-cols-2 gap-3 text-sm text-slate-400 font-bold">
+                <div><span className="text-cyan-400">角柱</span>：上下兩個全等多邊形 + 長方形側面</div>
+                <div><span className="text-violet-400">角錐</span>：一個多邊形底 + 三角形側面收斂於頂點</div>
+                <div><span className="text-emerald-400">圓柱</span>：上下兩個全等圓 + 曲側面</div>
+                <div><span className="text-rose-400">圓錐</span>：圓形底 + 曲側面收斂於頂點</div>
+              </div>
+            </div>
+          </div>
+        );
+      };
+
       const renderHome = () => (
         <div className="space-y-6 animate-slide-up pb-10">
           {/* Hero Banner */}
@@ -2765,13 +2900,13 @@
       return (
         <div className="min-h-screen flex flex-col md:flex-row gap-4 p-4 md:p-8 max-w-[1440px] mx-auto">
           <div className="w-full md:w-[320px] space-y-4 shrink-0">
-            <div className="textbook-card p-6 md:p-8 rounded-2xl border-t-8 border-orange-500 cursor-pointer hover:shadow-lg transition-all" onClick={() => setActiveTab('home')}>
-              <div className="bg-orange-100 text-orange-700 text-[10px] font-black px-2 py-0.5 rounded-full inline-block mb-3 uppercase tracking-tighter">G9 MATH UNIT 3</div>
-              <h1 className="text-3xl font-black text-slate-800 leading-tight">空間中的線、平面與形體</h1>
-              <p className="text-[11px] text-slate-400 font-bold mt-2 flex items-center gap-1"><i className="fa-solid fa-house text-orange-300"></i> 點擊返回首頁</p>
+            <div className="textbook-card p-6 md:p-8 rounded-2xl cursor-pointer transition-all hover:shadow-md" onClick={() => setActiveTab('home')}>
+              <div className="text-[10px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full inline-block mb-3 uppercase tracking-widest">G9 MATH UNIT 3</div>
+              <h1 className="text-3xl font-black leading-tight text-slate-800">空間中的線、<br/>平面與形體</h1>
+              <p className="text-[11px] font-bold mt-3 flex items-center gap-1 text-slate-400"><i className="fa-solid fa-house text-blue-400"></i> 點擊返回首頁</p>
             </div>
 
-            <div className="bg-white/80 backdrop-blur-md p-4 rounded-2xl border-2 border-slate-100 space-y-1">
+            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-3 space-y-0.5">
               {[
                 { id: 'relations', title: '歪斜線觀察', icon: 'fa-arrows-left-right', color: 'text-emerald-500' },
                 { id: 'spatialLines', title: '空間關係整理', icon: 'fa-layer-group', color: 'text-violet-500' },
@@ -2803,14 +2938,20 @@
 
                 if (tab.link) {
                   return (
-                    <a key={tab.id} href={tab.link} className="group w-full flex items-center justify-between p-4 rounded-xl transition-all duration-300 font-black text-slate-500 hover:text-slate-800 hover:bg-slate-50 border border-transparent hover:border-slate-200">
+                    <a key={tab.id} href={tab.link}
+                      className="group w-full flex items-center justify-between p-3.5 rounded-xl transition-all duration-200 font-black border border-transparent text-slate-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100">
                       {content}
                     </a>
                   );
                 }
 
                 return (
-                  <button key={tab.id} onClick={() => setActiveTab(tab.id)} className={`w-full flex items-center justify-between p-4 rounded-xl transition-all duration-300 font-black ${activeTab === tab.id ? 'bg-slate-800 text-white shadow-lg translate-x-1' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50 border border-transparent hover:border-slate-200'}`}>
+                  <button key={tab.id} onClick={() => setActiveTab(tab.id)}
+                    className={`w-full flex items-center justify-between p-3.5 rounded-xl transition-all duration-200 font-black border ${
+                      activeTab === tab.id
+                        ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                        : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700'
+                    }`}>
                     {content}
                   </button>
                 );
@@ -2828,6 +2969,7 @@
             {activeTab === 'euler' && renderEuler()}
             {activeTab === 'surface' && renderSurface()}
             {activeTab === 'volume' && renderVolume()}
+            {activeTab === 'classify' && renderClassify()}
           </div>
         </div>
       );
