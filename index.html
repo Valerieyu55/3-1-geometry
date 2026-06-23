@@ -7,7 +7,7 @@
   <title>3-1 空間中的線、平面與形體 - 數位智慧課本</title>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script crossorigin src="https://unpkg.com/@babel/standalone@7.23.6/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -15,53 +15,58 @@
     }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/earlyaccess/cwtexyen.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
   <style>
     :root {
-      --textbook-blue: #2563eb;
+      --textbook-blue: #0ea5e9;
       --textbook-orange: #f59e0b;
       --textbook-green: #10b981;
       --textbook-bg: #fdfdfd;
     }
 
     body {
-      font-family: 'Noto Sans TC', sans-serif;
+      font-family: 'Varela Round', 'cwTeXYen', 'Noto Sans TC', sans-serif;
       background-color: var(--textbook-bg);
       background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
       background-size: 20px 20px;
-      color: #1e293b;
+      color: #334155;
       min-height: 100vh;
     }
 
     h1, h2, h3, h4, h5, .font-serif {
-      font-family: 'Noto Serif TC', serif;
+      font-family: 'Varela Round', 'cwTeXYen', 'Noto Sans TC', sans-serif;
     }
 
     .textbook-card {
       background: white;
-      border-top: 5px solid var(--textbook-blue);
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+      border: 1px solid #e2e8f0;
+      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
+      border-radius: 1rem;
     }
 
     .concept-box {
-      background-color: #f0f7ff;
-      border-left: 6px solid var(--textbook-blue);
-      border-radius: 4px;
+      background-color: #f0f9ff;
+      border-left: 4px solid var(--textbook-blue);
+      border-radius: 0.5rem;
     }
 
-    .concept-box p, .concept-box ul, .concept-box li { color: #1e40af; }
+    .concept-box p, .concept-box ul, .concept-box li { color: #334155; }
 
     .example-box {
-      border: 2px dashed #94a3b8;
+      border: 2px dashed #cbd5e1;
       background-color: #f8fafc;
     }
 
     .math-text {
       font-family: 'Times New Roman', serif;
       font-style: italic;
+      color: #0284c7;
     }
 
     @keyframes slide-up {
@@ -92,23 +97,23 @@
       background: var(--textbook-blue);
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(37, 99, 235, 0.3);
+      box-shadow: 0 0 10px rgba(14, 165, 233, 0.3);
     }
 
     .glass {
-      background: rgba(15, 23, 42, 0.7);
+      background: rgba(255, 255, 255, 0.7);
       backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.5);
     }
 
     .progress-bar {
       height: 4px;
-      background: linear-gradient(90deg, #38bdf8, #818cf8);
+      background: linear-gradient(90deg, #0ea5e9, #3b82f6);
       border-radius: 9999px;
       transition: width 0.4s;
     }
 
-    .glow-blue { box-shadow: 0 0 20px rgba(56, 189, 248, 0.25); }
+    .glow-blue { box-shadow: 0 0 20px rgba(14, 165, 233, 0.3); }
     .glow-gold { box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
     .glow-rose { box-shadow: 0 0 20px rgba(244, 63, 94, 0.4); }
 
@@ -118,8 +123,6 @@
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-    .katex { color: #1e293b !important; }
   </style>
 </head>
 
@@ -177,8 +180,7 @@
               <div className="absolute top-3 left-3 bg-slate-900/80 text-white text-[10px] font-black px-2 py-1 rounded-full uppercase">{item.tag}</div>
               {!flipped && (
                 <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent flex items-end p-4">
-                  <span className="text-white font-black text-sm flex items-center gap-2">
-                    <i className="fa-solid fa-hand-pointer text-blue-300 animate-bounce"></i>
+                  <span className="text-white font-black text-sm">
                     點擊翻轉查看解答
                   </span>
                 </div>
@@ -1505,6 +1507,50 @@
     function App() {
       const [activeTab, setActiveTab] = useState('home');
       const [globalProgress, setGlobalProgress] = useState(getGlobalScores);
+      const [onlineCount, setOnlineCount] = useState('--');
+      const [totalVisits, setTotalVisits] = useState('--');
+
+      useEffect(() => {
+        // TODO: 將這裡替換為您的 Firebase 專案設定
+        const firebaseConfig = {
+          apiKey: "YOUR_API_KEY",
+          authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
+          databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
+          projectId: "YOUR_PROJECT_ID",
+          storageBucket: "YOUR_PROJECT_ID.appspot.com",
+          messagingSenderId: "YOUR_SENDER_ID",
+          appId: "YOUR_APP_ID"
+        };
+
+        if (firebaseConfig.apiKey === "YOUR_API_KEY" || !window.firebase) return;
+
+        if (!window.firebase.apps.length) {
+          window.firebase.initializeApp(firebaseConfig);
+        }
+        const db = window.firebase.database();
+
+        // 累積人次
+        const totalRef = db.ref('stats/totalVisits');
+        const isNewVisit = !sessionStorage.getItem('visited_geometry_3_1');
+        if (isNewVisit) {
+          totalRef.transaction((current) => (current || 0) + 1);
+          sessionStorage.setItem('visited_geometry_3_1', 'true');
+        }
+        totalRef.on('value', (snap) => setTotalVisits(snap.val() || 0));
+
+        // 線上人數
+        const connectionsRef = db.ref('stats/onlineUsers');
+        const connectedRef = db.ref('.info/connected');
+
+        connectedRef.on('value', (snap) => {
+          if (snap.val() === true) {
+            const conRef = connectionsRef.push();
+            conRef.onDisconnect().remove();
+            conRef.set(true);
+          }
+        });
+        connectionsRef.on('value', (snap) => setOnlineCount(snap.numChildren()));
+      }, []);
 
       useEffect(() => {
         const handleStorage = () => setGlobalProgress(getGlobalScores());
@@ -2904,6 +2950,26 @@
               <div className="text-[10px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full inline-block mb-3 uppercase tracking-widest">G9 MATH UNIT 3</div>
               <h1 className="text-3xl font-black leading-tight text-slate-800">空間中的線、<br/>平面與形體</h1>
               <p className="text-[11px] font-bold mt-3 flex items-center gap-1 text-slate-400"><i className="fa-solid fa-house text-blue-400"></i> 點擊返回首頁</p>
+            </div>
+
+            <div className="bg-slate-900 rounded-2xl shadow-lg border border-slate-700 p-4 space-y-3 relative overflow-hidden group">
+              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-transparent pointer-events-none group-hover:from-cyan-500/20 transition-colors"></div>
+              <div className="text-[10px] font-black text-cyan-500 uppercase tracking-widest mb-1 flex items-center justify-between relative z-10">
+                <span><i className="fa-solid fa-satellite-dish mr-1"></i> SYSTEM STATS</span>
+                <span className="text-[8px] bg-slate-800 px-1 rounded text-slate-400">FIREBASE</span>
+              </div>
+              <div className="flex justify-between items-center relative z-10">
+                <span className="text-slate-400 font-bold text-xs flex items-center gap-2">
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_5px_#34d399]"></span>線上人數
+                </span>
+                <span className="text-emerald-400 font-mono font-black text-sm">{onlineCount}</span>
+              </div>
+              <div className="flex justify-between items-center relative z-10">
+                <span className="text-slate-400 font-bold text-xs flex items-center gap-2">
+                  <i className="fa-solid fa-eye text-[10px] text-cyan-400 w-1.5 ml-0.5"></i>累積人次
+                </span>
+                <span className="text-cyan-400 font-mono font-black text-sm">{totalVisits}</span>
+              </div>
             </div>
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-3 space-y-0.5">
