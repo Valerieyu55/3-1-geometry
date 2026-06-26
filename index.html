@@ -11,62 +11,113 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
-      theme: { extend: { fontFamily: { sans: ['Inter','Noto Sans TC','sans-serif'] } } }
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"GenSenRounded"', '"jf-openhuninn-1.1"', '"Noto Sans TC"', 'sans-serif']
+          },
+          colors: {
+            slate: {
+              50: '#f5f6f8',
+              100: '#e5e8ec',
+              200: '#cbd2db',
+              300: '#a3b1c1',
+              400: '#758ba1',
+              500: '#546b84',
+              600: '#41556b',
+              700: '#354558',
+              800: '#2f3a4a', /* Primary Dark Blue Grey */
+              900: '#2a323f',
+              950: '#1b2029',
+            },
+            teal: {
+              400: '#8FA6B8', /* Accent Misty Blue */
+              500: '#7a94a8',
+              600: '#647e93',
+            },
+            emerald: {
+              50: '#fcfbf9',
+              400: '#d8c7af', /* Secondary Milk Tea Beige */
+              500: '#c5b297',
+              600: '#b09d81',
+              700: '#917e62',
+            },
+            brand: {
+              primary: '#2F3A4A',
+              secondary: '#D8C7AF',
+              accent: '#8FA6B8',
+              bg: '#F8F7F3',
+            }
+          }
+        }
+      }
     }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Varela+Round&family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/earlyaccess/cwtexyen.css" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/10.8.1/firebase-database-compat.js"></script>
+
   <style>
+    @font-face {
+      font-family: 'jf-openhuninn-1.1';
+      src: url('https://cdn.jsdelivr.net/gh/justfont/open-huninn-font/font/jf-openhuninn-1.1.woff2') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+    }
+
     :root {
-      --textbook-blue: #0ea5e9;
-      --textbook-orange: #f59e0b;
-      --textbook-green: #10b981;
-      --textbook-bg: #fdfdfd;
+      --brand-primary: #2F3A4A;
+      --brand-secondary: #D8C7AF;
+      --brand-accent: #8FA6B8;
+      --brand-bg: #F8F7F3;
+      
+      --textbook-blue: var(--brand-accent);
+      --textbook-orange: var(--brand-secondary);
+      --textbook-green: var(--brand-primary);
+      --textbook-bg: var(--brand-bg);
     }
 
     body {
-      font-family: 'Varela Round', 'cwTeXYen', 'Noto Sans TC', sans-serif;
-      background-color: var(--textbook-bg);
-      background-image: radial-gradient(#e5e7eb 1px, transparent 1px);
+      font-family: 'GenSenRounded', 'jf-openhuninn-1.1', 'Noto Sans TC', sans-serif;
+      background-color: var(--brand-bg);
+      background-image: radial-gradient(rgba(47, 58, 74, 0.08) 1px, transparent 1px);
       background-size: 20px 20px;
-      color: #334155;
+      color: var(--brand-primary);
       min-height: 100vh;
     }
 
     h1, h2, h3, h4, h5, .font-serif {
-      font-family: 'Varela Round', 'cwTeXYen', 'Noto Sans TC', sans-serif;
+      font-family: 'GenSenRounded', 'jf-openhuninn-1.1', 'Noto Sans TC', sans-serif;
     }
 
     .textbook-card {
-      background: white;
-      border: 1px solid #e2e8f0;
-      box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -1px rgb(0 0 0 / 0.06);
-      border-radius: 1rem;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      box-shadow: 0 8px 32px -8px rgba(47, 58, 74, 0.08), 0 4px 16px -4px rgba(47, 58, 74, 0.04);
+      border-radius: 20px !important;
     }
 
     .concept-box {
-      background-color: #f0f9ff;
-      border-left: 4px solid var(--textbook-blue);
+      background-color: rgba(143, 166, 184, 0.1);
+      border-left: 4px solid var(--brand-accent);
       border-radius: 0.5rem;
     }
 
-    .concept-box p, .concept-box ul, .concept-box li { color: #334155; }
+    .concept-box p, .concept-box ul, .concept-box li { color: var(--brand-primary); }
 
     .example-box {
-      border: 2px dashed #cbd5e1;
-      background-color: #f8fafc;
+      border: 2px dashed rgba(216, 199, 175, 0.8);
+      background-color: rgba(248, 247, 243, 0.5);
     }
 
     .math-text {
       font-family: 'Times New Roman', serif;
       font-style: italic;
-      color: #0284c7;
+      color: var(--brand-accent);
     }
 
     @keyframes slide-up {
@@ -85,7 +136,7 @@
       -webkit-appearance: none;
       appearance: none;
       height: 8px;
-      background: #e2e8f0;
+      background: rgba(47, 58, 74, 0.1);
       border-radius: 10px;
     }
 
@@ -94,32 +145,35 @@
       appearance: none;
       width: 24px;
       height: 24px;
-      background: var(--textbook-blue);
+      background: var(--brand-accent);
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(14, 165, 233, 0.3);
+      box-shadow: 0 0 10px rgba(143, 166, 184, 0.4);
+      border: 2px solid white;
     }
 
     .glass {
-      background: rgba(255, 255, 255, 0.7);
+      background: rgba(255, 255, 255, 0.8);
       backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
       border: 1px solid rgba(255, 255, 255, 0.5);
+      border-radius: 20px;
     }
 
     .progress-bar {
       height: 4px;
-      background: linear-gradient(90deg, #0ea5e9, #3b82f6);
+      background: linear-gradient(90deg, var(--brand-secondary), var(--brand-accent));
       border-radius: 9999px;
       transition: width 0.4s;
     }
 
-    .glow-blue { box-shadow: 0 0 20px rgba(14, 165, 233, 0.3); }
-    .glow-gold { box-shadow: 0 0 20px rgba(251, 191, 36, 0.3); }
-    .glow-rose { box-shadow: 0 0 20px rgba(244, 63, 94, 0.4); }
+    .glow-blue { box-shadow: 0 0 20px rgba(143, 166, 184, 0.4); }
+    .glow-gold { box-shadow: 0 0 20px rgba(216, 199, 175, 0.4); }
+    .glow-rose { box-shadow: 0 0 20px rgba(47, 58, 74, 0.2); }
 
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: #f1f5f9; }
-    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 99px; }
+    ::-webkit-scrollbar-track { background: var(--brand-bg); }
+    ::-webkit-scrollbar-thumb { background: var(--brand-secondary); border-radius: 99px; }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -1507,50 +1561,9 @@
     function App() {
       const [activeTab, setActiveTab] = useState('home');
       const [globalProgress, setGlobalProgress] = useState(getGlobalScores);
-      const [onlineCount, setOnlineCount] = useState('--');
-      const [totalVisits, setTotalVisits] = useState('--');
 
-      useEffect(() => {
-        // TODO: 將這裡替換為您的 Firebase 專案設定
-        const firebaseConfig = {
-          apiKey: "YOUR_API_KEY",
-          authDomain: "YOUR_PROJECT_ID.firebaseapp.com",
-          databaseURL: "https://YOUR_PROJECT_ID-default-rtdb.firebaseio.com",
-          projectId: "YOUR_PROJECT_ID",
-          storageBucket: "YOUR_PROJECT_ID.appspot.com",
-          messagingSenderId: "YOUR_SENDER_ID",
-          appId: "YOUR_APP_ID"
-        };
 
-        if (firebaseConfig.apiKey === "YOUR_API_KEY" || !window.firebase) return;
 
-        if (!window.firebase.apps.length) {
-          window.firebase.initializeApp(firebaseConfig);
-        }
-        const db = window.firebase.database();
-
-        // 累積人次
-        const totalRef = db.ref('stats/totalVisits');
-        const isNewVisit = !sessionStorage.getItem('visited_geometry_3_1');
-        if (isNewVisit) {
-          totalRef.transaction((current) => (current || 0) + 1);
-          sessionStorage.setItem('visited_geometry_3_1', 'true');
-        }
-        totalRef.on('value', (snap) => setTotalVisits(snap.val() || 0));
-
-        // 線上人數
-        const connectionsRef = db.ref('stats/onlineUsers');
-        const connectedRef = db.ref('.info/connected');
-
-        connectedRef.on('value', (snap) => {
-          if (snap.val() === true) {
-            const conRef = connectionsRef.push();
-            conRef.onDisconnect().remove();
-            conRef.set(true);
-          }
-        });
-        connectionsRef.on('value', (snap) => setOnlineCount(snap.numChildren()));
-      }, []);
 
       useEffect(() => {
         const handleStorage = () => setGlobalProgress(getGlobalScores());
@@ -2952,25 +2965,7 @@
               <p className="text-[11px] font-bold mt-3 flex items-center gap-1 text-slate-400"><i className="fa-solid fa-house text-blue-400"></i> 點擊返回首頁</p>
             </div>
 
-            <div className="bg-slate-900 rounded-2xl shadow-lg border border-slate-700 p-4 space-y-3 relative overflow-hidden group">
-              <div className="absolute inset-0 bg-gradient-to-r from-cyan-500/10 to-transparent pointer-events-none group-hover:from-cyan-500/20 transition-colors"></div>
-              <div className="text-[10px] font-black text-cyan-500 uppercase tracking-widest mb-1 flex items-center justify-between relative z-10">
-                <span><i className="fa-solid fa-satellite-dish mr-1"></i> SYSTEM STATS</span>
-                <span className="text-[8px] bg-slate-800 px-1 rounded text-slate-400">FIREBASE</span>
-              </div>
-              <div className="flex justify-between items-center relative z-10">
-                <span className="text-slate-400 font-bold text-xs flex items-center gap-2">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse shadow-[0_0_5px_#34d399]"></span>線上人數
-                </span>
-                <span className="text-emerald-400 font-mono font-black text-sm">{onlineCount}</span>
-              </div>
-              <div className="flex justify-between items-center relative z-10">
-                <span className="text-slate-400 font-bold text-xs flex items-center gap-2">
-                  <i className="fa-solid fa-eye text-[10px] text-cyan-400 w-1.5 ml-0.5"></i>累積人次
-                </span>
-                <span className="text-cyan-400 font-mono font-black text-sm">{totalVisits}</span>
-              </div>
-            </div>
+
 
             <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-3 space-y-0.5">
               {[
