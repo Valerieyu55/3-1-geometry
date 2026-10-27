@@ -5,10 +5,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>正多面體偵探室 — 觀察、猜測、發現</title>
+    <link rel="icon" type="image/png" href="logo-mark.png">
     <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
     <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
     <script crossorigin src="https://unpkg.com/@babel/standalone@7.23.6/babel.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="tracker.js"></script>
+    <script src="icons.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link
         href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&family=Space+Grotesk:wght@700;800&display=swap"
@@ -80,6 +83,7 @@
 <body>
     <div id="root"></div>
     <script type="text/babel">
+    const Gi = ({ n, className = '' }) => <span className={'gi ' + className} dangerouslySetInnerHTML={{ __html: window.GI ? window.GI(n) : '' }} />;
         const { useState, useEffect, useRef } = React;
 
         // ─── Data ───────────────────────────────────────────────
@@ -133,7 +137,7 @@
                 dual: '正二十面體',
                 angle: 108,
                 color: { face: 'bg-amber-500/20', border: 'border-amber-400', text: 'text-amber-400', btn: 'border-amber-400', hex: 0xf59e0b },
-                hint: '每個面都是正五邊形，像一截足球。',
+                hint: '每個面都是正五邊形，每個頂點有 3 個面相聚。',
                 deepQ: '它的頂點數高達 20 個！如果你沿著頂點走，能走遍所有頂點而不重複嗎？（哈密頓路徑問題）',
             },
             {
@@ -396,12 +400,12 @@
                                         </p>
                                         <div className="grid grid-cols-1 gap-2">
                                             {[
-                                                { icon: '🔺', title: '面全等', desc: '每個面都是完全相同的正多邊形（如正三角形、正方形）' },
-                                                { icon: '⭐', title: '頂點相同', desc: '在每個頂點，都有相同數量的面相交在一起' },
-                                                { icon: '💎', title: '高度對稱', desc: '從任何方向觀察，形體的結構都完全一致' },
+                                                { icon: 'triangle', title: '面全等', desc: '每個面都是完全相同的正多邊形（如正三角形、正方形）' },
+                                                { icon: 'vertex', title: '頂點相同', desc: '在每個頂點，都有相同數量的面相交在一起' },
+                                                { icon: 'gem', title: '凸多面體', desc: '形體沒有任何凹陷，任兩點的連線都在立體內部或表面上' },
                                             ].map(item => (
                                                 <div key={item.title} className="flex items-start gap-3 bg-slate-800/60 rounded-xl p-3">
-                                                    <span className="text-xl">{item.icon}</span>
+                                                    <span className="text-xl"><Gi n={item.icon} /></span>
                                                     <div>
                                                         <div className="text-xs font-black text-slate-200 mb-0.5">{item.title}</div>
                                                         <div className="text-xs text-slate-400 leading-relaxed">{item.desc}</div>
@@ -410,7 +414,7 @@
                                             ))}
                                         </div>
                                         <div className="mt-4 bg-amber-500/10 border border-amber-500/30 rounded-xl p-3 text-xs text-amber-300 font-bold">
-                                            🔑 重要結論：全宇宙只有 <span className="text-white text-base font-black">5</span> 種柏拉圖立體，這已被數學嚴格證明，不可能有第 6 種！
+                                            <Gi n="key" /> 重要結論：全宇宙只有 <span className="text-white text-base font-black">5</span> 種柏拉圖立體，這已被數學嚴格證明，不可能有第 6 種！
                                         </div>
                                     </div>
 
@@ -460,12 +464,12 @@
                                         </p>
                                         <div className="grid grid-cols-3 gap-3 text-center text-xs font-black mb-4">
                                             {[
-                                                { icon: '🔺', label: '原來的「面」', result: '→ 孿生體的「頂點」', color: 'text-emerald-400' },
-                                                { icon: '📐', label: '原來的「頂點」', result: '→ 孿生體的「面」', color: 'text-orange-400' },
-                                                { icon: '➡️', label: '稜邊數', result: '→ 完全不變', color: 'text-sky-400' },
+                                                { icon: 'triangle', label: '原來的「面」', result: '→ 孿生體的「頂點」', color: 'text-emerald-400' },
+                                                { icon: 'vertex', label: '原來的「頂點」', result: '→ 孿生體的「面」', color: 'text-orange-400' },
+                                                { icon: 'swap', label: '稜邊數', result: '→ 完全不變', color: 'text-sky-400' },
                                             ].map(item => (
                                                 <div key={item.label} className="bg-slate-800/60 rounded-xl p-3">
-                                                    <div className="text-2xl mb-1">{item.icon}</div>
+                                                    <div className="text-2xl mb-1"><Gi n={item.icon} /></div>
                                                     <div className="text-slate-400 mb-1 leading-tight">{item.label}</div>
                                                     <div className={`leading-tight ${item.color}`}>{item.result}</div>
                                                 </div>
@@ -487,7 +491,7 @@
                                                         <div className={`font-black text-sm ${pair.aColor}`}>{pair.a}</div>
                                                         <div className="text-xs text-slate-500">{pair.aInfo}</div>
                                                     </div>
-                                                    <div className="text-amber-400 font-black text-lg">↔</div>
+                                                    <div className="text-amber-400 font-black text-lg"><Gi n="swap" /></div>
                                                     <div className="flex-1 text-center">
                                                         <div className={`font-black text-sm ${pair.bColor}`}>{pair.b}</div>
                                                         <div className="text-xs text-slate-500">{pair.bInfo}</div>
@@ -498,7 +502,7 @@
                                         ))}
                                     </div>
                                     <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 text-xs text-purple-300 font-bold leading-relaxed">
-                                        💡 <strong>生活比喻：</strong>就像「手套」分左右手，孿生體之間沒有誰比誰更正確——它們是平等的一對搭檔，互相包含對方的形狀結構。
+                                        <Gi n="bulb" /> <strong>生活比喻：</strong>就像一對「舞伴」，孿生體之間沒有誰比誰更正確——它們是平等的一對搭檔，互相包含對方的形狀結構。
                                     </div>
                                 </div>
                             )}
@@ -514,7 +518,7 @@
             const [modalStep, setModalStep] = useState(0);
             const steps = [
                 {
-                    icon: '⭕',
+                    icon: 'target',
                     title: '第一步：數「頂點」(V)',
                     color: 'text-orange-400',
                     border: 'border-orange-500',
@@ -534,13 +538,13 @@
                                 </div>
                             </div>
                             <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-3 text-xs font-bold text-orange-300">
-                                💡 {solid.name} 共有 <strong className="text-white text-sm">{solid.vertices}</strong> 個頂點。
+                                <Gi n="bulb" /> {solid.name} 共有 <strong className="text-white text-sm">{solid.vertices}</strong> 個頂點。
                             </div>
                         </div>
                     ),
                 },
                 {
-                    icon: '✏️',
+                    icon: 'pencil',
                     title: '第二步：數「稜邊」(E)',
                     color: 'text-sky-400',
                     border: 'border-sky-500',
@@ -549,7 +553,7 @@
                         <div className="space-y-3 text-sm text-slate-300 leading-relaxed">
                             <p>稜邊是兩個面「相交的線」，摸起來是一條邊，不是角也不是面。</p>
                             <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-                                <p className="text-xs font-black text-slate-400 uppercase mb-2">計數技巧：用歐拉公式倒推</p>
+                                <p className="text-xs font-black text-slate-400 uppercase mb-2">計數技巧：每條稜被兩個面共用</p>
                                 <ol className="list-decimal list-inside space-y-2">
                                     <li>稜最難直接數，容易漏掉或重複。</li>
                                     <li>用「每個面的邊數 × 面數 ÷ 2」（每條邊被兩個面共用）：</li>
@@ -559,13 +563,13 @@
                                 </div>
                             </div>
                             <div className="bg-sky-500/10 border border-sky-500/30 rounded-xl p-3 text-xs font-bold text-sky-300">
-                                💡 {solid.name} 共有 <strong className="text-white text-sm">{solid.edges}</strong> 條稜邊。
+                                <Gi n="bulb" /> {solid.name} 共有 <strong className="text-white text-sm">{solid.edges}</strong> 條稜邊。
                             </div>
                         </div>
                     ),
                 },
                 {
-                    icon: '🔺',
+                    icon: 'triangle',
                     title: '第三步：數「面」(F)',
                     color: 'text-emerald-400',
                     border: 'border-emerald-500',
@@ -582,13 +586,13 @@
                                 </ol>
                             </div>
                             <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 text-xs font-bold text-emerald-300">
-                                💡 {solid.name} 共有 <strong className="text-white text-sm">{solid.faces}</strong> 個面，每個面是<strong className="text-white"> {solid.faceShape}</strong>。
+                                <Gi n="bulb" /> {solid.name} 共有 <strong className="text-white text-sm">{solid.faces}</strong> 個面，每個面是<strong className="text-white"> {solid.faceShape}</strong>。
                             </div>
                         </div>
                     ),
                 },
                 {
-                    icon: '✅',
+                    icon: 'check',
                     title: '最後驗算：歐拉公式',
                     color: 'text-purple-400',
                     border: 'border-purple-500',
@@ -609,7 +613,7 @@
                                 </div>
                             </div>
                             <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-3 text-xs font-bold text-purple-300">
-                                🎉 只要算出 2，就代表 V、E、F 三個數字全部正確！這是你最強力的自我驗算工具。
+                                <Gi n="spark" /> 算出 2，代表你的答案很可能正確；如果不是 2，就一定有地方數錯了！這是你最強力的自我檢查工具。
                             </div>
                         </div>
                     ),
@@ -646,7 +650,7 @@
                         {/* Step Content */}
                         <div className="p-6 space-y-4">
                             <div className={`flex items-center gap-3 rounded-2xl p-4 border ${current.border} ${current.bg}`}>
-                                <span className="text-3xl">{current.icon}</span>
+                                <span className="text-3xl"><Gi n={current.icon} /></span>
                                 <h3 className={`text-lg font-black ${current.color}`}>{current.title}</h3>
                             </div>
                             {current.content}
@@ -706,6 +710,17 @@
                 const exact = gV === solid.vertices && gE === solid.edges && gF === solid.faces;
                 const partial = (gV === solid.vertices) || (gE === solid.edges) || (gF === solid.faces);
                 setResult(exact ? 'correct' : partial ? 'partial' : 'wrong');
+                // 學習紀錄＋寫回全站 100 分計分板（正多面體 5 × 4 分）
+                window.G9Track && G9Track.answer({ module: '正多面體偵探室', item: solid.name, answer: `V=${gV}, E=${gE}, F=${gF}`, correctAnswer: `V=${solid.vertices}, E=${solid.edges}, F=${solid.faces}`, correct: exact, detail: { V: gV, E: gE, F: gF, cV: solid.vertices, cE: solid.edges, cF: solid.faces, result: exact ? '全對' : partial ? '部分對' : '錯誤' } });
+                if (exact) {
+                    try {
+                        const ls = localStorage.getItem('g9_geometry_scores');
+                        const g = ls ? JSON.parse(ls) : { qa: {}, crossSection: {}, euler: {}, skew: false };
+                        g.euler = { ...(g.euler || {}), [solid.id]: true };
+                        localStorage.setItem('g9_geometry_scores', JSON.stringify(g));
+                    } catch (e) {}
+                    window.G9Track && G9Track.scoreFromStorage();
+                }
                 if (exact) setScore(s => s + 10);
                 else if (partial) setScore(s => s + 3);
                 setPhase('reveal');
@@ -922,7 +937,7 @@
                                                     <i className="fa-solid fa-graduation-cap text-xl"></i>
                                                 </div>
                                                 <div>
-                                                    <p className="text-xs font-black text-sky-400 uppercase mb-1">🎓 老師教你怎麼數</p>
+                                                    <p className="text-xs font-black text-sky-400 uppercase mb-1"><Gi n="cap" /> 老師教你怎麼數</p>
                                                     <p className="text-sm text-sky-100 font-bold leading-relaxed">
                                                         學會系統化計數法，下次挑戰更準確！
                                                     </p>
@@ -982,8 +997,8 @@
                                 </div>
                             </div>
                         </div>
-                        <div className="mt-8 text-center text-slate-500 font-bold text-xs flex items-center justify-center gap-2 uppercase tracking-wider pb-6">
-                            <i className="fa-solid fa-code"></i> Designed by Valerie Yu / Linkou Kang Chiao Math Teacher
+                        <div className="mt-8 text-center flex justify-center pb-6">
+                            <a href="https://valerieyu55.github.io/valerieyu_studio/index.html#projects" target="_blank" rel="noopener" title="Valerie Yu Studio" className="inline-block bg-white/90 hover:bg-white rounded-2xl px-5 py-3 transition-colors"><img src="logo.png" alt="Valerie Yu Studio" className="h-12 w-auto" /></a>
                         </div>
                     </div>
                     {showModal && <CountingModal solid={solid} onClose={() => setShowModal(false)} />}

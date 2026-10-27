@@ -4,11 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>卡瓦列里原理與球體積 - 數位智慧課本</title>
-  <meta name="description" content="透過互動截面積比較，理解祖沖之原理（卡瓦列里原理）如何推導球體積公式 4/3πr³。">
+  <link rel="icon" type="image/png" href="logo-mark.png">
+  <meta name="description" content="透過互動截面積比較，理解祖暅原理（卡瓦列里原理）如何推導球體積公式 4/3πr³。">
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone@7.23.6/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="tracker.js"></script>
+  <script src="icons.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
@@ -26,6 +29,7 @@
 <body>
   <div id="root"></div>
   <script type="text/babel">
+    const Gi = ({ n, className = '' }) => <span className={'gi ' + className} dangerouslySetInnerHTML={{ __html: window.GI ? window.GI(n) : '' }} />;
     const { useState, useMemo } = React;
     const K = ({ tex, block }) => block
       ? <div className="text-center my-3" dangerouslySetInnerHTML={{ __html: katex.renderToString(tex, { displayMode: true, throwOnError: false }) }} />
@@ -67,13 +71,13 @@
             <div className="absolute -bottom-16 -left-16 w-56 h-56 bg-rose-300/10 rounded-full blur-2xl pointer-events-none"></div>
             <div className="relative z-10">
               <div className="inline-flex items-center gap-2 bg-rose-400/25 border border-rose-300/30 text-rose-100 text-xs font-black px-3 py-1.5 rounded-full uppercase tracking-widest mb-6">
-                <i className="fa-solid fa-layer-group"></i> 卡瓦列里原理（祖沖之原理）
+                <i className="fa-solid fa-layer-group"></i> 卡瓦列里原理（祖暅原理）
               </div>
               <h1 className="text-4xl md:text-5xl font-black leading-tight mb-4">
                 球體積的<br/>幾何奧秘
               </h1>
               <p className="text-rose-100 text-lg leading-relaxed max-w-xl">
-                祖沖之與義大利數學家卡瓦列里都發現了同一個真理：兩個立體若在<strong className="text-white">任何高度的水平截面積都相等</strong>，它們的<strong className="text-white">體積必然完全相同</strong>。
+                祖暅（祖沖之之子）與義大利數學家卡瓦列里都發現了同一個真理：兩個立體若在<strong className="text-white">任何高度的水平截面積都相等</strong>，它們的<strong className="text-white">體積必然完全相同</strong>。
               </p>
             </div>
           </div>
@@ -214,7 +218,7 @@
 
             <div className="mt-4 bg-white/10 rounded-xl px-6 py-3 text-center border border-white/10">
               <span className="text-rose-200 text-sm font-bold">
-                不論 y 等於多少，兩側截面積永遠相等 ✅ （截面積佔最大值的 <strong className="text-white">{Math.round(Number(areaFraction) * 100)}%</strong>）
+                不論 y 等於多少，兩側截面積永遠相等 <Gi n="check" className="text-emerald-300" /> （截面積佔最大值的 <strong className="text-white">{Math.round(Number(areaFraction) * 100)}%</strong>）
               </span>
             </div>
           </div>
@@ -257,7 +261,7 @@
               <K tex="V_{\text{球}} = \dfrac{4}{3}\pi r^3" block />
             </div>
             <p className="text-rose-200 text-base max-w-md mx-auto">
-              其中 <K tex="r" /> 為球的半徑。這個公式由祖沖之父子在西元 5 世紀首先推導，比西方早逾一千年。
+              其中 <K tex="r" /> 為球的半徑。古希臘的阿基米德在西元前 3 世紀就已求得這個公式；而祖暅在西元 5～6 世紀用「祖暅原理」獨立推導出球體積，這個原理比卡瓦列里早了一千多年。
             </p>
           </div>
 
@@ -271,8 +275,8 @@
             </div>
           </a>
 
-          <div className="text-center text-slate-400 font-bold text-xs flex items-center justify-center gap-2 uppercase tracking-wider pb-10">
-            <i className="fa-solid fa-code"></i> Designed by Valerie Yu / Linkou Kang Chiao Math Teacher
+          <div className="text-center flex justify-center pb-10">
+            <a href="https://valerieyu55.github.io/valerieyu_studio/index.html#projects" target="_blank" rel="noopener" title="Valerie Yu Studio" className="inline-block opacity-85 hover:opacity-100 transition-opacity"><img src="logo.png" alt="Valerie Yu Studio" className="h-14 w-auto" /></a>
           </div>
         </div>
       );

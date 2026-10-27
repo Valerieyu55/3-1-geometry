@@ -5,10 +5,13 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>體積公式的奧秘 - 數位智慧課本</title>
+  <link rel="icon" type="image/png" href="logo-mark.png">
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone@7.23.6/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="tracker.js"></script>
+  <script src="icons.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link
     href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Noto+Serif+TC:wght@700;900&display=swap"
@@ -236,7 +239,7 @@
             </div>
 
             <p className="text-rose-100 text-lg leading-relaxed font-medium">
-              祖沖之與卡瓦列里都發現了這個秘密：如果兩個立體圖形在<strong className="text-white underline underline-offset-4 decoration-rose-400">任何高度的水平截面積都相等</strong>，那麼它們的<strong className="text-white underline underline-offset-4 decoration-rose-400">體積必然相等</strong>。
+              祖暅與卡瓦列里都發現了這個秘密：如果兩個立體圖形在<strong className="text-white underline underline-offset-4 decoration-rose-400">任何高度的水平截面積都相等</strong>，那麼它們的<strong className="text-white underline underline-offset-4 decoration-rose-400">體積必然相等</strong>。
             </p>
 
             {/* 互動視覺化區塊 */}
@@ -363,9 +366,8 @@
           <PrismPyramidSection />
           <CavalieriSection />
 
-          <div className="mt-12 text-center text-slate-400 font-bold text-xs flex items-center justify-center gap-2 uppercase tracking-wider pb-10">
-            <i className="fa-solid fa-code"></i>
-            Designed by Valerie Yu / Linkou Kang Chiao Math Teacher
+          <div className="mt-12 text-center flex justify-center pb-10">
+            <a href="https://valerieyu55.github.io/valerieyu_studio/index.html#projects" target="_blank" rel="noopener" title="Valerie Yu Studio" className="inline-block opacity-85 hover:opacity-100 transition-opacity"><img src="logo.png" alt="Valerie Yu Studio" className="h-14 w-auto" /></a>
           </div>
         </div>
       );

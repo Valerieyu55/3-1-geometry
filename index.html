@@ -5,56 +5,30 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>3-1 空間中的線、平面與形體 - 數位智慧課本</title>
+  <link rel="icon" type="image/png" href="logo-mark.png">
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone@7.23.6/babel.min.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="tracker.js"></script>
+  <script src="icons.js"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           fontFamily: {
-            sans: ['"GenSenRounded"', '"jf-openhuninn-1.1"', '"Noto Sans TC"', 'sans-serif']
+            sans: ['"Space Grotesk"', '"Noto Sans TC"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', '"Noto Sans TC"', 'monospace']
           },
           colors: {
-            slate: {
-              50: '#f5f6f8',
-              100: '#e5e8ec',
-              200: '#cbd2db',
-              300: '#a3b1c1',
-              400: '#758ba1',
-              500: '#546b84',
-              600: '#41556b',
-              700: '#354558',
-              800: '#2f3a4a', /* Primary Dark Blue Grey */
-              900: '#2a323f',
-              950: '#1b2029',
-            },
-            teal: {
-              400: '#8FA6B8', /* Accent Misty Blue */
-              500: '#7a94a8',
-              600: '#647e93',
-            },
-            emerald: {
-              50: '#fcfbf9',
-              400: '#d8c7af', /* Secondary Milk Tea Beige */
-              500: '#c5b297',
-              600: '#b09d81',
-              700: '#917e62',
-            },
-            brand: {
-              primary: '#2F3A4A',
-              secondary: '#D8C7AF',
-              accent: '#8FA6B8',
-              bg: '#F8F7F3',
-            }
+            brand: { primary: '#0f1b2d', accent: '#06b6d4', blue: '#2563eb', bg: '#f3f7fc' }
           }
         }
       }
     }
   </script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.css">
   <script src="https://cdn.jsdelivr.net/npm/katex@0.16.9/dist/katex.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.160.0/three.min.js"></script>
@@ -68,66 +42,132 @@
     }
 
     :root {
-      --brand-primary: #2F3A4A;
-      --brand-secondary: #D8C7AF;
-      --brand-accent: #8FA6B8;
-      --brand-bg: #F8F7F3;
-      
-      --textbook-blue: var(--brand-accent);
-      --textbook-orange: var(--brand-secondary);
-      --textbook-green: var(--brand-primary);
-      --textbook-bg: var(--brand-bg);
+      --bg: #f3f7fc;
+      --ink: #0f1b2d;
+      --blue: #2563eb;
+      --neon: #06b6d4;
+      --line: rgba(37, 99, 235, 0.06);
+      --line-strong: rgba(37, 99, 235, 0.11);
+      --brand-primary: var(--ink);
+      --brand-accent: var(--neon);
+      --brand-secondary: var(--blue);
+      --brand-bg: var(--bg);
     }
 
     body {
-      font-family: 'GenSenRounded', 'jf-openhuninn-1.1', 'Noto Sans TC', sans-serif;
-      background-color: var(--brand-bg);
-      background-image: radial-gradient(rgba(47, 58, 74, 0.08) 1px, transparent 1px);
-      background-size: 20px 20px;
-      color: var(--brand-primary);
+      font-family: 'Space Grotesk', 'Noto Sans TC', sans-serif;
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(1100px 600px at 90% -10%, rgba(6, 182, 212, 0.13), transparent 60%),
+        radial-gradient(900px 520px at -10% 110%, rgba(37, 99, 235, 0.11), transparent 60%),
+        linear-gradient(var(--line-strong) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line-strong) 1px, transparent 1px),
+        linear-gradient(var(--line) 1px, transparent 1px),
+        linear-gradient(90deg, var(--line) 1px, transparent 1px);
+      background-size: auto, auto, 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+      background-attachment: fixed;
+      color: var(--ink);
       min-height: 100vh;
     }
 
     h1, h2, h3, h4, h5, .font-serif {
-      font-family: 'GenSenRounded', 'jf-openhuninn-1.1', 'Noto Sans TC', sans-serif;
+      font-family: 'Space Grotesk', 'Noto Sans TC', sans-serif;
+      letter-spacing: -0.01em;
     }
 
+    /* HUD 風格：所有大寫英文小標籤改用等寬字 */
+    .uppercase { font-family: 'JetBrains Mono', 'Noto Sans TC', monospace; letter-spacing: 0.12em; }
+
+    /* 卡片：玻璃白底 + 漸層描邊 */
     .textbook-card {
-      background: rgba(255, 255, 255, 0.8);
-      backdrop-filter: blur(12px);
-      -webkit-backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.6);
-      box-shadow: 0 8px 32px -8px rgba(47, 58, 74, 0.08), 0 4px 16px -4px rgba(47, 58, 74, 0.04);
-      border-radius: 20px !important;
+      position: relative;
+      background: rgba(255, 255, 255, 0.84);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border: 1px solid rgba(37, 99, 235, 0.10);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 12px 32px -14px rgba(15, 40, 90, 0.22);
+      border-radius: 18px !important;
     }
+    .textbook-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      padding: 1px;
+      background: linear-gradient(135deg, rgba(6, 182, 212, 0.6), transparent 28%, transparent 72%, rgba(37, 99, 235, 0.5));
+      -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+      -webkit-mask-composite: xor;
+      mask-composite: exclude;
+      pointer-events: none;
+    }
+
+    /* 一般白色面板與按鈕：冷色邊框、hover 發光 */
+    .rounded-2xl.border-slate-200, .rounded-2xl.border-slate-100, .rounded-xl.border-slate-200 { border-color: rgba(37, 99, 235, 0.13) !important; }
+    button.border-2.border-slate-100:hover, button.border-2.border-slate-200:hover {
+      border-color: rgba(6, 182, 212, 0.55) !important;
+      box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.08), 0 12px 26px -14px rgba(6, 182, 212, 0.65) !important;
+    }
+
+    /* 側欄選取中的項目 */
+    aside .bg-blue-600 {
+      background: linear-gradient(135deg, #2563eb, #06b6d4) !important;
+      border-color: transparent !important;
+      box-shadow: 0 8px 22px -8px rgba(6, 182, 212, 0.75) !important;
+    }
+
+    /* 主視覺 */
+    .hero-grid {
+      background-image: linear-gradient(rgba(103, 232, 249, 0.12) 1px, transparent 1px), linear-gradient(90deg, rgba(103, 232, 249, 0.12) 1px, transparent 1px);
+      background-size: 32px 32px;
+      -webkit-mask-image: radial-gradient(ellipse at 75% 40%, #000 10%, transparent 70%);
+      mask-image: radial-gradient(ellipse at 75% 40%, #000 10%, transparent 70%);
+    }
+    .hero-scan {
+      position: absolute; left: 0; right: 0; height: 120px; top: -120px;
+      background: linear-gradient(180deg, transparent, rgba(103, 232, 249, 0.10), transparent);
+      animation: hero-scan 6s linear infinite;
+      pointer-events: none;
+    }
+    @keyframes hero-scan { to { top: 110%; } }
+    .wire-cube { width: 120px; height: 120px; position: relative; transform-style: preserve-3d; animation: wire-spin 18s linear infinite; }
+    .wire-cube > div {
+      position: absolute; inset: 0;
+      border: 1.5px solid rgba(103, 232, 249, 0.75);
+      background: rgba(6, 182, 212, 0.05);
+      box-shadow: 0 0 18px rgba(6, 182, 212, 0.25) inset;
+    }
+    .wire-cube > div:nth-child(1) { transform: translateZ(60px); }
+    .wire-cube > div:nth-child(2) { transform: rotateY(180deg) translateZ(60px); }
+    .wire-cube > div:nth-child(3) { transform: rotateY(90deg) translateZ(60px); }
+    .wire-cube > div:nth-child(4) { transform: rotateY(-90deg) translateZ(60px); }
+    .wire-cube > div:nth-child(5) { transform: rotateX(90deg) translateZ(60px); }
+    .wire-cube > div:nth-child(6) { transform: rotateX(-90deg) translateZ(60px); }
+    @keyframes wire-spin { from { transform: rotateX(-24deg) rotateY(0deg); } to { transform: rotateX(-24deg) rotateY(360deg); } }
+    @media (prefers-reduced-motion: reduce) { .hero-scan, .wire-cube { animation: none; } }
 
     .concept-box {
-      background-color: rgba(143, 166, 184, 0.1);
-      border-left: 4px solid var(--brand-accent);
-      border-radius: 0.5rem;
+      background: linear-gradient(90deg, rgba(6, 182, 212, 0.08), rgba(37, 99, 235, 0.03));
+      border-left: 3px solid var(--neon);
+      border-radius: 0.6rem;
     }
-
-    .concept-box p, .concept-box ul, .concept-box li { color: var(--brand-primary); }
+    .concept-box p, .concept-box ul, .concept-box li { color: var(--ink); }
 
     .example-box {
-      border: 2px dashed rgba(216, 199, 175, 0.8);
-      background-color: rgba(248, 247, 243, 0.5);
+      border: 1.5px dashed rgba(37, 99, 235, 0.35);
+      background-color: rgba(255, 255, 255, 0.7);
     }
 
     .math-text {
       font-family: 'Times New Roman', serif;
       font-style: italic;
-      color: var(--brand-accent);
+      color: var(--blue);
     }
 
     @keyframes slide-up {
       from { opacity: 0; transform: translateY(20px); }
       to   { opacity: 1; transform: translateY(0); }
     }
-
-    .animate-slide-up {
-      animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    }
+    .animate-slide-up { animation: slide-up 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
 
     @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
     .fade-in { animation: fadeIn 0.4s ease forwards; }
@@ -135,54 +175,118 @@
     input[type="range"] {
       -webkit-appearance: none;
       appearance: none;
-      height: 8px;
-      background: rgba(47, 58, 74, 0.1);
+      height: 6px;
+      background: linear-gradient(90deg, rgba(37, 99, 235, 0.25), rgba(6, 182, 212, 0.25));
       border-radius: 10px;
     }
-
     input[type="range"]::-webkit-slider-thumb {
       -webkit-appearance: none;
       appearance: none;
-      width: 24px;
-      height: 24px;
-      background: var(--brand-accent);
+      width: 22px;
+      height: 22px;
+      background: linear-gradient(135deg, #2563eb, #06b6d4);
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(143, 166, 184, 0.4);
+      box-shadow: 0 0 0 4px rgba(6, 182, 212, 0.18), 0 0 14px rgba(6, 182, 212, 0.6);
       border: 2px solid white;
     }
 
     .glass {
-      background: rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.82);
       backdrop-filter: blur(16px);
       -webkit-backdrop-filter: blur(16px);
-      border: 1px solid rgba(255, 255, 255, 0.5);
+      border: 1px solid rgba(37, 99, 235, 0.12);
       border-radius: 20px;
     }
 
     .progress-bar {
       height: 4px;
-      background: linear-gradient(90deg, var(--brand-secondary), var(--brand-accent));
+      background: linear-gradient(90deg, #2563eb, #06b6d4);
       border-radius: 9999px;
       transition: width 0.4s;
+      box-shadow: 0 0 10px rgba(6, 182, 212, 0.6);
     }
 
-    .glow-blue { box-shadow: 0 0 20px rgba(143, 166, 184, 0.4); }
-    .glow-gold { box-shadow: 0 0 20px rgba(216, 199, 175, 0.4); }
-    .glow-rose { box-shadow: 0 0 20px rgba(47, 58, 74, 0.2); }
+    .glow-blue { box-shadow: 0 0 20px rgba(37, 99, 235, 0.35); }
+    .glow-gold { box-shadow: 0 0 20px rgba(6, 182, 212, 0.35); }
+    .glow-rose { box-shadow: 0 0 20px rgba(15, 27, 45, 0.2); }
 
     ::-webkit-scrollbar { width: 6px; height: 6px; }
-    ::-webkit-scrollbar-track { background: var(--brand-bg); }
-    ::-webkit-scrollbar-thumb { background: var(--brand-secondary); border-radius: 99px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: linear-gradient(#2563eb, #06b6d4); border-radius: 99px; }
 
     .no-scrollbar::-webkit-scrollbar { display: none; }
     .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* ===== 淺色科技感：白色區塊升級 ===== */
+    .textbook-card {
+      background-color: rgba(247, 251, 255, 0.88);
+      background-image:
+        linear-gradient(180deg, rgba(236, 246, 255, 0.9), rgba(255, 255, 255, 0) 120px),
+        radial-gradient(rgba(37, 99, 235, 0.07) 1px, transparent 1px);
+      background-size: auto, 18px 18px;
+    }
+    .textbook-card::after {
+      content: '';
+      position: absolute;
+      inset: 10px;
+      pointer-events: none;
+      background:
+        linear-gradient(#06b6d4, #06b6d4) top left / 16px 2px no-repeat,
+        linear-gradient(#06b6d4, #06b6d4) top left / 2px 16px no-repeat,
+        linear-gradient(#2563eb, #2563eb) bottom right / 16px 2px no-repeat,
+        linear-gradient(#2563eb, #2563eb) bottom right / 2px 16px no-repeat;
+      opacity: 0.55;
+    }
+    .textbook-card > * { position: relative; z-index: 1; }
+    .textbook-card > .absolute { position: absolute; }
+
+    /* 一般白色面板 → 冰藍玻璃 */
+    .bg-white.rounded-2xl, .bg-white.rounded-xl, .bg-white.rounded-3xl {
+      background: linear-gradient(180deg, rgba(248, 252, 255, 0.95), rgba(239, 246, 255, 0.9)) !important;
+      border-color: rgba(37, 99, 235, 0.14) !important;
+    }
+    .bg-slate-50 { background-color: #f1f7fe !important; }
+    aside > .bg-white {
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 12px 32px -16px rgba(15, 40, 90, 0.25) !important;
+    }
+    aside button.border-transparent:hover, aside a:hover {
+      background: linear-gradient(90deg, rgba(6, 182, 212, 0.10), rgba(37, 99, 235, 0.04)) !important;
+      color: #1d4ed8 !important;
+    }
+
+    /* 互動按鈕（學習目標 / 模組地圖）*/
+    button.border-2.border-slate-100 {
+      background: linear-gradient(160deg, #ffffff, #eef6ff) !important;
+      border-color: rgba(37, 99, 235, 0.14) !important;
+      border-width: 1px !important;
+      position: relative;
+      overflow: hidden;
+    }
+    button.border-2.border-slate-100::after {
+      content: '';
+      position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+      background: linear-gradient(#2563eb, #06b6d4);
+      opacity: 0; transition: opacity .2s;
+    }
+    button.border-2.border-slate-100:hover::after { opacity: 1; }
+    button .w-10.h-10.bg-white {
+      background: linear-gradient(135deg, #eff6ff, #ecfeff) !important;
+      border-color: rgba(6, 182, 212, 0.35) !important;
+    }
+    button .w-10.h-10.bg-white i { color: #2563eb !important; }
+
+    /* 小標題列：h3 加上掃描線底線 */
+    .textbook-card h3.text-xl { position: relative; }
   </style>
 </head>
 
 <body>
   <div id="root"></div>
   <script type="text/babel">
+    const Gi = ({ n, className = '' }) => <span className={'gi ' + className} dangerouslySetInnerHTML={{ __html: window.GI ? window.GI(n) : '' }} />;
     const { useState, useEffect, useRef } = React;
 
     const DraggableScene = ({ children, title }) => {
@@ -241,7 +345,7 @@
               )}
             </div>
             <div className="p-5">
-              <h4 className="font-black text-slate-800 text-base mb-2">{item.title}</h4>
+              <h4 className="font-black text-slate-800 text-base mb-2 flex items-center gap-2"><Gi n={item.icon} className="text-cyan-600 text-xl" />{item.title}</h4>
               {!flipped ? (
                 <p className="text-sm text-slate-500 font-bold leading-relaxed">{item.question}</p>
               ) : (
@@ -612,7 +716,7 @@
           <div className="p-5">
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
-                <span className="text-2xl">{shape.icon}</span>
+                <span className="text-2xl"><Gi n={shape.icon} className="text-blue-600" /></span>
                 <div>
                   <h4 className="font-black text-slate-800 text-sm">{shape.name}</h4>
                   <span className="text-[10px] text-slate-400 font-bold uppercase">{shape.nameEn}</span>
@@ -699,7 +803,7 @@
         dual: '正二十面體',
         angle: 108,
         color: { face: 'bg-amber-500/20', border: 'border-amber-400', text: 'text-amber-400', btn: 'border-amber-400', hex: 0xf59e0b },
-        hint: '每個面都是正五邊形，像一截足球。',
+        hint: '每個面都是正五邊形，每個頂點有 3 個面相聚。',
         deepQ: '它的頂點數高達 20 個！如果你沿著頂點走，能走遍所有頂點而不重複嗎？（哈密頓路徑問題）',
       },
       {
@@ -934,7 +1038,7 @@
           >
             <div className="flex items-center gap-3">
               <i className="fa-solid fa-book-open text-sky-400"></i>
-              <span className="text-sm font-black text-slate-200">📖 名詞解釋：什麼是柏拉圖立體？什麼是孿生體？</span>
+              <span className="text-sm font-black text-slate-200"><Gi n="book" className="text-cyan-300" /> 名詞解釋：什麼是柏拉圖立體？什麼是孿生體？</span>
             </div>
             <i className={`fa-solid fa-chevron-down text-slate-500 transition-transform duration-300 ${open ? 'rotate-180' : ''}`}></i>
           </button>
@@ -963,12 +1067,12 @@
                     </p>
                     <div className="grid grid-cols-1 gap-3">
                       {[
-                        { icon: '🔺', title: '面全等', desc: '每個面都是完全相同的正多邊形（如正三角形、正方形）' },
-                        { icon: '⭐', title: '頂點相同', desc: '在每個頂點，都有相同數量的面相交在一起' },
-                        { icon: '💎', title: '高度對稱', desc: '從任何方向觀察，形體的結構都完全一致' },
+                        { icon: 'triangle', title: '面全等', desc: '每個面都是完全相同的正多邊形（如正三角形、正方形）' },
+                        { icon: 'vertex', title: '頂點相同', desc: '在每個頂點，都有相同數量的面相交在一起' },
+                        { icon: 'gem', title: '凸多面體', desc: '形體沒有任何凹陷，任兩點的連線都在立體內部或表面上' },
                       ].map(item => (
                         <div key={item.title} className="flex items-center gap-4 bg-slate-800/60 rounded-xl p-4">
-                          <span className="text-2xl">{item.icon}</span>
+                          <span className="text-2xl"><Gi n={item.icon} /></span>
                           <div>
                             <div className="text-base font-black text-slate-200 mb-1">{item.title}</div>
                             <div className="text-sm text-slate-400 leading-relaxed">{item.desc}</div>
@@ -977,7 +1081,7 @@
                       ))}
                     </div>
                     <div className="mt-5 bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-sm text-amber-300 font-bold">
-                      🔑 重要結論：全宇宙只有 <span className="text-white text-xl font-black mx-1">5</span> 種柏拉圖立體，這已被數學嚴格證明，不可能有第 6 種！
+                      <Gi n="key" /> 重要結論：全宇宙只有 <span className="text-white text-xl font-black mx-1">5</span> 種柏拉圖立體，這已被數學嚴格證明，不可能有第 6 種！
                     </div>
                   </div>
 
@@ -1027,12 +1131,12 @@
                     </p>
                     <div className="grid grid-cols-3 gap-3 text-center text-xs font-black mb-4">
                       {[
-                        { icon: '🔺', label: '原來的「面」', result: '→ 孿生體的「頂點」', color: 'text-emerald-400' },
-                        { icon: '📐', label: '原來的「頂點」', result: '→ 孿生體的「面」', color: 'text-orange-400' },
-                        { icon: '➡️', label: '稜邊數', result: '→ 完全不變', color: 'text-sky-400' },
+                        { icon: 'triangle', label: '原來的「面」', result: '→ 孿生體的「頂點」', color: 'text-emerald-400' },
+                        { icon: 'vertex', label: '原來的「頂點」', result: '→ 孿生體的「面」', color: 'text-orange-400' },
+                        { icon: 'swap', label: '稜邊數', result: '→ 完全不變', color: 'text-sky-400' },
                       ].map(item => (
                         <div key={item.label} className="bg-slate-800/60 rounded-xl p-3">
-                          <div className="text-2xl mb-1">{item.icon}</div>
+                          <div className="text-2xl mb-1"><Gi n={item.icon} /></div>
                           <div className="text-slate-400 mb-1 leading-tight">{item.label}</div>
                           <div className={`leading-tight ${item.color}`}>{item.result}</div>
                         </div>
@@ -1054,7 +1158,7 @@
                             <div className={`font-black text-sm ${pair.aColor}`}>{pair.a}</div>
                             <div className="text-xs text-slate-500">{pair.aInfo}</div>
                           </div>
-                          <div className="text-amber-400 font-black text-lg">↔</div>
+                          <div className="text-amber-400 font-black text-lg"><Gi n="swap" /></div>
                           <div className="flex-1 text-center">
                             <div className={`font-black text-sm ${pair.bColor}`}>{pair.b}</div>
                             <div className="text-xs text-slate-500">{pair.bInfo}</div>
@@ -1065,7 +1169,7 @@
                     ))}
                   </div>
                   <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-4 text-xs text-purple-300 font-bold leading-relaxed">
-                    💡 <strong>生活比喻：</strong>就像「手套」分左右手，孿生體之間沒有誰比誰更正確——它們是平等的一對搭檔，互相包含對方的形狀結構。
+                    <Gi n="bulb" /> <strong>生活比喻：</strong>就像一對「舞伴」，孿生體之間沒有誰比誰更正確——它們是平等的一對搭檔，互相包含對方的形狀結構。
                   </div>
                 </div>
               )}
@@ -1080,7 +1184,7 @@
       const [modalStep, setModalStep] = useState(0);
       const steps = [
         {
-          icon: '⭕',
+          icon: 'target',
           title: '第一步：數「頂點」(V)',
           color: 'text-orange-400',
           border: 'border-orange-500',
@@ -1100,13 +1204,13 @@
                 </div>
               </div>
               <div className="bg-orange-500/10 border border-orange-500/30 rounded-xl p-3 text-xs font-bold text-orange-300">
-                💡 {solid.name} 共有 <strong className="text-white text-sm">{solid.vertices}</strong> 個頂點。
+                <Gi n="bulb" /> {solid.name} 共有 <strong className="text-white text-sm">{solid.vertices}</strong> 個頂點。
               </div>
             </div>
           ),
         },
         {
-          icon: '✏️',
+          icon: 'pencil',
           title: '第二步：數「稜邊」(E)',
           color: 'text-sky-400',
           border: 'border-sky-500',
@@ -1115,7 +1219,7 @@
             <div className="space-y-3 text-sm text-slate-300 leading-relaxed">
               <p>稜邊是兩個面「相交的線」，摸起來是一條邊，不是角也不是面。</p>
               <div className="bg-slate-800 rounded-xl p-4 border border-slate-700">
-                <p className="text-xs font-black text-slate-400 uppercase mb-2">計數技巧：用歐拉公式倒推</p>
+                <p className="text-xs font-black text-slate-400 uppercase mb-2">計數技巧：每條稜被兩個面共用</p>
                 <ol className="list-decimal list-inside space-y-2">
                   <li>稜最難直接數，容易漏掉或重複。</li>
                   <li>用「每個面的邊數 × 面數 ÷ 2」（每條邊被兩個面共用）：</li>
@@ -1125,13 +1229,13 @@
                 </div>
               </div>
               <div className="bg-sky-500/10 border border-sky-500/30 rounded-xl p-3 text-xs font-bold text-sky-300">
-                💡 {solid.name} 共有 <strong className="text-white text-sm">{solid.edges}</strong> 條稜邊。
+                <Gi n="bulb" /> {solid.name} 共有 <strong className="text-white text-sm">{solid.edges}</strong> 條稜邊。
               </div>
             </div>
           ),
         },
         {
-          icon: '🔺',
+          icon: 'triangle',
           title: '第三步：數「面」(F)',
           color: 'text-emerald-400',
           border: 'border-emerald-500',
@@ -1148,13 +1252,13 @@
                 </ol>
               </div>
               <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-xl p-3 text-xs font-bold text-emerald-300">
-                💡 {solid.name} 共有 <strong className="text-white text-sm">{solid.faces}</strong> 個面，每個面是<strong className="text-white"> {solid.faceShape}</strong>。
+                <Gi n="bulb" /> {solid.name} 共有 <strong className="text-white text-sm">{solid.faces}</strong> 個面，每個面是<strong className="text-white"> {solid.faceShape}</strong>。
               </div>
             </div>
           ),
         },
         {
-          icon: '✅',
+          icon: 'check',
           title: '最後驗算：歐拉公式',
           color: 'text-purple-400',
           border: 'border-purple-500',
@@ -1175,7 +1279,7 @@
                 </div>
               </div>
               <div className="bg-purple-500/10 border border-purple-500/30 rounded-xl p-3 text-xs font-bold text-purple-300">
-                🎉 只要算出 2，就代表 V、E、F 三個數字全部正確！這是你最強力的自我驗算工具。
+                <Gi n="spark" /> 算出 2，代表你的答案很可能正確；如果不是 2，就一定有地方數錯了！這是你最強力的自我檢查工具。
               </div>
             </div>
           ),
@@ -1212,7 +1316,7 @@
             {/* Step Content */}
             <div className="p-6 space-y-4">
               <div className={`flex items-center gap-3 rounded-2xl p-4 border ${current.border} ${current.bg}`}>
-                <span className="text-3xl">{current.icon}</span>
+                <span className="text-3xl"><Gi n={current.icon} /></span>
                 <h3 className={`text-lg font-black ${current.color}`}>{current.title}</h3>
               </div>
               {current.content}
@@ -1270,6 +1374,7 @@
         const exact = gV === solid.vertices && gE === solid.edges && gF === solid.faces;
         const partial = (gV === solid.vertices) || (gE === solid.edges) || (gF === solid.faces);
         setResult(exact ? 'correct' : partial ? 'partial' : 'wrong');
+        window.G9Track && G9Track.answer({ module: '正多面體偵探室', item: solid.name, answer: `V=${gV}, E=${gE}, F=${gF}`, correctAnswer: `V=${solid.vertices}, E=${solid.edges}, F=${solid.faces}`, correct: exact, detail: { V: gV, E: gE, F: gF, cV: solid.vertices, cE: solid.edges, cF: solid.faces, result: exact ? '全對' : partial ? '部分對' : '錯誤' } });
         if (exact) updateGlobalScore('euler', solid.id, true);
         setPhase('reveal');
       };
@@ -1473,7 +1578,7 @@
                           <i className="fa-solid fa-graduation-cap text-xl"></i>
                         </div>
                         <div>
-                          <p className="text-xs font-black text-sky-400 uppercase mb-1">🎓 老師教你怎麼數</p>
+                          <p className="text-xs font-black text-sky-400 uppercase mb-1"><Gi n="cap" /> 老師教你怎麼數</p>
                           <p className="text-sm text-sky-100 font-bold leading-relaxed">
                             學會系統化計數法，下次挑戰更準確！
                           </p>
@@ -1560,6 +1665,8 @@
 
     function App() {
       const [activeTab, setActiveTab] = useState('home');
+      const [navCollapsed, setNavCollapsed] = useState(() => { try { return localStorage.getItem('g9-nav-collapsed') === '1'; } catch (e) { return false; } });
+      const toggleNav = () => setNavCollapsed(v => { const n = !v; try { localStorage.setItem('g9-nav-collapsed', n ? '1' : '0'); } catch (e) {} return n; });
       const [globalProgress, setGlobalProgress] = useState(getGlobalScores);
 
 
@@ -1589,6 +1696,16 @@
       };
 
       const totalScore = calculateTotalScore(globalProgress);
+
+      // ── 學習紀錄：模組瀏覽、分數快照 ──
+      const TAB_NAMES = { home: '首頁', relations: '歪斜線觀察', spatialLines: '空間關係整理', nets: '展開圖互動圖鑑', sweep: '掃掠實驗室', crossSection: '3D 剖面模擬', surface: '表面積計算機', volume: '體積計算機', euler: '正多面體偵探室', classify: '圖形分類特訓' };
+      useEffect(() => { window.G9Track && G9Track.view(TAB_NAMES[activeTab] || activeTab); }, [activeTab]);
+      useEffect(() => { window.G9Track && G9Track.score(globalProgress, calculateTotalScore(globalProgress)); }, [globalProgress]);
+      useEffect(() => {
+        const onStudent = () => setGlobalProgress(getGlobalScores());
+        window.addEventListener('g9_student_changed', onStudent);
+        return () => window.removeEventListener('g9_student_changed', onStudent);
+      }, []);
 
       const [skewAnswer, setSkewAnswer] = useState(null);
       const [eulerShapeIdx, setEulerShapeIdx] = useState(0);
@@ -1647,6 +1764,7 @@
         if (classifyFeedback) return;
         const item = classifyItems[currentClassifyIndex];
         const isCorrect = item && item.correct === cat;
+        window.G9Track && G9Track.answer({ module: '圖形分類特訓', item: item && item.name, answer: cat, correctAnswer: item && item.correct, correct: !!isCorrect });
         if (isCorrect) setClassifyScore(s => s + 10);
         setClassifyFeedback({ correct: isCorrect });
       };
@@ -1668,7 +1786,7 @@
           {
             name: '正方體',
             nameEn: 'Cube',
-            icon: '🧊',
+            icon: 'cube',
             faces: '6 個正方形',
             color: 'border-blue-400',
             bgColor: 'bg-blue-50',
@@ -1696,7 +1814,7 @@
           {
             name: '正三角柱',
             nameEn: 'Triangular Prism',
-            icon: '🔺',
+            icon: 'prism',
             faces: '2 三角形 + 3 長方形',
             color: 'border-orange-400',
             bgColor: 'bg-orange-50',
@@ -1724,7 +1842,7 @@
           {
             name: '圓柱',
             nameEn: 'Cylinder',
-            icon: '🛢️',
+            icon: 'cylinder',
             faces: '2 圓形 + 1 長方形',
             color: 'border-emerald-400',
             bgColor: 'bg-emerald-50',
@@ -1752,7 +1870,7 @@
           {
             name: '圓錐',
             nameEn: 'Cone',
-            icon: '🍦',
+            icon: 'cone',
             faces: '1 圓形 + 1 扇形',
             color: 'border-red-400',
             bgColor: 'bg-red-50',
@@ -1776,7 +1894,7 @@
           {
             name: '正四面體（三角錐）',
             nameEn: 'Tetrahedron',
-            icon: '🔻',
+            icon: 'tetra',
             faces: '4 個正三角形',
             color: 'border-purple-400',
             bgColor: 'bg-purple-50',
@@ -1803,7 +1921,7 @@
           {
             name: '四角錐',
             nameEn: 'Square Pyramid',
-            icon: '🏔️',
+            icon: 'pyramid',
             faces: '1 正方形 + 4 三角形',
             color: 'border-amber-400',
             bgColor: 'bg-amber-50',
@@ -1850,7 +1968,7 @@
                 {netShapes.map(s => (
                   <button key={s.threeId} onClick={() => { setNetType(s.threeId); }}
                     className={`flex-1 flex flex-col items-center justify-center gap-1 min-w-[80px] p-3 rounded-xl text-sm font-black transition-all ${netType === s.threeId ? `${s.tagColor} text-white shadow-md scale-105` : 'bg-white text-slate-500 border border-slate-200 hover:bg-slate-100'}`}>
-                    <span className="text-2xl">{s.icon}</span>
+                    <span className="text-2xl"><Gi n={s.icon} /></span>
                     <span className="text-xs whitespace-nowrap">{s.name}</span>
                   </button>
                 ))}
@@ -1862,7 +1980,7 @@
               </div>
 
               <div className="concept-box p-6 bg-teal-50 border-teal-500 mb-8">
-                <h4 className="font-black text-teal-800 mb-2">💡 關鍵概念：鄰邊與底面</h4>
+                <h4 className="font-black text-teal-800 mb-2"><Gi n="bulb" className="text-teal-600" /> 關鍵概念：鄰邊與底面</h4>
                 <p className="text-sm text-teal-700/80 font-bold leading-relaxed">
                   展開圖中<strong>不相鄰</strong>的面，在摺疊後可能成為互相平行的「對立面」（例如正方體的上下底）；而<strong>相鄰</strong>的邊在摺疊後會完美重合為一條「稜邊」。
                 </p>
@@ -1875,15 +1993,15 @@
                 </h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-3">
                   <div className="bg-white/60 rounded-xl p-3 border border-teal-200">
-                    <div className="font-black text-teal-700 text-sm mb-1">🔢 面數必須吻合</div>
+                    <div className="font-black text-teal-700 text-sm mb-1"><Gi n="hash" /> 面數必須吻合</div>
                     <p className="text-xs text-teal-600/70 font-bold">正方體 → 6 面，三角柱 → 5 面，四角錐 → 5 面</p>
                   </div>
                   <div className="bg-white/60 rounded-xl p-3 border border-teal-200">
-                    <div className="font-black text-teal-700 text-sm mb-1">🚫 不可有重疊</div>
+                    <div className="font-black text-teal-700 text-sm mb-1"><Gi n="ban" /> 不可有重疊</div>
                     <p className="text-xs text-teal-600/70 font-bold">展開後的平面圖各個面不可以互相覆蓋</p>
                   </div>
                   <div className="bg-white/60 rounded-xl p-3 border border-teal-200">
-                    <div className="font-black text-teal-700 text-sm mb-1">🔗 共邊才能摺</div>
+                    <div className="font-black text-teal-700 text-sm mb-1"><Gi n="link" /> 共邊才能摺</div>
                     <p className="text-xs text-teal-600/70 font-bold">相鄰的面必須共用一條完整的稜邊</p>
                   </div>
                 </div>
@@ -2011,24 +2129,24 @@
 
       const renderCrossSection = () => {
         const sections = [
-          { shape: '正方體', cut: '垂直切開', options: ['正方形', '長方形', '三角形'], correct: '正方形', icon: 'fa-cube', explain: '平行於側面的垂直切法，會得到與底面全等的正方形。' },
+          { shape: '正方體', cut: '平行於某一個面切開', options: ['正方形', '長方形', '三角形'], correct: '正方形', icon: 'fa-cube', explain: '平行於任一個面切開，截面會與那個面全等，所以是正方形。' },
           { shape: '圓柱', cut: '水平平行底面切開', options: ['圓形', '橢圓形', '長方形'], correct: '圓形', icon: 'fa-database', explain: '與圓柱底面平行的切法，各處半徑皆不變，所以剖面依然是完美的圓形。' },
           { shape: '圓錐', cut: '通過頂點垂直切開', options: ['等腰三角形', '圓形', '扇形'], correct: '等腰三角形', icon: 'fa-vial', explain: '沿著頂點直切到底面圓的直徑，剖面會形成腰為母線、底為直徑的等腰三角形。' },
           { shape: '三角錐', cut: '平行底面水平切開', options: ['正方形', '圓形', '三角形'], correct: '三角形', icon: 'fa-caret-up', explain: '平行於底面的切面，會截出一個與底面相似但等比例縮小的三角形。' },
           { shape: '正方體', cut: '斜向切過三個頂點', options: ['等邊三角形', '正方形', '六邊形'], correct: '等邊三角形', icon: 'fa-cube', explain: '切過同一個角延伸出去的三個相鄰頂點，截面的三條邊剛好都會是正方體表面上的對角線，因此長度相等，形成正(等邊)三角形。' },
-          { shape: '三角錐', cut: '平行於一對歪斜稜切開', options: ['四邊形(長方形)', '三角形', '六邊形'], correct: '四邊形(長方形)', icon: 'fa-caret-up', explain: '💡 解析：在四面體（三角錐）中，兩條不相碰的稜互為「歪斜線」。如果切面「同時平行」於這兩條歪斜的稜，切面就會在另外四條稜上切出四個交點，連起來會形成一個平行四邊形！在正四面體中，甚至會是長方形或正方形喔。（可以去左邊的 3D 模擬器轉轉看！）' },
+          { shape: '三角錐', cut: '平行於一對歪斜稜切開', options: ['四邊形(長方形)', '三角形', '六邊形'], correct: '四邊形(長方形)', icon: 'fa-caret-up', explain: '解析：在四面體（三角錐）中，兩條不相碰的稜互為「歪斜線」。如果切面「同時平行」於這兩條歪斜的稜，切面就會在另外四條稜上切出四個交點，連起來會形成一個平行四邊形！在正四面體中，甚至會是長方形或正方形喔。（可以去左邊的 3D 模擬器轉轉看！）' },
         ];
 
         const cubeSlices = [
           { id: 'square', name: '平行切面 (正方形)', shapeName: '正方形', desc: '平行於其中一個面的切法。剖面與原平面完全全等。', planeStyle: { width: '126px', height: '126px', transform: 'rotateX(90deg) translateZ(0)' }, path: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', svg: <rect x="20" y="20" width="60" height="60" fill="#ef4444" opacity="0.8" /> },
           { id: 'rect', name: '對角切面 (長方形)', shapeName: '長方形', desc: '通過相對的兩條稜邊。邊長為底邊與對角線。', planeStyle: { width: '126px', height: '178.19px', transform: 'rotateX(45deg) translateZ(0)' }, path: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', svg: <rect x="15" y="25" width="70" height="50" fill="#ef4444" opacity="0.8" /> },
           { id: 'triangle', name: '截角切面 (三角形)', shapeName: '正三角形', desc: '切過交於同一頂點的三個面。若切點為中點，則為正三角形。', planeStyle: { width: '89.1px', height: '77.16px', transform: 'rotateY(45deg) rotateX(35.26deg) translateZ(72.75px) translateY(12.86px)' }, path: 'polygon(50% 100%, 100% 0%, 0% 0%)', svg: <polygon points="50,10 90,80 10,80" fill="#ef4444" opacity="0.8" /> },
-          { id: 'hex', name: '中截切面 (六邊形)', shapeName: '正六邊形', desc: '切過六條稜的中點，造成完美恆等的正六邊形！', planeStyle: { width: '178.19px', height: '154.32px', transform: 'rotateY(45deg) rotateX(35.26deg)' }, path: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)', svg: <polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="#ef4444" opacity="0.8" /> },
+          { id: 'hex', name: '中截切面 (六邊形)', shapeName: '正六邊形', desc: '切過六條稜的中點，得到完美的正六邊形！', planeStyle: { width: '178.19px', height: '154.32px', transform: 'rotateY(45deg) rotateX(35.26deg)' }, path: 'polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%)', svg: <polygon points="50,10 85,30 85,70 50,90 15,70 15,30" fill="#ef4444" opacity="0.8" /> },
         ];
         const cylinderSlices = [
           { id: 'circle', name: '水平切面 (圓形)', shapeName: '圓形', desc: '平行於底面的切法，剖面會與底面完全相同。', planeStyle: { width: '130px', height: '130px', transform: 'rotateX(90deg) translateZ(0)' }, path: 'circle(50% at 50% 50%)', svg: <circle cx="50" cy="50" r="40" fill="#ef4444" opacity="0.8" /> },
           { id: 'rect', name: '鉛直切面 (長方形)', shapeName: '長方形', desc: '垂直於底面的切法，若通過圓心為最大長方形。', planeStyle: { width: '128px', height: '160px', transform: 'translateZ(0)' }, path: 'polygon(0 0, 100% 0, 100% 100%, 0 100%)', svg: <rect x="25" y="10" width="50" height="80" fill="#ef4444" opacity="0.8" /> },
-          { id: 'ellipse', name: '斜切切面 (橢圓形)', shapeName: '橢圓形', desc: '不平行也不垂直於底面的傾斜切法，會拉長成為橢圓。', planeStyle: { width: '181px', height: '130px', transform: 'rotateY(45deg) rotateX(90deg)' }, path: 'ellipse(50% 50% at 50% 50%)', svg: <ellipse cx="50" cy="50" rx="45" ry="30" fill="#ef4444" opacity="0.8" transform="rotate(-30, 50, 50)" /> },
+          { id: 'ellipse', name: '斜切切面 (橢圓形)', shapeName: '橢圓形', desc: '不平行也不垂直於底面的傾斜切法，若沒有切到上下底面，會拉長成為橢圓。', planeStyle: { width: '181px', height: '130px', transform: 'rotateY(45deg) rotateX(90deg)' }, path: 'ellipse(50% 50% at 50% 50%)', svg: <ellipse cx="50" cy="50" rx="45" ry="30" fill="#ef4444" opacity="0.8" transform="rotate(-30, 50, 50)" /> },
         ];
         const pyramidSlices = [
           { id: 'triangle', name: '水平切面 (三角形)', shapeName: '三角形', desc: '平行於底面的切法，剖面會與底面相似的縮小三角形。', planeStyle: { width: '130px', height: '130px', transform: 'rotateX(90deg) translateZ(0)' }, path: 'polygon(50% 32.7%, 65% 58.7%, 35% 58.7%)', svg: <polygon points="50,20 85,80 15,80" fill="#ef4444" opacity="0.8" /> },
@@ -2082,7 +2200,7 @@
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-10">
                   {curQuiz.options.map(opt => (
-                    <button key={opt} onClick={() => { setGuessShape(opt); if (opt === curQuiz.correct) updateGlobalScore('crossSection', crossSectionIdx.toString(), true); }} disabled={!!guessShape}
+                    <button key={opt} onClick={() => { setGuessShape(opt); window.G9Track && G9Track.answer({ module: '3D 剖面模擬', item: `截面挑戰 ${crossSectionIdx + 1}：${curQuiz.shape}（${curQuiz.cut}）`, answer: opt, correctAnswer: curQuiz.correct, correct: opt === curQuiz.correct }); if (opt === curQuiz.correct) updateGlobalScore('crossSection', crossSectionIdx.toString(), true); }} disabled={!!guessShape}
                       className={`p-6 rounded-2xl border-2 font-black text-lg transition-all ${guessShape === opt ? (opt === curQuiz.correct ? 'bg-emerald-500 border-emerald-600 text-white shadow-xl scale-95' : 'bg-red-500 border-red-600 text-white shadow-xl scale-95') : 'bg-white border-slate-200 hover:border-pink-300 text-slate-600 hover:-translate-y-1'}`}>
                       {opt}
                       {guessShape === opt && (opt === curQuiz.correct ? ' ✓' : ' ✗')}
@@ -2227,11 +2345,11 @@
       const renderRelations = () => (
         <div className="space-y-8 animate-slide-up">
           <div className="textbook-card p-6 md:p-10 rounded-xl relative">
-            <h2 className="text-3xl font-black text-blue-700 mb-6 flex items-center"><i className="fa-solid fa-arrows-left-right text-blue-500 mr-4"></i> 空間關係｜歪斜 SKew</h2>
+            <h2 className="text-3xl font-black text-blue-700 mb-6 flex items-center"><i className="fa-solid fa-arrows-left-right text-blue-500 mr-4"></i> 空間關係｜歪斜 Skew</h2>
             <div className="concept-box p-6 mb-8 text-blue-900 leading-relaxed font-bold">
               <p>空間中兩條直線若滿足以下兩點，則稱為「<span className="text-blue-700 underline underline-offset-4 decoration-2">歪斜</span>」：</p>
               <ul className="list-disc ml-6 mt-3 space-y-1">
-                <li>不相交（不交於一頂點）</li>
+                <li>不相交（沒有任何交點）</li>
                 <li>不平行（方向不同，且不在同一個平面上）</li>
               </ul>
             </div>
@@ -2280,8 +2398,8 @@
                 觀察模型，紅色線段是 <span className="text-xl text-orange-500" dangerouslySetInnerHTML={{ __html: katex.renderToString('\\overline{AB}') }}></span> ，請問下列哪條稜邊與它互為「歪斜線」？
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
-                <button onClick={() => { setSkewAnswer('CG'); updateGlobalScore('skew', null, true); }} className={`flex-1 py-4 px-6 rounded-xl font-black transition-all ${skewAnswer === 'CG' ? 'bg-emerald-600 text-white shadow-xl' : 'bg-white border-2 border-slate-200 text-slate-600'}`}>選項 A：稜邊 CG {skewAnswer === 'CG' && '✅ 正確'}</button>
-                <button onClick={() => { setSkewAnswer('BC'); updateGlobalScore('skew', null, false); }} className={`flex-1 py-4 px-6 rounded-xl font-black transition-all ${skewAnswer === 'BC' ? 'bg-red-500 text-white shadow-xl' : 'bg-white border-2 border-slate-200 text-slate-600'}`}>選項 B：稜邊 BC {skewAnswer === 'BC' && (<span>❌ 相交於 B</span>)}</button>
+                <button onClick={() => { setSkewAnswer('CG'); updateGlobalScore('skew', null, true); window.G9Track && G9Track.answer({ module: '歪斜線觀察', item: '隨堂測驗：哪條稜邊與 AB 互為歪斜線', answer: 'CG', correctAnswer: 'CG', correct: true }); }} className={`flex-1 py-4 px-6 rounded-xl font-black transition-all ${skewAnswer === 'CG' ? 'bg-emerald-600 text-white shadow-xl' : 'bg-white border-2 border-slate-200 text-slate-600'}`}>選項 A：稜邊 CG {skewAnswer === 'CG' && <><Gi n="check" /> 正確</>}</button>
+                <button onClick={() => { setSkewAnswer('BD'); updateGlobalScore('skew', null, false); window.G9Track && G9Track.answer({ module: '歪斜線觀察', item: '隨堂測驗：哪條稜邊與 AB 互為歪斜線', answer: 'BD', correctAnswer: 'CG', correct: false }); }} className={`flex-1 py-4 px-6 rounded-xl font-black transition-all ${skewAnswer === 'BD' ? 'bg-red-500 text-white shadow-xl' : 'bg-white border-2 border-slate-200 text-slate-600'}`}>選項 B：稜邊 BD {skewAnswer === 'BD' && (<span><Gi n="cross" /> 相交於 B</span>)}</button>
               </div>
             </div>
 
@@ -2297,23 +2415,23 @@
                 {[
                   {
                     img: 'skew_overpass.png',
-                    title: '🛣️ 高架橋交叉路口',
+                    title: '高架橋交叉路口', icon: 'overpass',
                     question: '上面的公路與下面的公路，兩者的中心線是什麼關係？',
                     answer: '歪斜！兩條路在不同高度、不同方向行進，不相交也不平行。這是日常最常見的歪斜線實例。',
                     tag: '交通工程',
                   },
                   {
                     img: 'skew_staircase.png',
-                    title: '🪜 樓梯與扶手',
+                    title: '樓梯與扶手', icon: 'stairs',
                     question: '扶手（橘線）與底下某一階的前緣（綠線），兩者是什麼關係？',
                     answer: '歪斜！扶手沿斜面上升，階梯前緣是水平的且方向與扶手不同，兩者在不同平面上、不相交也不平行。',
                     tag: '建築設計',
                   },
                   {
                     img: 'skew_door.png',
-                    title: '🚪 打開的門',
-                    question: '門板上的門軸邊（綠線）與門框的上橫邊（橘線），開門後是什麼關係？',
-                    answer: '歪斜！門被推開後，門板上的直立邊與門框的水平橫邊不在同一個平面上，既不相交也不平行。',
+                    title: '打開的門', icon: 'door',
+                    question: '門板外側（門把那一側）的直立邊（綠線）與門框的上橫邊（橘線），開門後是什麼關係？',
+                    answer: '歪斜！門被推開後，門板外側的直立邊轉離了牆面，碰不到門框的上橫邊；兩者方向不同，也不在同一個平面上，所以既不相交也不平行。（注意：門軸那一側的直立邊會頂到門框的角落，那是相交喔！）',
                     tag: '居家觀察',
                   },
                 ].map((item, idx) => (
@@ -2329,7 +2447,7 @@
                 <p className="text-xs text-amber-700/80 font-bold leading-relaxed">
                   在生活中，只要兩條直線<strong>不在同一平面</strong>且<strong>不接觸</strong>，它們就是歪斜線。
                   高架橋、樓梯、打開的門⋯⋯空間中「歪斜」無所不在！<br />
-                  <span className="text-amber-600">💡 試試看：你能在教室裡找到幾組歪斜線？</span>
+                  <span className="text-amber-600"><Gi n="bulb" /> 試試看：你能在教室裡找到幾組歪斜線？</span>
                 </p>
               </div>
             </div>
@@ -2339,16 +2457,16 @@
 
       const renderSpaceLines = () => {
         const spQuizzes = [
-          { category: '直線 vs 直線', icon: '🛤️', scenario: '鐵軌的左右兩條軌道，它們永遠不會碰在一起。', correct: '平行', options: ['相交', '平行', '歪斜'], explain: '兩條鐵軌方向相同、距離固定、且在同一水平面上，所以是平行。' },
-          { category: '直線 vs 直線', icon: '✂️', scenario: '剪刀打開時，兩片刀刃在轉軸處碰在一起。', correct: '相交', options: ['相交', '平行', '歪斜'], explain: '兩刀刃在轉軸處交於一點，屬於「相交」關係。' },
-          { category: '直線 vs 直線', icon: '🏗️', scenario: '立體停車場中，一樓往東的車道 vs 二樓往北的車道。', correct: '歪斜', options: ['相交', '平行', '歪斜'], explain: '兩條車道在不同高度、不同方向，既不相交也不平行，是空間中的歪斜線。' },
-          { category: '直線 vs 平面', icon: '📏', scenario: '教室的門檻（一條線）就躺在地板（一個平面）上。', correct: '在平面上', options: ['在平面上', '平行', '垂直'], explain: '門檻的每一點都在地板平面上，所以是「直線在平面上」。' },
-          { category: '直線 vs 平面', icon: '💡', scenario: '教室的日光燈管掛在天花板下方，與地板保持固定距離。', correct: '平行', options: ['在平面上', '平行', '垂直'], explain: '日光燈管不在地板上，和地板也沒有交點，距離恆定，所以是「平行」。' },
-          { category: '直線 vs 平面', icon: '🏀', scenario: '籃球場的籃框柱（直立柱子）插入地面。', correct: '垂直', options: ['在平面上', '平行', '垂直'], explain: '柱子和地面形成 90° 角，與地面上所有方向的直線都垂直，是「直線與平面垂直」（法線）。' },
-          { category: '平面 vs 平面', icon: '📚', scenario: '一本打開的書，左頁和右頁沿著書脊相接。', correct: '相交', options: ['平行', '相交'], explain: '左右兩頁沿著書脊（一條直線）相交，形成「二面角」。' },
-          { category: '平面 vs 平面', icon: '🏢', scenario: '大樓的 1 樓地板 和 2 樓地板。', correct: '平行', options: ['平行', '相交'], explain: '上下兩層樓板永遠保持固定距離、不會交會，所以是平行的兩個平面。' },
-          { category: '直線 vs 直線', icon: '🧊', scenario: '正方體的某條上邊 vs 它正對面的下邊（例如前上稜 vs 後下稜）。', correct: '歪斜', options: ['相交', '平行', '歪斜'], explain: '前上稜和後下稜方向不同、也不在同一平面上、不會碰到，是歪斜線。' },
-          { category: '直線 vs 平面', icon: '🚀', scenario: '火箭發射時，火箭的飛行軌跡（直線向上）與地面（平面）。', correct: '垂直', options: ['在平面上', '平行', '垂直'], explain: '火箭垂直升空，飛行方向與地面呈 90° 角，是「直線與平面垂直」。' },
+          { category: '直線 vs 直線', icon: 'rail', scenario: '鐵軌的左右兩條軌道，它們永遠不會碰在一起。', correct: '平行', options: ['相交', '平行', '歪斜'], explain: '兩條鐵軌方向相同、距離固定、且在同一水平面上，所以是平行。' },
+          { category: '直線 vs 直線', icon: 'scissors', scenario: '剪刀打開時，兩片刀刃在轉軸處碰在一起。', correct: '相交', options: ['相交', '平行', '歪斜'], explain: '兩刀刃在轉軸處交於一點，屬於「相交」關係。' },
+          { category: '直線 vs 直線', icon: 'layers', scenario: '立體停車場中，一樓往東的車道 vs 二樓往北的車道。', correct: '歪斜', options: ['相交', '平行', '歪斜'], explain: '兩條車道在不同高度、不同方向，既不相交也不平行，是空間中的歪斜線。' },
+          { category: '直線 vs 平面', icon: 'ruler', scenario: '教室的門檻（一條線）就躺在地板（一個平面）上。', correct: '在平面上', options: ['在平面上', '平行', '垂直'], explain: '門檻的每一點都在地板平面上，所以是「直線在平面上」。' },
+          { category: '直線 vs 平面', icon: 'lamp', scenario: '教室的日光燈管掛在天花板下方，與地板保持固定距離。', correct: '平行', options: ['在平面上', '平行', '垂直'], explain: '日光燈管不在地板上，和地板也沒有交點，距離恆定，所以是「平行」。' },
+          { category: '直線 vs 平面', icon: 'hoop', scenario: '籃球場的籃框柱（直立柱子）插入地面。', correct: '垂直', options: ['在平面上', '平行', '垂直'], explain: '柱子和地面形成 90° 角，與地面上所有方向的直線都垂直，是「直線與平面垂直」（法線）。' },
+          { category: '平面 vs 平面', icon: 'openbook', scenario: '一本打開的書，左頁和右頁沿著書脊相接。', correct: '相交', options: ['平行', '相交'], explain: '左右兩頁沿著書脊（一條直線）相交，形成「二面角」。' },
+          { category: '平面 vs 平面', icon: 'floors', scenario: '大樓的 1 樓地板 和 2 樓地板。', correct: '平行', options: ['平行', '相交'], explain: '上下兩層樓板永遠保持固定距離、不會交會，所以是平行的兩個平面。' },
+          { category: '直線 vs 直線', icon: 'cube', scenario: '正方體的前上稜（左右方向）vs 左下稜（左側面最下方、前後方向的那條稜）。', correct: '歪斜', options: ['相交', '平行', '歪斜'], explain: '前上稜是左右方向、左下稜是前後方向，兩者方向不同、不在同一平面上、也不會碰到，是歪斜線。（小心：前上稜和「後下稜」都是左右方向，那一組其實是平行喔！）' },
+          { category: '直線 vs 平面', icon: 'rocket', scenario: '火箭發射時，火箭的飛行軌跡（直線向上）與地面（平面）。', correct: '垂直', options: ['在平面上', '平行', '垂直'], explain: '火箭垂直升空，飛行方向與地面呈 90° 角，是「直線與平面垂直」。' },
         ];
         const q = spQuizzes[spQuizIdx];
         const total = spQuizzes.length;
@@ -2398,7 +2516,7 @@
               {/* Collapsible Reference */}
               {spShowRef && (
                 <div className="mb-8 p-6 bg-slate-50 rounded-2xl border-2 border-slate-200 animate-slide-up">
-                  <h4 className="font-black text-slate-700 mb-4 text-sm">📖 空間關係速查表</h4>
+                  <h4 className="font-black text-slate-700 mb-4 text-sm"><Gi n="book" className="text-blue-600" /> 空間關係速查表</h4>
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
                     <div className="bg-white p-3 rounded-xl border border-slate-100">
                       <div className="text-xs font-black text-slate-400 uppercase mb-2">I. 直線 vs 直線</div>
@@ -2420,7 +2538,7 @@
                       <div className="text-xs font-black text-slate-400 uppercase mb-2">III. 平面 vs 平面</div>
                       <div className="space-y-1 text-xs font-bold text-slate-600">
                         <p><span className="text-blue-500">●</span> <strong>平行</strong>：不相交，距離固定</p>
-                        <p><span className="text-purple-500">●</span> <strong>相交</strong>：沿一條稜線交會</p>
+                        <p><span className="text-purple-500">●</span> <strong>相交</strong>：交於一條直線</p>
                       </div>
                     </div>
                   </div>
@@ -2434,7 +2552,7 @@
                   <span className="bg-white text-violet-600 text-xs font-black px-3 py-1 rounded-full border border-violet-200">{q.category}</span>
                 </div>
                 <div className="flex items-start gap-5 mt-4">
-                  <div className="text-5xl">{q.icon}</div>
+                  <div className="text-5xl"><Gi n={q.icon} className="text-blue-600" /></div>
                   <div className="flex-1">
                     <p className="text-lg font-black text-slate-800 leading-relaxed mb-6">{q.scenario}</p>
                     <p className="text-violet-600 font-black text-sm mb-4">請問這兩者的空間關係是？</p>
@@ -2448,7 +2566,7 @@
                         }
                         return (
                           <button key={opt} disabled={spAnswer !== null}
-                            onClick={() => { setSpAnswer(opt); if (opt === q.correct) updateGlobalScore('spatialLines', spQuizIdx.toString(), true); }}
+                            onClick={() => { setSpAnswer(opt); window.G9Track && G9Track.answer({ module: '空間關係整理', item: `第 ${spQuizIdx + 1} 題（${q.category}）：${q.scenario}`, answer: opt, correctAnswer: q.correct, correct: opt === q.correct }); if (opt === q.correct) updateGlobalScore('spatialLines', spQuizIdx.toString(), true); }}
                             className={`py-4 rounded-2xl font-black text-base transition-all ${btnClass}`}>
                             {opt}
                             {spAnswer !== null && opt === q.correct && ' ✓'}
@@ -2486,7 +2604,7 @@
                     else { setSpQuizIdx(0); setSpAnswer(null); }
                   }}
                   className="w-full py-4 rounded-2xl font-black text-lg bg-violet-600 text-white hover:bg-violet-500 transition-all shadow-lg">
-                  {spQuizIdx < total - 1 ? `下一題 →` : '🎉 全部完成！從頭再來'}
+                  {spQuizIdx < total - 1 ? `下一題 →` : <><Gi n="spark" /> 全部完成！從頭再來</>}
                 </button>
               )}
             </div>
@@ -2504,10 +2622,10 @@
       const renderVolume = () => {
         const inp = surfaceInputs;
         const shapes = {
-          prism: { label: '角柱/圓柱', formula: 'V = A \\times h', icon: '🛢️', color: 'text-blue-600', result: (Math.PI * inp.r * inp.r * inp.h).toFixed(2), params: [{ key: 'r', label: '底面半徑 r' }, { key: 'h', label: '柱體高 h' }], desc: '體積 = 底面積 × 高', math: 'A = \\pi r^2' },
-          pyramid: { label: '角錐/圓錐', formula: 'V = \\frac{1}{3} A \\times h', icon: '🍦', color: 'text-orange-600', result: ((1 / 3) * Math.PI * inp.r * inp.r * inp.h).toFixed(2), params: [{ key: 'r', label: '底面半徑 r' }, { key: 'h', label: '錐體高 h' }], desc: '體積 = 1/3 × 底面積 × 高', math: 'A = \\pi r^2' },
-          cube: { label: '正方體', formula: 'V = a^3', icon: '🧊', color: 'text-indigo-600', result: (Math.pow(inp.a, 3)).toFixed(2), params: [{ key: 'a', label: '邊長 a' }], desc: '體積 = 邊長 × 邊長 × 邊長', math: '' },
-          sphere: { label: '球體', formula: 'V = \\frac{4}{3} \\pi r^3', icon: '⚽', color: 'text-rose-600', result: ((4 / 3) * Math.PI * Math.pow(inp.r, 3)).toFixed(2), params: [{ key: 'r', label: '半徑 r' }], desc: '體積 = 4/3 × π × 半徑的立方', math: '\\pi \\approx 3.14' },
+          prism: { label: '圓柱', formula: 'V = A \\times h', icon: 'cylinder', color: 'text-blue-600', result: (Math.PI * inp.r * inp.r * inp.h).toFixed(2), params: [{ key: 'r', label: '底面半徑 r' }, { key: 'h', label: '柱體高 h' }], desc: '體積 = 底面積 × 高', math: 'A = \\pi r^2' },
+          pyramid: { label: '圓錐', formula: 'V = \\frac{1}{3} A \\times h', icon: 'cone', color: 'text-orange-600', result: ((1 / 3) * Math.PI * inp.r * inp.r * inp.h).toFixed(2), params: [{ key: 'r', label: '底面半徑 r' }, { key: 'h', label: '錐體高 h' }], desc: '體積 = 1/3 × 底面積 × 高', math: 'A = \\pi r^2' },
+          cube: { label: '正方體', formula: 'V = a^3', icon: 'cube', color: 'text-indigo-600', result: (Math.pow(inp.a, 3)).toFixed(2), params: [{ key: 'a', label: '邊長 a' }], desc: '體積 = 邊長 × 邊長 × 邊長', math: '' },
+          sphere: { label: '球體', formula: 'V = \\frac{4}{3} \\pi r^3', icon: 'sphere', color: 'text-rose-600', result: ((4 / 3) * Math.PI * Math.pow(inp.r, 3)).toFixed(2), params: [{ key: 'r', label: '半徑 r' }], desc: '體積 = 4/3 × π × 半徑的立方', math: '' },
         };
         const cur = shapes[volumeShape];
 
@@ -2526,7 +2644,7 @@
                 {Object.entries(shapes).map(([key, s]) => (
                   <button key={key} onClick={() => setVolumeShape(key)}
                     className={`relative p-6 rounded-3xl border-2 transition-all duration-300 overflow-hidden ${volumeShape === key ? 'bg-indigo-600 border-indigo-700 text-white shadow-xl -translate-y-1' : 'bg-white border-slate-100 hover:border-indigo-200 text-slate-500'}`}>
-                    <div className="text-4xl mb-3">{s.icon}</div>
+                    <div className="text-4xl mb-3"><Gi n={s.icon} /></div>
                     <div className="font-extrabold text-sm tracking-tight">{s.label}</div>
                     {volumeShape === key && <div className="absolute top-0 right-0 w-8 h-8 bg-white/20 rounded-bl-3xl flex items-center justify-center"><i className="fa-solid fa-check text-[10px]"></i></div>}
                   </button>
@@ -2627,10 +2745,10 @@
       const renderSurface = () => {
         const inp = surfaceInputs;
         const surfaces = {
-          prism: { label: '正三角柱', formula: '2 \\times \\frac{\\sqrt{3}}{4} a^2 + 3ah', icon: '⛺', color: 'text-orange-600', result: (2 * (Math.sqrt(3) / 4) * inp.a * inp.a + 3 * inp.a * inp.h).toFixed(2), params: [{ key: 'a', label: '底邊長 a' }, { key: 'h', label: '高 h' }], desc: '表面積 = 2個三角形底面 + 3個長方形側面' },
-          cube: { label: '正方體', formula: '6a^2', icon: '🧊', color: 'text-blue-600', result: (6 * inp.a * inp.a).toFixed(2), params: [{ key: 'a', label: '邊長 a' }], desc: '表面積 = 6 個正方形面的面積總和' },
-          cylinder: { label: '圓柱', formula: '2\\pi r^2 + 2\\pi rh', icon: '🛢️', color: 'text-emerald-600', result: (2 * Math.PI * inp.r * inp.r + 2 * Math.PI * inp.r * inp.h).toFixed(2), params: [{ key: 'r', label: '底面半徑 r' }, { key: 'h', label: '高 h' }], desc: '表面積 = 2個圓形底面 + 1個側面（展開為長方形）' },
-          cone: { label: '圓錐', formula: '\\pi r^2 + \\pi rl', icon: '🍦', color: 'text-red-600', result: (Math.PI * inp.r * inp.r + Math.PI * inp.r * inp.l).toFixed(2), params: [{ key: 'r', label: '底面半徑 r' }, { key: 'l', label: '母線長 l' }], desc: '表面積 = 1個圓形底面 + 1個側面（展開為扇形）' },
+          prism: { label: '正三角柱', formula: '2 \\times \\frac{\\sqrt{3}}{4} a^2 + 3ah', icon: 'prism', color: 'text-orange-600', result: (2 * (Math.sqrt(3) / 4) * inp.a * inp.a + 3 * inp.a * inp.h).toFixed(2), params: [{ key: 'a', label: '底邊長 a' }, { key: 'h', label: '高 h' }], desc: '表面積 = 2個三角形底面 + 3個長方形側面' },
+          cube: { label: '正方體', formula: '6a^2', icon: 'cube', color: 'text-blue-600', result: (6 * inp.a * inp.a).toFixed(2), params: [{ key: 'a', label: '邊長 a' }], desc: '表面積 = 6 個正方形面的面積總和' },
+          cylinder: { label: '圓柱', formula: '2\\pi r^2 + 2\\pi rh', icon: 'cylinder', color: 'text-emerald-600', result: (2 * Math.PI * inp.r * inp.r + 2 * Math.PI * inp.r * inp.h).toFixed(2), params: [{ key: 'r', label: '底面半徑 r' }, { key: 'h', label: '高 h' }], desc: '表面積 = 2個圓形底面 + 1個側面（展開為長方形）' },
+          cone: { label: '圓錐', formula: '\\pi r^2 + \\pi rl', icon: 'cone', color: 'text-red-600', result: (Math.PI * inp.r * inp.r + Math.PI * inp.r * inp.l).toFixed(2), params: [{ key: 'r', label: '底面半徑 r' }, { key: 'l', label: '母線長 l' }], desc: '表面積 = 1個圓形底面 + 1個側面（展開為扇形）' },
         };
         const cur = surfaces[surfaceType];
         return (
@@ -2641,7 +2759,7 @@
                 {Object.entries(surfaces).map(([key, s]) => (
                   <button key={key} onClick={() => setSurfaceType(key)}
                     className={`p-4 rounded-2xl border-2 text-center transition-all ${surfaceType === key ? 'bg-slate-800 text-white border-slate-800 shadow-lg' : 'bg-white border-slate-200 hover:border-blue-200 text-slate-600'}`}>
-                    <div className="text-3xl mb-1">{s.icon}</div>
+                    <div className="text-3xl mb-1"><Gi n={s.icon} /></div>
                     <div className="font-black text-sm">{s.label}</div>
                   </button>
                 ))}
@@ -2811,7 +2929,7 @@
 
             {/* Tip */}
             <div className="concept-box p-5">
-              <h4 className="font-black text-cyan-400 mb-2">📐 四種立體圖形速記法</h4>
+              <h4 className="font-black text-cyan-400 mb-2"><Gi n="setsquare" /> 四種立體圖形速記法</h4>
               <div className="grid grid-cols-2 gap-3 text-sm text-slate-400 font-bold">
                 <div><span className="text-cyan-400">角柱</span>：上下兩個全等多邊形 + 長方形側面</div>
                 <div><span className="text-violet-400">角錐</span>：一個多邊形底 + 三角形側面收斂於頂點</div>
@@ -2826,34 +2944,40 @@
       const renderHome = () => (
         <div className="space-y-6 animate-slide-up pb-10">
           {/* Hero Banner */}
-          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-slate-800 via-slate-700 to-orange-900 text-white p-8 md:p-12 shadow-2xl">
-            <div className="absolute inset-0 opacity-10" style={{ backgroundImage: 'radial-gradient(circle at 20% 80%, #fb923c 0%, transparent 50%), radial-gradient(circle at 80% 20%, #6366f1 0%, transparent 50%)' }}></div>
+          <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-[#081327] via-[#0d2652] to-[#0b4f6e] text-white p-8 md:p-12 shadow-2xl ring-1 ring-cyan-400/20">
+            <div className="absolute inset-0 opacity-60" style={{ backgroundImage: 'radial-gradient(circle at 15% 85%, rgba(37,99,235,0.45) 0%, transparent 45%), radial-gradient(circle at 85% 15%, rgba(6,182,212,0.35) 0%, transparent 45%)' }}></div>
+            <div className="absolute inset-0 hero-grid"></div>
+            <div className="hero-scan"></div>
+            <div className="hidden md:block absolute right-16 bottom-14 z-0" style={{ perspective: '600px' }}>
+              <div className="wire-cube"><div></div><div></div><div></div><div></div><div></div><div></div></div>
+            </div>
 
-            <div className="absolute top-6 right-6 md:right-10 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-white/20 text-center shadow-lg transform md:rotate-3 hover:rotate-0 transition-all z-20">
-              <div className="text-orange-200 text-xs font-black uppercase tracking-widest mb-1 flex justify-center items-center gap-1.5">
+            <div className="absolute top-6 right-6 md:right-10 bg-white/10 backdrop-blur-md rounded-2xl p-4 border border-cyan-300/30 text-center shadow-[0_0_30px_-6px_rgba(6,182,212,0.6)] transform md:rotate-3 hover:rotate-0 transition-all z-20">
+              <div className="text-cyan-200 text-xs font-black uppercase tracking-widest mb-1 flex justify-center items-center gap-1.5">
                 <i className="fa-solid fa-trophy"></i> Total Score
               </div>
               <div className="text-4xl font-black text-white">{totalScore} <span className="text-lg opacity-60">/ 100</span></div>
             </div>
 
             <div className="relative z-10">
-              <div className="inline-flex items-center gap-2 bg-orange-500/20 border border-orange-400/30 text-orange-300 text-xs font-black px-3 py-1.5 rounded-full mb-6 uppercase tracking-widest">
+              <div className="inline-flex items-center gap-2 bg-cyan-400/10 border border-cyan-300/30 text-cyan-200 text-xs font-black px-3 py-1.5 rounded-full mb-6 uppercase tracking-widest">
                 <i className="fa-solid fa-book-open-reader"></i> 數位智慧課本 · G9 數學 Unit 3
               </div>
-              <h2 className="text-4xl md:text-5xl font-black leading-tight mb-4">空間中的線、<br />平面與形體</h2>
+              <h2 className="text-4xl md:text-5xl font-black leading-tight mb-4">空間中的線、<br /><span className="bg-gradient-to-r from-white via-cyan-200 to-cyan-400 bg-clip-text text-transparent">平面與形體</span></h2>
               <p className="text-slate-300 font-medium text-lg leading-relaxed max-w-xl">
                 歡迎進入這堂課的互動學習平台！<br />
                 在這裡，你可以用「看」、「轉動」、「折疊」來理解立體幾何的世界。
               </p>
               <div className="mt-8 flex flex-wrap gap-3">
-                <button onClick={() => setActiveTab('relations')} className="bg-white/10 hover:bg-white/20 border border-white/20 text-white font-black px-5 py-2.5 rounded-xl transition-all text-sm flex items-center gap-2 hover:-translate-y-0.5">
-                  <i className="fa-solid fa-rocket text-orange-300 text-xs"></i> 開始探索
+                <button onClick={() => setActiveTab('relations')} className="bg-gradient-to-r from-blue-600 to-cyan-500 hover:brightness-110 border border-cyan-300/40 shadow-[0_8px_24px_-8px_rgba(6,182,212,0.8)] text-white font-black px-5 py-2.5 rounded-xl transition-all text-sm flex items-center gap-2 hover:-translate-y-0.5">
+                  <i className="fa-solid fa-rocket text-cyan-300 text-xs"></i> 開始探索
                 </button>
-                <button onClick={() => setActiveTab('nets')} className="bg-orange-500/20 hover:bg-orange-500/30 border border-orange-400/30 text-orange-200 font-bold px-5 py-2.5 rounded-xl transition-all text-sm flex items-center gap-2">
+                <button onClick={() => setActiveTab('nets')} className="bg-white/5 hover:bg-white/15 border border-cyan-300/30 text-cyan-100 font-bold px-5 py-2.5 rounded-xl transition-all text-sm flex items-center gap-2">
                   <i className="fa-solid fa-expand text-xs"></i> 展開圖圖鑑
                 </button>
                 <button onClick={() => {
                   if (confirm('確定要清除所有學習進度和 100 分計分板嗎？')) {
+                    window.G9Track && G9Track.event('reset_progress', { module: '首頁' });
                     localStorage.removeItem('g9_geometry_scores');
                     window.dispatchEvent(new Event('score_updated'));
                   }
@@ -2867,8 +2991,8 @@
           {/* Learning Objectives */}
           <div className="textbook-card p-6 md:p-8 rounded-2xl">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-orange-100 rounded-xl flex items-center justify-center">
-                <i className="fa-solid fa-bullseye text-orange-500"></i>
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl flex items-center justify-center shadow-[0_6px_16px_-6px_rgba(6,182,212,0.8)]">
+                <i className="fa-solid fa-bullseye text-white"></i>
               </div>
               <div>
                 <h3 className="text-xl font-black text-slate-800">今日學習目標</h3>
@@ -2889,7 +3013,7 @@
                       <i className={`fa-solid ${obj.icon} text-slate-600`}></i>
                     </div>
                     <div>
-                      <span className="text-[10px] font-black text-slate-400 uppercase block mb-1">Goal {i + 1}</span>
+                      <span className="text-[10px] font-black text-cyan-600 uppercase block mb-1">Goal_0{i + 1}</span>
                       <div className="font-black text-slate-800 text-sm leading-snug mb-1">{obj.label}</div>
                       <div className="text-xs text-slate-500 font-medium leading-relaxed">{obj.desc}</div>
                     </div>
@@ -2902,8 +3026,8 @@
           {/* Module Map */}
           <div className="textbook-card p-6 md:p-8 rounded-2xl">
             <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 bg-slate-100 rounded-xl flex items-center justify-center">
-                <i className="fa-solid fa-map text-slate-500"></i>
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl flex items-center justify-center shadow-[0_6px_16px_-6px_rgba(6,182,212,0.8)]">
+                <i className="fa-solid fa-map text-white"></i>
               </div>
               <div>
                 <h3 className="text-xl font-black text-slate-800">學習模組地圖</h3>
@@ -2931,17 +3055,17 @@
           </div>
 
           {/* Teacher's Note */}
-          <div className="bg-amber-50 border-2 border-amber-200 rounded-2xl p-6">
+          <div className="textbook-card rounded-2xl p-6 border-l-4 !border-l-cyan-400">
             <div className="flex items-start gap-4">
-              <div className="w-10 h-10 bg-amber-200 rounded-xl flex items-center justify-center shrink-0">
-                <i className="fa-solid fa-chalkboard-user text-amber-700"></i>
+              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-cyan-500 rounded-xl flex items-center justify-center shrink-0 shadow-[0_6px_16px_-6px_rgba(6,182,212,0.8)]">
+                <i className="fa-solid fa-chalkboard-user text-white"></i>
               </div>
               <div>
-                <div className="font-black text-amber-800 mb-2 flex items-center gap-2">
+                <div className="font-black text-slate-800 mb-2 flex items-center gap-2">
                   老師的話
-                  <span className="text-[10px] bg-amber-200 text-amber-700 px-2 py-0.5 rounded-full font-black uppercase">Teacher's Note</span>
+                  <span className="text-[10px] bg-cyan-50 text-cyan-700 border border-cyan-200 px-2 py-0.5 rounded-full font-black uppercase">Teacher's Note</span>
                 </div>
-                <p className="text-sm text-amber-900 leading-relaxed font-medium">
+                <p className="text-sm text-slate-600 leading-relaxed font-medium">
                   「空間幾何」對很多同學來說很抽象——因為我們習慣在紙上思考 2D 的問題。這個平台的目的，就是讓你用「互動」取代「死背」，用「觀察」代替「臆測」。<br /><br />
                   沒有任何東西需要死記！試著動手轉動、折疊、切割，你的大腦會自然建立空間感。
                 </p>
@@ -2949,25 +3073,46 @@
             </div>
           </div>
 
-          <div className="mt-8 text-center text-slate-400 font-bold text-xs flex items-center justify-center gap-2 uppercase tracking-wider">
-            <i className="fa-solid fa-code"></i>
-            Designed by Valerie Yu / Linkou Kang Chiao Math Teacher
+          <div className="mt-10 flex justify-center">
+            <a href="https://valerieyu55.github.io/valerieyu_studio/index.html#projects" target="_blank" rel="noopener" title="Valerie Yu Studio" className="inline-block hover:scale-105 transition-transform"><img src="logo.png" alt="Valerie Yu Studio" className="h-14 w-auto" /></a>
           </div>
         </div>
       );
 
       return (
         <div className="min-h-screen flex flex-col md:flex-row gap-4 p-4 md:p-8 max-w-[1440px] mx-auto">
-          <div className="w-full md:w-[320px] space-y-4 shrink-0">
-            <div className="textbook-card p-6 md:p-8 rounded-2xl cursor-pointer transition-all hover:shadow-md" onClick={() => setActiveTab('home')}>
-              <div className="text-[10px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full inline-block mb-3 uppercase tracking-widest">G9 MATH UNIT 3</div>
-              <h1 className="text-3xl font-black leading-tight text-slate-800">空間中的線、<br/>平面與形體</h1>
-              <p className="text-[11px] font-bold mt-3 flex items-center gap-1 text-slate-400"><i className="fa-solid fa-house text-blue-400"></i> 點擊返回首頁</p>
+          <aside className={`w-full shrink-0 space-y-4 md:sticky md:top-8 md:self-start md:max-h-[calc(100vh-4rem)] md:overflow-y-auto no-scrollbar transition-[width] duration-300 ${navCollapsed ? 'md:w-[84px]' : 'md:w-[320px]'}`}>
+            <div className={`textbook-card rounded-2xl transition-all hover:shadow-md relative ${navCollapsed ? 'p-4 md:p-3' : 'p-6 md:p-8'}`}>
+              <button onClick={toggleNav} title={navCollapsed ? '展開選單' : '收合選單'} aria-label={navCollapsed ? '展開選單' : '收合選單'}
+                className={`absolute top-3 right-3 w-8 h-8 rounded-lg bg-slate-100 hover:bg-blue-100 text-slate-500 hover:text-blue-600 flex items-center justify-center transition-colors z-10 ${navCollapsed ? 'md:static md:mx-auto md:mb-2' : ''}`}>
+                <i className={`fa-solid ${navCollapsed ? 'fa-angles-right' : 'fa-angles-left'} text-xs hidden md:inline`}></i>
+                <i className={`fa-solid ${navCollapsed ? 'fa-chevron-down' : 'fa-chevron-up'} text-xs md:hidden`}></i>
+              </button>
+              <div className="cursor-pointer" onClick={() => setActiveTab('home')} title="返回首頁">
+                {navCollapsed ? (
+                  <>
+                    <div className="hidden md:flex flex-col items-center gap-2 py-1">
+                      <span className="text-[10px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">3-1</span>
+                      <i className="fa-solid fa-house text-blue-400 text-sm"></i>
+                    </div>
+                    <div className="md:hidden pr-10">
+                      <div className="text-[10px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full inline-block mb-1 uppercase tracking-widest">G9 MATH UNIT 3</div>
+                      <h1 className="text-xl font-black leading-tight text-slate-800">空間中的線、平面與形體</h1>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-[10px] font-black bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full inline-block mb-3 uppercase tracking-widest">G9 MATH UNIT 3</div>
+                    <h1 className="text-3xl font-black leading-tight text-slate-800">空間中的線、<br/>平面與形體</h1>
+                    <p className="text-[11px] font-bold mt-3 flex items-center gap-1 text-slate-400"><i className="fa-solid fa-house text-blue-400"></i> 點擊返回首頁</p>
+                  </>
+                )}
+              </div>
             </div>
 
 
 
-            <div className="bg-white rounded-2xl shadow-sm border border-slate-200 p-3 space-y-0.5">
+            <div className={`bg-white rounded-2xl shadow-sm border border-slate-200 space-y-0.5 ${navCollapsed ? 'hidden md:block p-2' : 'p-3'}`}>
               {[
                 { id: 'relations', title: '歪斜線觀察', icon: 'fa-arrows-left-right', color: 'text-emerald-500' },
                 { id: 'spatialLines', title: '空間關係整理', icon: 'fa-layer-group', color: 'text-violet-500' },
@@ -2988,27 +3133,27 @@
                   <>
                     <div className="flex items-center gap-4">
                       <i className={`fa-solid ${tab.icon} ${activeTab === tab.id ? 'text-white' : tab.color}`}></i>
-                      <span>{tab.title}</span>
+                      {!navCollapsed && <span>{tab.title}</span>}
                     </div>
-                    {tab.link ?
+                    {!navCollapsed && (tab.link ?
                       <i className="fa-solid fa-arrow-up-right-from-square text-[10px] opacity-40 group-hover:text-indigo-500"></i> :
                       <i className="fa-solid fa-chevron-right text-[10px] opacity-40"></i>
-                    }
+                    )}
                   </>
                 );
 
                 if (tab.link) {
                   return (
-                    <a key={tab.id} href={tab.link}
-                      className="group w-full flex items-center justify-between p-3.5 rounded-xl transition-all duration-200 font-black border border-transparent text-slate-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100">
+                    <a key={tab.id} href={tab.link} title={tab.title}
+                      className={`group w-full flex items-center ${navCollapsed ? 'justify-center' : 'justify-between'} p-3.5 rounded-xl transition-all duration-200 font-black border border-transparent text-slate-500 hover:bg-blue-50 hover:text-blue-600 hover:border-blue-100`}>
                       {content}
                     </a>
                   );
                 }
 
                 return (
-                  <button key={tab.id} onClick={() => setActiveTab(tab.id)}
-                    className={`w-full flex items-center justify-between p-3.5 rounded-xl transition-all duration-200 font-black border ${
+                  <button key={tab.id} onClick={() => setActiveTab(tab.id)} title={tab.title}
+                    className={`w-full flex items-center ${navCollapsed ? 'justify-center' : 'justify-between'} p-3.5 rounded-xl transition-all duration-200 font-black border ${
                       activeTab === tab.id
                         ? 'bg-blue-600 text-white border-blue-600 shadow-md'
                         : 'border-transparent text-slate-500 hover:bg-slate-50 hover:text-slate-700'
@@ -3018,9 +3163,25 @@
                 );
               })}
             </div>
-          </div>
 
-          <div className="flex-1 w-full max-w-4xl no-scrollbar overflow-y-auto">
+            <a href="https://valerieyu55.github.io/valerieyu_studio/index.html#projects" target="_blank" rel="noopener"
+              title="Valerie Yu Studio"
+              className={`group block bg-white rounded-2xl shadow-sm border border-slate-200 transition-all hover:shadow-md hover:border-blue-200 ${navCollapsed ? 'hidden md:block p-3' : 'px-6 pt-5 pb-4'}`}>
+              {navCollapsed ? (
+                <img src="logo-mark.png" alt="Valerie Yu Studio" className="w-10 mx-auto" />
+              ) : (
+                <>
+                  <img src="logo.png" alt="Valerie Yu Studio" className="w-full max-w-[230px] mx-auto" />
+                  <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] font-bold text-slate-400">
+                    <span className="italic">Find the value of you!</span>
+                    <span className="text-blue-500 group-hover:text-blue-700 transition-colors">更多教材 <i className="fa-solid fa-arrow-up-right-from-square text-[9px] ml-0.5"></i></span>
+                  </div>
+                </>
+              )}
+            </a>
+          </aside>
+
+          <div className={`flex-1 w-full no-scrollbar overflow-y-auto transition-[max-width] duration-300 ${navCollapsed ? 'max-w-6xl' : 'max-w-4xl'}`}>
             {activeTab === 'home' && renderHome()}
             {activeTab === 'sweep' && renderSweep()}
             {activeTab === 'nets' && renderNets()}
