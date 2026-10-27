@@ -24,6 +24,11 @@ var ACTION_NAMES = { enter: '進入', dwell: '停留', login: '登入', reset_pr
 
 /* ---------- 接收資料 ---------- */
 function doPost(e) {
+  // 教師後台讀取資料（密碼存在「指令碼屬性」TEACHER_KEY，不寫在程式碼裡）
+  try {
+    var req = JSON.parse(e.postData.contents || '{}');
+    if (req.action === 'teacher') return teacherData(req.key);
+  } catch (err0) {}
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
@@ -177,4 +182,40 @@ function buildSummary() {
   if (sh.getLastRow() > 1) sh.getRange(2, 1, sh.getLastRow() - 1, SHEETS.summary.header.length).clearContent();
   if (out.length) sh.getRange(2, 1, out.length, out[0].length).setValues(out);
   try { book().toast('已更新 ' + out.length + ' 位學生的統計', '學習紀錄', 4); } catch (e) {}
+}
+
+/* ---------- 教師後台 ---------- */
+function json(o) {
+  return ContentService.createTextOutput(JSON.stringify(o)).setMimeType(ContentService.MimeType.JSON);
+}
+
+function readSheet(key) {
+  var sh = sheet(key), last = sh.getLastRow();
+  if (last < 2) return [];
+  var w = SHEETS[key].header.length;
+  return sh.getRange(2, 1, last - 1, w).getDisplayValues();
+}
+
+function teacherData(key) {
+  var props = PropertiesService.getScriptProperties();
+  var real = props.getProperty('TEACHER_KEY');
+  // 簡單防暴力猜測：連續錯 10 次鎖 10 分鐘
+  var cache = CacheService.getScriptCache();
+  var fails = Number(cache.get('teacher_fails') || 0);
+  if (fails >= 10) return json({ ok: false, error: 'locked' });
+  if (!real || String(key) !== real) {
+    cache.put('teacher_fails', String(fails + 1), 600);
+    return json({ ok: false, error: 'auth' });
+  }
+  cache.remove('teacher_fails');
+  return json({
+    ok: true,
+    updated: fmt(new Date().toISOString()),
+    headers: { scores: SHEETS.scores.header, answers: SHEETS.answers.header, journey: SHEETS.journey.header, euler: SHEETS.euler.header },
+    scores: readSheet('scores'),
+    answers: readSheet('answers'),
+    journey: readSheet('journey'),
+    euler: readSheet('euler'),
+    sheetUrl: book().getUrl()
+  });
 }

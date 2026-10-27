@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex, nofollow">
+  <title>教師後台｜3-1 學習紀錄</title>
+  <link rel="icon" type="image/png" href="logo-mark.png">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script src="icons.js"></script>
+  <style>
+    :root {
+      --bg: #f3f7fc; --ink: #0f1b2d; --muted: #5b6b82; --line: rgba(37, 99, 235, .13);
+      --blue: #2563eb; --neon: #06b6d4; --ok: #10b981; --bad: #ef4444; --warn: #f59e0b;
+      --card: rgba(255, 255, 255, .86);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; color: var(--ink);
+      font-family: 'Space Grotesk', 'Noto Sans TC', sans-serif;
+      background-color: var(--bg);
+      background-image:
+        radial-gradient(1100px 600px at 90% -10%, rgba(6, 182, 212, .13), transparent 60%),
+        radial-gradient(900px 520px at -10% 110%, rgba(37, 99, 235, .11), transparent 60%),
+        linear-gradient(rgba(37, 99, 235, .10) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37, 99, 235, .10) 1px, transparent 1px),
+        linear-gradient(rgba(37, 99, 235, .05) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(37, 99, 235, .05) 1px, transparent 1px);
+      background-size: auto, auto, 120px 120px, 120px 120px, 24px 24px, 24px 24px;
+      background-attachment: fixed;
+    }
+    .mono { font-family: 'JetBrains Mono', 'Noto Sans TC', monospace; letter-spacing: .1em; }
+    .hidden { display: none !important; }
+    button { font: inherit; cursor: pointer; }
+    .card {
+      position: relative; background: var(--card); border: 1px solid var(--line); border-radius: 18px;
+      backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 12px 32px -16px rgba(15, 40, 90, .25);
+    }
+    .card.hud::after {
+      content: ''; position: absolute; inset: 10px; pointer-events: none; opacity: .55; background:
+        linear-gradient(#06b6d4, #06b6d4) top left / 16px 2px no-repeat, linear-gradient(#06b6d4, #06b6d4) top left / 2px 16px no-repeat,
+        linear-gradient(#2563eb, #2563eb) bottom right / 16px 2px no-repeat, linear-gradient(#2563eb, #2563eb) bottom right / 2px 16px no-repeat;
+    }
+    .btn {
+      border: 0; border-radius: 12px; padding: 10px 16px; font-weight: 800; color: #fff;
+      background: linear-gradient(135deg, #2563eb, #06b6d4); box-shadow: 0 10px 24px -12px rgba(6, 182, 212, .9);
+      display: inline-flex; align-items: center; gap: 8px; text-decoration: none; font-size: 14px;
+    }
+    .btn:hover { filter: brightness(1.08); }
+    .btn .gi-svg .a { stroke: currentColor; }
+    .btn.ghost { background: #fff; color: var(--blue); border: 1px solid var(--line); box-shadow: none; }
+    .btn.ghost:hover { background: #eff6ff; filter: none; }
+
+    /* 登入 */
+    #login { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    #login .card { width: 100%; max-width: 380px; padding: 32px 28px 26px; text-align: center; }
+    #login img { height: 70px; }
+    .tag { display: inline-block; font-size: 10px; font-weight: 700; color: #0891b2; background: #ecfeff; border: 1px solid #a5f3fc; padding: 5px 9px; border-radius: 99px; }
+    #login h1 { font-size: 22px; margin: 12px 0 4px; }
+    #login p { color: var(--muted); font-size: 13px; margin: 0 0 20px; }
+    .pw { width: 100%; border: 1.5px solid rgba(37, 99, 235, .22); border-radius: 12px; padding: 13px; font-size: 20px; text-align: center; letter-spacing: .4em; outline: none; font-family: 'JetBrains Mono', monospace; }
+    .pw:focus { border-color: var(--neon); box-shadow: 0 0 0 4px rgba(6, 182, 212, .15); }
+    #login .btn { width: 100%; justify-content: center; margin-top: 12px; padding: 13px; font-size: 15px; }
+    .err { color: var(--bad); font-size: 13px; font-weight: 700; min-height: 18px; margin-top: 10px; }
+    .back { display: inline-block; margin-top: 14px; font-size: 12px; color: var(--muted); text-decoration: none; }
+
+    /* 後台 */
+    #app { max-width: 1280px; margin: 0 auto; padding: 20px 16px 60px; }
+    header.top { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; padding: 14px 18px; }
+    header.top img { height: 42px; }
+    header.top h1 { font-size: 20px; margin: 0; }
+    header.top .sub { font-size: 12px; color: var(--muted); }
+    header.top .sp { flex: 1; }
+    .filters { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; margin: 16px 0; }
+    .filters select, .filters input { border: 1px solid var(--line); background: #fff; border-radius: 10px; padding: 9px 12px; font: inherit; font-size: 14px; color: var(--ink); min-width: 140px; }
+    .kpis { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .kpi { padding: 16px 18px; }
+    .kpi .l { font-size: 10px; color: var(--muted); font-weight: 700; display: flex; align-items: center; gap: 6px; }
+    .kpi .l .gi { color: var(--blue); font-size: 15px; }
+    .kpi .v { font-size: 30px; font-weight: 700; margin-top: 6px; }
+    .kpi .v small { font-size: 13px; color: var(--muted); font-weight: 600; margin-left: 2px; }
+    .tabs { display: flex; gap: 6px; margin: 18px 0 12px; flex-wrap: wrap; }
+    .tab { border: 1px solid var(--line); background: rgba(255, 255, 255, .8); border-radius: 12px; padding: 9px 14px; font-weight: 800; color: var(--muted); display: inline-flex; align-items: center; gap: 7px; font-size: 14px; }
+    .tab.on { background: linear-gradient(135deg, #2563eb, #06b6d4); color: #fff; border-color: transparent; box-shadow: 0 8px 22px -10px rgba(6, 182, 212, .8); }
+    .panel { padding: 18px; overflow: hidden; }
+    .panel h3 { margin: 0 0 4px; font-size: 17px; display: flex; align-items: center; gap: 8px; }
+    .panel .hint { color: var(--muted); font-size: 12px; margin: 0 0 12px; }
+    .tbl-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+    th { text-align: left; font-size: 11px; color: var(--muted); font-weight: 800; padding: 10px; border-bottom: 1px solid var(--line); white-space: nowrap; cursor: pointer; user-select: none; position: sticky; top: 0; background: #f8fbff; }
+    th.num, td.num { text-align: right; }
+    td { padding: 10px; border-bottom: 1px solid rgba(37, 99, 235, .07); vertical-align: middle; }
+    tbody tr:hover { background: rgba(6, 182, 212, .06); }
+    tr.click { cursor: pointer; }
+    .bar { height: 8px; border-radius: 99px; background: rgba(37, 99, 235, .1); overflow: hidden; min-width: 80px; }
+    .bar > i { display: block; height: 100%; border-radius: 99px; background: linear-gradient(90deg, #2563eb, #06b6d4); }
+    .bar.bad > i { background: linear-gradient(90deg, #f97316, #ef4444); }
+    .pill { display: inline-block; padding: 2px 9px; border-radius: 99px; font-size: 12px; font-weight: 800; }
+    .pill.o { background: #d1fae5; color: #047857; } .pill.x { background: #fee2e2; color: #b91c1c; } .pill.n { background: #e0f2fe; color: #0369a1; }
+    .wrong { color: var(--bad); font-weight: 800; }
+    .grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .stu-head { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; margin-bottom: 14px; }
+    .av { width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; color: #fff; font-weight: 900; font-size: 20px; background: linear-gradient(135deg, #2563eb, #06b6d4); }
+    .mini { display: grid; grid-template-columns: repeat(6, 1fr); gap: 8px; margin-bottom: 14px; }
+    .mini div { background: #f1f7fe; border: 1px solid var(--line); border-radius: 12px; padding: 10px; text-align: center; }
+    .mini b { display: block; font-size: 20px; } .mini span { font-size: 11px; color: var(--muted); }
+    .hrow { display: grid; grid-template-columns: 130px 1fr 60px; gap: 10px; align-items: center; margin: 7px 0; font-size: 13px; }
+    .empty { text-align: center; color: var(--muted); padding: 40px 10px; font-size: 14px; }
+    .feed { max-height: 460px; overflow-y: auto; }
+    .loading { position: fixed; inset: 0; background: rgba(243, 247, 252, .7); display: flex; align-items: center; justify-content: center; z-index: 50; font-weight: 800; color: var(--blue); gap: 10px; }
+    .spin { width: 22px; height: 22px; border-radius: 99px; border: 3px solid rgba(37, 99, 235, .2); border-top-color: var(--neon); animation: sp 1s linear infinite; }
+    @keyframes sp { to { transform: rotate(360deg); } }
+    @media (max-width: 900px) { .kpis { grid-template-columns: repeat(2, 1fr); } .grid2 { grid-template-columns: 1fr; } .mini { grid-template-columns: repeat(3, 1fr); } }
+  </style>
+</head>
+<body>
+
+  <!-- ===== 登入 ===== -->
+  <section id="login">
+    <form class="card hud" id="loginForm" autocomplete="off">
+      <img src="logo.png" alt="Valerie Yu Studio">
+      <div><span class="tag mono">TEACHER CONSOLE</span></div>
+      <h1>教師後台</h1>
+      <p>3-1 空間中的線、平面與形體｜學生學習紀錄</p>
+      <input class="pw" id="pw" type="password" inputmode="numeric" placeholder="••••••" aria-label="教師密碼">
+      <button class="btn" type="submit">登入 <span class="gi" data-gi="arrow"></span></button>
+      <div class="err" id="err"></div>
+      <a class="back" href="index.html">← 回到課程首頁</a>
+    </form>
+  </section>
+
+  <!-- ===== 後台 ===== -->
+  <main id="app" class="hidden">
+    <header class="card hud top">
+      <img src="logo.png" alt="Valerie Yu Studio">
+      <div>
+        <h1>教師後台｜學習紀錄</h1>
+        <div class="sub">3-1 空間中的線、平面與形體 · 資料更新於 <span id="updated" class="mono">—</span></div>
+      </div>
+      <div class="sp"></div>
+      <button class="btn ghost" id="refresh"><span class="gi" data-gi="swap"></span>重新整理</button>
+      <a class="btn ghost" id="sheetLink" target="_blank" rel="noopener"><span class="gi" data-gi="layers"></span>開啟試算表</a>
+      <button class="btn ghost" id="logout">登出</button>
+    </header>
+
+    <div class="filters">
+      <select id="fClass"></select>
+      <input id="fName" placeholder="搜尋姓名或座號">
+    </div>
+
+    <section class="kpis">
+      <div class="card kpi"><div class="l mono"><span class="gi" data-gi="vertex"></span>STUDENTS 學生</div><div class="v" id="kStu">0</div></div>
+      <div class="card kpi"><div class="l mono"><span class="gi" data-gi="trophy"></span>AVG SCORE 平均總分</div><div class="v" id="kAvg">0<small>/100</small></div></div>
+      <div class="card kpi"><div class="l mono"><span class="gi" data-gi="check"></span>ACCURACY 答對率</div><div class="v" id="kAcc">0<small>%</small></div></div>
+      <div class="card kpi"><div class="l mono"><span class="gi" data-gi="target"></span>STUDY TIME 學習時數</div><div class="v" id="kTime">0<small>hr</small></div></div>
+      <div class="card kpi"><div class="l mono"><span class="gi" data-gi="spark"></span>TODAY 今日活躍</div><div class="v" id="kToday">0<small>人</small></div></div>
+    </section>
+
+    <nav class="tabs" id="tabs">
+      <button class="tab on" data-t="scores"><span class="gi" data-gi="trophy"></span>成績總表</button>
+      <button class="tab" data-t="items"><span class="gi" data-gi="hash"></span>題目分析</button>
+      <button class="tab" data-t="student"><span class="gi" data-gi="cap"></span>學生詳情</button>
+      <button class="tab" data-t="journey"><span class="gi" data-gi="layers"></span>學習歷程</button>
+      <button class="tab" data-t="euler"><span class="gi" data-gi="tetra"></span>正多面體偵探室</button>
+    </nav>
+
+    <section class="card panel" id="view"></section>
+  </main>
+
+  <div class="loading hidden" id="loading"><div class="spin"></div>讀取資料中…</div>
+
+<script>
+(function () {
+  'use strict';
+  // 與 tracker.js 相同的 Apps Script 網址
+  var GAS_URL = 'https://script.google.com/macros/s/AKfycbyJDlWJcuns2IYihRahSTgvGKel9wStG60oi7PC5FCa6U6y4QUOvJG7jven15r5b81k/exec';
+  var SS_KEY = 'g9_teacher_key';
+
+  var $ = function (id) { return document.getElementById(id); };
+  function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function ssGet() { try { return sessionStorage.getItem(SS_KEY); } catch (e) { return null; } }
+  function ssSet(v) { try { v ? sessionStorage.setItem(SS_KEY, v) : sessionStorage.removeItem(SS_KEY); } catch (e) {} }
+  function gi(n) { return '<span class="gi">' + (window.GI ? GI(n) : '') + '</span>'; }
+
+  var DATA = null, key = null, tab = 'scores', sel = null, sortState = { col: 1, dir: 1 };
+
+  /* ---------- 讀取 ---------- */
+  function load(k) {
+    $('loading').classList.remove('hidden');
+    return fetch(GAS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ action: 'teacher', key: k })
+    }).then(function (r) { return r.json(); }).finally(function () { $('loading').classList.add('hidden'); });
+  }
+
+  $('loginForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var k = $('pw').value.trim();
+    if (!k) return;
+    $('err').textContent = '';
+    load(k).then(function (res) {
+      if (!res.ok) {
+        $('err').textContent = res.error === 'locked' ? '嘗試次數過多，請 10 分鐘後再試' : '密碼錯誤';
+        return;
+      }
+      key = k; ssSet(k); start(res);
+    }).catch(function () { $('err').textContent = '無法連線到雲端，請檢查網路'; });
+  });
+
+  $('logout').onclick = function () { ssSet(null); location.reload(); };
+  $('refresh').onclick = function () {
+    load(key).then(function (res) { if (res.ok) { DATA = prep(res); render(); } }).catch(function () { alertBar('重新整理失敗'); });
+  };
+  function alertBar(t) { $('updated').textContent = t; }
+
+  /* ---------- 整理資料 ---------- */
+  function sid(c, s, n) { return c + '-' + s + '-' + n; }
+  function prep(res) {
+    var stu = {};
+    function get(c, s, n) {
+      var k = sid(c, s, n);
+      if (!stu[k]) stu[k] = { id: k, cls: c, seat: s, name: n, total: 0, sub: [0, 0, 0, 0, 0], n: 0, ok: 0, sec: 0, mods: {}, last: '', answers: [], journey: [] };
+      return stu[k];
+    }
+    res.scores.forEach(function (r) {
+      var s = get(r[0], r[1], r[2]);
+      s.total = Number(r[3]) || 0; s.sub = [r[4], r[5], r[6], r[7], r[8]].map(Number); s.last = r[9] > s.last ? r[9] : s.last;
+    });
+    res.answers.forEach(function (r) {
+      var s = get(r[1], r[2], r[3]);
+      s.answers.push(r);
+      if (r[9] === 'O' || r[9] === 'X') { s.n++; if (r[9] === 'O') s.ok++; }
+      if (r[0] > s.last) s.last = r[0];
+    });
+    res.journey.forEach(function (r) {
+      var s = get(r[1], r[2], r[3]);
+      s.journey.push(r);
+      if (r[5] === '停留') { var sec = Number(r[7]) || 0; s.sec += sec; s.mods[r[6]] = (s.mods[r[6]] || 0) + sec; }
+      if (r[0] > s.last) s.last = r[0];
+    });
+    var list = Object.keys(stu).map(function (k) { return stu[k]; })
+      .filter(function (s) { return !(String(s.cls) === '999' && String(s.name) === '系統測試'); });
+    return { raw: res, students: list, updated: res.updated, sheetUrl: res.sheetUrl };
+  }
+
+  function start(res) {
+    DATA = prep(res);
+    $('login').classList.add('hidden');
+    $('app').classList.remove('hidden');
+    render();
+  }
+
+  /* ---------- 篩選 ---------- */
+  function filtered() {
+    var c = $('fClass').value, q = $('fName').value.trim();
+    return DATA.students.filter(function (s) {
+      if (c && String(s.cls) !== c) return false;
+      if (q && (s.name + ' ' + s.seat).indexOf(q) < 0) return false;
+      return true;
+    });
+  }
+  function inScope(r) { // answers / journey / euler 列：班級在 index1
+    var c = $('fClass').value, q = $('fName').value.trim();
+    if (String(r[1]) === '999' && r[3] === '系統測試') return false;
+    if (c && String(r[1]) !== c) return false;
+    if (q && (r[3] + ' ' + r[2]).indexOf(q) < 0) return false;
+    return true;
+  }
+  $('fClass').onchange = render;
+  $('fName').oninput = render;
+
+  /* ---------- 繪製 ---------- */
+  function render() {
+    $('updated').textContent = DATA.updated;
+    $('sheetLink').href = DATA.sheetUrl;
+    // 班級選單
+    var cls = Array.from(new Set(DATA.students.map(function (s) { return String(s.cls); }))).sort();
+    var cur = $('fClass').value;
+    $('fClass').innerHTML = '<option value="">全部班級</option>' + cls.map(function (c) { return '<option ' + (c === cur ? 'selected' : '') + '>' + esc(c) + '</option>'; }).join('');
+
+    var L = filtered();
+    var n = L.length;
+    var avg = n ? L.reduce(function (a, s) { return a + s.total; }, 0) / n : 0;
+    var tn = L.reduce(function (a, s) { return a + s.n; }, 0), tok = L.reduce(function (a, s) { return a + s.ok; }, 0);
+    var sec = L.reduce(function (a, s) { return a + s.sec; }, 0);
+    var today = new Date(); var tstr = today.getFullYear() + '/' + String(today.getMonth() + 1).padStart(2, '0') + '/' + String(today.getDate()).padStart(2, '0');
+    $('kStu').textContent = n;
+    $('kAvg').innerHTML = avg.toFixed(1) + '<small>/100</small>';
+    $('kAcc').innerHTML = (tn ? Math.round(tok / tn * 100) : 0) + '<small>%</small>';
+    $('kTime').innerHTML = (sec / 3600).toFixed(1) + '<small>hr</small>';
+    $('kToday').innerHTML = L.filter(function (s) { return String(s.last).indexOf(tstr) === 0; }).length + '<small>人</small>';
+
+    document.querySelectorAll('.tab').forEach(function (b) { b.classList.toggle('on', b.dataset.t === tab); });
+    var V = $('view');
+    if (tab === 'scores') V.innerHTML = vScores(L);
+    if (tab === 'items') V.innerHTML = vItems();
+    if (tab === 'student') V.innerHTML = vStudent(L);
+    if (tab === 'journey') V.innerHTML = vJourney(L);
+    if (tab === 'euler') V.innerHTML = vEuler();
+    bind();
+  }
+
+  function bar(p, bad) { return '<div class="bar' + (bad ? ' bad' : '') + '"><i style="width:' + Math.max(0, Math.min(100, p)) + '%"></i></div>'; }
+
+  function vScores(L) {
+    if (!L.length) return '<div class="empty">' + gi('thought') + ' 目前還沒有學生紀錄</div>';
+    var cols = [['班級', 'cls'], ['座號', 'seat'], ['姓名', 'name'], ['總分', 'total'], ['大哉問/28', 0], ['空間關係/20', 1], ['截面/30', 2], ['正多面體/20', 3], ['歪斜線/2', 4], ['答對率', 'acc'], ['學習分鐘', 'min'], ['最後活動', 'last']];
+    function val(s, c) {
+      var k = cols[c][1];
+      if (typeof k === 'number') return s.sub[k] || 0;
+      if (k === 'acc') return s.n ? s.ok / s.n : -1;
+      if (k === 'min') return s.sec;
+      if (k === 'seat' || k === 'cls' || k === 'total') return Number(s[k]) || 0;
+      return String(s[k] || '');
+    }
+    var rows = L.slice().sort(function (a, b) {
+      var x = val(a, sortState.col), y = val(b, sortState.col);
+      if (sortState.col === 1) { x = Number(a.cls) * 100 + Number(a.seat); y = Number(b.cls) * 100 + Number(b.seat); }
+      return (x > y ? 1 : x < y ? -1 : 0) * sortState.dir;
+    });
+    return '<h3>' + gi('trophy') + '成績總表</h3><p class="hint">點欄位標題排序；點學生可看個人詳情。</p><div class="tbl-wrap"><table><thead><tr>' +
+      cols.map(function (c, i) { return '<th data-sort="' + i + '" class="' + (i >= 3 && i <= 10 ? 'num' : '') + '">' + c[0] + (sortState.col === i ? (sortState.dir > 0 ? ' ▲' : ' ▼') : '') + '</th>'; }).join('') +
+      '</tr></thead><tbody>' + rows.map(function (s) {
+        var acc = s.n ? Math.round(s.ok / s.n * 100) : null;
+        return '<tr class="click" data-stu="' + esc(s.id) + '"><td>' + esc(s.cls) + '</td><td>' + esc(s.seat) + '</td><td><b>' + esc(s.name) + '</b></td>' +
+          '<td class="num"><div style="display:flex;align-items:center;gap:8px;justify-content:flex-end"><b>' + s.total + '</b>' + bar(s.total) + '</div></td>' +
+          s.sub.map(function (v) { return '<td class="num">' + (v || 0) + '</td>'; }).join('') +
+          '<td class="num">' + (acc == null ? '—' : acc + '%') + '</td><td class="num">' + Math.round(s.sec / 60) + '</td><td class="mono" style="font-size:12px">' + esc(s.last) + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+  }
+
+  function vItems() {
+    var g = {};
+    DATA.raw.answers.filter(inScope).forEach(function (r) {
+      if (r[9] !== 'O' && r[9] !== 'X') return;
+      var k = r[5] + '｜' + r[6];
+      if (!g[k]) g[k] = { mod: r[5], item: r[6], n: 0, ok: 0, who: {}, wrong: {} };
+      g[k].n++; if (r[9] === 'O') g[k].ok++; else g[k].wrong[r[7]] = (g[k].wrong[r[7]] || 0) + 1;
+      g[k].who[r[1] + '-' + r[2]] = 1;
+    });
+    var L = Object.keys(g).map(function (k) { return g[k]; }).sort(function (a, b) { return a.ok / a.n - b.ok / b.n; });
+    if (!L.length) return '<div class="empty">' + gi('thought') + ' 目前還沒有作答紀錄</div>';
+    return '<h3>' + gi('hash') + '題目分析</h3><p class="hint">依答對率由低到高排列，最上面是最需要補強的題目；「常見錯誤」為最多人選的錯誤答案。</p><div class="tbl-wrap"><table><thead><tr><th>模組</th><th>題目</th><th class="num">作答人數</th><th class="num">作答次數</th><th>答對率</th><th>常見錯誤</th></tr></thead><tbody>' +
+      L.map(function (x) {
+        var p = Math.round(x.ok / x.n * 100);
+        var w = Object.keys(x.wrong).sort(function (a, b) { return x.wrong[b] - x.wrong[a]; })[0];
+        return '<tr><td style="white-space:nowrap">' + esc(x.mod) + '</td><td>' + esc(x.item) + '</td><td class="num">' + Object.keys(x.who).length + '</td><td class="num">' + x.n + '</td>' +
+          '<td><div style="display:flex;align-items:center;gap:8px"><b style="min-width:40px">' + p + '%</b>' + bar(p, p < 60) + '</div></td><td>' + (w ? '<span class="pill x">' + esc(w) + ' ×' + x.wrong[w] + '</span>' : '—') + '</td></tr>';
+      }).join('') + '</tbody></table></div>';
+  }
+
+  function vStudent(L) {
+    if (!L.length) return '<div class="empty">沒有符合條件的學生</div>';
+    var s = L.find(function (x) { return x.id === sel; }) || L.slice().sort(function (a, b) { return (a.cls * 100 + +a.seat) - (b.cls * 100 + +b.seat); })[0];
+    sel = s.id;
+    var opts = L.slice().sort(function (a, b) { return (a.cls * 100 + +a.seat) - (b.cls * 100 + +b.seat); })
+      .map(function (x) { return '<option value="' + esc(x.id) + '"' + (x.id === s.id ? ' selected' : '') + '>' + esc(x.cls + ' 班 ' + x.seat + ' 號 ' + x.name) + '</option>'; }).join('');
+    var acc = s.n ? Math.round(s.ok / s.n * 100) : 0;
+    var mods = Object.keys(s.mods).sort(function (a, b) { return s.mods[b] - s.mods[a]; });
+    var maxm = mods.length ? s.mods[mods[0]] : 1;
+    var subs = ['大哉問/28', '空間關係/20', '截面/30', '正多面體/20', '歪斜線/2'];
+    return '<div class="stu-head"><div class="av">' + esc(String(s.name).slice(-1)) + '</div><div><h3 style="margin:0">' + esc(s.name) + '</h3><div class="hint" style="margin:0">' + esc(s.cls) + ' 班 ' + esc(s.seat) + ' 號 · 最後活動 ' + esc(s.last || '—') + '</div></div><div style="flex:1"></div><select id="stuSel" style="border:1px solid var(--line);border-radius:10px;padding:9px 12px;font:inherit">' + opts + '</select></div>' +
+      '<div class="mini"><div><b>' + s.total + '</b><span>總分</span></div>' + s.sub.map(function (v, i) { return '<div><b>' + (v || 0) + '</b><span>' + subs[i] + '</span></div>'; }).join('') + '</div>' +
+      '<div class="grid2"><div><h3 style="font-size:15px">' + gi('check') + '作答紀錄 <span class="hint" style="margin:0">答對率 ' + acc + '%（' + s.ok + '/' + s.n + '）</span></h3><div class="tbl-wrap feed"><table><thead><tr><th>時間</th><th>模組</th><th>題目</th><th>答案</th><th></th></tr></thead><tbody>' +
+      (s.answers.length ? s.answers.slice().reverse().map(function (r) {
+        var pill = r[9] === 'O' ? '<span class="pill o">O</span>' : r[9] === 'X' ? '<span class="pill x">X</span>' : '<span class="pill n">完成</span>';
+        return '<tr><td class="mono" style="font-size:11px;white-space:nowrap">' + esc(String(r[0]).slice(5)) + '</td><td style="white-space:nowrap">' + esc(r[5]) + '</td><td>' + esc(r[6]) + '</td><td>' + esc(r[7]) + (r[9] === 'X' ? '<div class="hint" style="margin:0">正解：' + esc(r[8]) + '</div>' : '') + '</td><td>' + pill + '</td></tr>';
+      }).join('') : '<tr><td colspan="5" class="empty">尚無作答</td></tr>') + '</tbody></table></div></div>' +
+      '<div><h3 style="font-size:15px">' + gi('target') + '各模組停留時間 <span class="hint" style="margin:0">共 ' + Math.round(s.sec / 60) + ' 分鐘</span></h3>' +
+      (mods.length ? mods.map(function (m) { return '<div class="hrow"><span>' + esc(m) + '</span>' + bar(s.mods[m] / maxm * 100) + '<span class="mono" style="font-size:12px;text-align:right">' + Math.round(s.mods[m] / 60) + ' 分</span></div>'; }).join('') : '<div class="empty">尚無停留紀錄</div>') +
+      '</div></div>';
+  }
+
+  function vJourney(L) {
+    var ids = {}; L.forEach(function (s) { ids[s.id] = 1; });
+    var mods = {};
+    L.forEach(function (s) { Object.keys(s.mods).forEach(function (m) { mods[m] = (mods[m] || 0) + s.mods[m]; }); });
+    var ms = Object.keys(mods).sort(function (a, b) { return mods[b] - mods[a]; });
+    var max = ms.length ? mods[ms[0]] : 1;
+    var feed = DATA.raw.journey.filter(inScope).slice(-80).reverse();
+    return '<div class="grid2"><div><h3>' + gi('layers') + '全班模組停留時間</h3><p class="hint">看出學生把時間花在哪裡。</p>' +
+      (ms.length ? ms.map(function (m) { return '<div class="hrow"><span>' + esc(m) + '</span>' + bar(mods[m] / max * 100) + '<span class="mono" style="font-size:12px;text-align:right">' + Math.round(mods[m] / 60) + ' 分</span></div>'; }).join('') : '<div class="empty">尚無資料</div>') +
+      '</div><div><h3>' + gi('spark') + '最新動態</h3><p class="hint">最近 80 筆學習行為。</p><div class="tbl-wrap feed"><table><tbody>' +
+      (feed.length ? feed.map(function (r) {
+        return '<tr><td class="mono" style="font-size:11px;white-space:nowrap">' + esc(String(r[0]).slice(5)) + '</td><td style="white-space:nowrap"><b>' + esc(r[1] + '-' + r[2] + ' ' + r[3]) + '</b></td><td>' + esc(r[5]) + '</td><td>' + esc(r[6]) + (r[7] ? ' <span class="hint">' + Math.round(r[7]) + ' 秒</span>' : '') + '</td></tr>';
+      }).join('') : '<tr><td class="empty">尚無資料</td></tr>') + '</tbody></table></div></div></div>';
+  }
+
+  function vEuler() {
+    var rows = DATA.raw.euler.filter(inScope).slice().reverse();
+    if (!rows.length) return '<div class="empty">' + gi('tetra') + ' 目前還沒有正多面體偵探室的作答</div>';
+    function cell(g, c) { return '<td class="num' + (String(g) !== String(c) ? ' wrong' : '') + '">' + esc(g) + '</td>'; }
+    return '<h3>' + gi('tetra') + '正多面體偵探室</h3><p class="hint">紅字代表數錯的項目，可看出學生常在頂點、稜邊還是面數出錯。</p><div class="tbl-wrap"><table><thead><tr><th>時間</th><th>學生</th><th>正多面體</th><th class="num">猜 V</th><th class="num">猜 E</th><th class="num">猜 F</th><th class="num">正確 V/E/F</th><th>結果</th></tr></thead><tbody>' +
+      rows.map(function (r) {
+        var res = r[11] === '全對' ? 'o' : r[11] === '錯誤' ? 'x' : 'n';
+        return '<tr><td class="mono" style="font-size:11px;white-space:nowrap">' + esc(String(r[0]).slice(5)) + '</td><td>' + esc(r[1] + '-' + r[2] + ' ' + r[3]) + '</td><td>' + esc(r[4]) + '</td>' +
+          cell(r[5], r[8]) + cell(r[6], r[9]) + cell(r[7], r[10]) + '<td class="num mono">' + esc(r[8] + '/' + r[9] + '/' + r[10]) + '</td><td><span class="pill ' + res + '">' + esc(r[11]) + '</span></td></tr>';
+      }).join('') + '</tbody></table></div>';
+  }
+
+  function bind() {
+    document.querySelectorAll('th[data-sort]').forEach(function (th) {
+      th.onclick = function () { var c = +th.dataset.sort; sortState = { col: c, dir: sortState.col === c ? -sortState.dir : (c >= 3 ? -1 : 1) }; render(); };
+    });
+    document.querySelectorAll('tr[data-stu]').forEach(function (tr) {
+      tr.onclick = function () { sel = tr.dataset.stu; tab = 'student'; render(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+    });
+    var ss = $('stuSel'); if (ss) ss.onchange = function () { sel = ss.value; render(); };
+  }
+  document.querySelectorAll('.tab').forEach(function (b) { b.onclick = function () { tab = b.dataset.t; render(); }; });
+
+  /* ---------- 自動登入（同一個分頁內） ---------- */
+  var saved = ssGet();
+  if (saved) {
+    load(saved).then(function (res) { if (res.ok) { key = saved; start(res); } else ssSet(null); }).catch(function () {});
+  } else {
+    setTimeout(function () { $('pw').focus(); }, 50);
+  }
+})();
+</script>
+</body>
+</html>
