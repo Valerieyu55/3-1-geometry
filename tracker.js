@@ -187,6 +187,8 @@
     '.g9t-btn{width:100%;border:0;border-radius:12px;padding:13px;font-size:15px;font-weight:900;color:#fff;cursor:pointer;margin-top:4px;' +
     'background:linear-gradient(135deg,#2563eb,#06b6d4);box-shadow:0 10px 24px -10px rgba(6,182,212,.9)}' +
     '.g9t-btn:hover{filter:brightness(1.08)}' +
+    '.g9t-cancel{width:100%;margin-top:8px;border:1px solid rgba(37,99,235,.2);border-radius:12px;padding:12px;font-size:14px;font-weight:800;color:#475569;background:#fff;cursor:pointer}' +
+    '.g9t-cancel:hover{background:#f1f5f9}' +
     '.g9t-err{color:#dc2626;font-size:12px;font-weight:700;min-height:16px;margin-top:8px}' +
     '.g9t-note{font-size:11px;color:#94a3b8;margin-top:10px;text-align:center}' +
     '.g9t-chip{position:fixed;right:14px;bottom:14px;z-index:9000;display:flex;align-items:center;gap:8px;padding:7px 12px 7px 7px;border-radius:99px;cursor:pointer;' +
@@ -222,12 +224,22 @@
       '<div class="g9t-f"><label>座號 NO.</label><input name="seat" inputmode="numeric" placeholder="例：12" value="' + esc(isSwitch ? '' : (s.seat || '')) + '"></div>' +
       '</div>' +
       '<div class="g9t-f"><label>姓名 NAME</label><input name="name" placeholder="例：王小明" value="' + esc(isSwitch ? '' : (s.name || '')) + '"></div>' +
-      '<button class="g9t-btn" type="submit">開始學習 →</button>' +
+      '<button class="g9t-btn" type="submit">' + (isSwitch ? '確認更換' : '開始學習') + ' →</button>' +
+      (isSwitch && student() ? '<button class="g9t-cancel" type="button">取消，繼續使用 ' + esc((student() || {}).name || '') + '</button>' : '') +
       '<div class="g9t-err"></div>' +
       '<div class="g9t-note">共用平板時，下課前請點右下角姓名 → 更換學生</div>' +
       '</form>';
     document.body.appendChild(ov);
     var form = ov.querySelector('form');
+    // 更換學生時可以取消：按鈕、Esc 鍵、點視窗外面
+    var canCancel = isSwitch && !!student();
+    function cancel() { ov.remove(); document.removeEventListener('keydown', onKey); }
+    function onKey(e) { if (e.key === 'Escape' && canCancel) cancel(); }
+    if (canCancel) {
+      ov.querySelector('.g9t-cancel').addEventListener('click', cancel);
+      ov.addEventListener('mousedown', function (e) { if (e.target === ov) cancel(); });
+      document.addEventListener('keydown', onKey);
+    }
     setTimeout(function () { var i = form.querySelector('input[name=cls]'); if (i) i.focus(); }, 50);
     form.addEventListener('submit', function (e) {
       e.preventDefault();
@@ -247,6 +259,7 @@
       lsSet(LS_STU, nextStu);
       lsDel(LS_LASTSCORE);
       ov.remove();
+      document.removeEventListener('keydown', onKey);
       log('login', { module: PAGE, detail: navigator.userAgent.slice(0, 120) });
       TRACK.scoreFromStorage();
       if (cur) { var m = cur.module; cur = null; view(m); } else { view(PAGE); }
